@@ -1,38 +1,23 @@
-const API_URL =
-  "https://www.googleapis.com/youtube/v3/search";
-
-/* =========================================
-   NORMALIZE YOUTUBE RESULT
-========================================= */
+const API_URL = "https://www.googleapis.com/youtube/v3/search";
 
 function normalizeItem(item) {
   return {
     id: item.id.videoId,
-
     title: item.snippet.title,
-
     channel: item.snippet.channelTitle,
-
     thumbnail:
-      item.snippet.thumbnails?.high?.url ||
       item.snippet.thumbnails?.medium?.url ||
       item.snippet.thumbnails?.default?.url ||
       "",
-
     publishedAt: item.snippet.publishedAt,
-
-    source: "youtube",
+    source: "youtube"
   };
 }
-
-/* =========================================
-   YOUTUBE SEARCH
-========================================= */
 
 export async function searchYouTube(
   query,
   apiKey,
-  maxResults = 20
+  maxResults = 12
 ) {
   if (!apiKey) {
     throw new Error(
@@ -46,75 +31,76 @@ export async function searchYouTube(
     return [];
   }
 
-  /*
-    ဥပမာ User က
+  // နှစ်မျိုး သီးခြားရှာမယ်
+  const variants = [
+    `${cleanQuery} karaoke`,
+    `${cleanQuery} ကာရာအိုကေ`
+  ];
 
-    လေးဖြူ
+  const responses = await Promise.all(
+    variants.map(async (q) => {
+      const params = new URLSearchParams({
+        part: "snippet",
+        q: q,
+        type: "video",
+        videoEmbeddable: "true",
+        safeSearch: "moderate",
+        maxResults: String(maxResults),
+        key: apiKey
+      });
 
-    လို့ရိုက်ရင် YouTube ကို
+      const response = await fetch(
+        `${API_URL}?${params.toString()}`
+      );
 
-    လေးဖြူ karaoke ကာရာအိုကေ
+      const data = await response.json();
 
-    လို့ တစ်ခါတည်း ရှာမယ်။
-  */
+      if (!response.ok) {
+        throw new Error(
+          data?.error?.message ||
+          "YouTube search မအောင်မြင်ပါ။"
+        );
+      }
 
-  const searchQuery =
-    `${cleanQuery} karaoke ကာရာအိုကေ`;
-
-  const params = new URLSearchParams({
-    part: "snippet",
-
-    q: searchQuery,
-
-    type: "video",
-
-    videoEmbeddable: "true",
-
-    safeSearch: "moderate",
-
-    maxResults: String(maxResults),
-
-    key: apiKey,
-  });
-
-  const response = await fetch(
-    `${API_URL}?${params.toString()}`
+      return (data.items || [])
+        .filter((item) => item?.id?.videoId)
+        .map(normalizeItem);
+    })
   );
 
-  const data = await response.json();
+  const englishResults = responses[0];
+  const myanmarResults = responses[1];
 
-  if (!response.ok) {
-    throw new Error(
-      data?.error?.message ||
-        "YouTube search မအောင်မြင်ပါ။"
-    );
+  // နှစ်ဘက်က result တွေကို အလှည့်ကျ ပေါင်းမယ်
+  const mixed = [];
+
+  const maxLength = Math.max(
+    englishResults.length,
+    myanmarResults.length
+  );
+
+  for (let i = 0; i < maxLength; i++) {
+    if (englishResults[i]) {
+      mixed.push(englishResults[i]);
+    }
+
+    if (myanmarResults[i]) {
+      mixed.push(myanmarResults[i]);
+    }
   }
 
-  const results = (data.items || [])
-    .filter((item) => item?.id?.videoId)
-    .map(normalizeItem);
-
-  /*
-    Duplicate video ID ရှိရင် ဖယ်မယ်
-  */
-
+  // တူတဲ့ video ကို တစ်ခုပဲထားမယ်
   const seen = new Set();
 
-  const finalResults = results.filter(
-    (video) => {
-      if (!video?.id) {
-        return false;
-      }
+  return mixed.filter((video) => {
+    if (!video?.id) return false;
 
-      if (seen.has(video.id)) {
-        return false;
-      }
-
-      seen.add(video.id);
-
-      return true;
+    if (seen.has(video.id)) {
+      return false;
     }
-  );
 
-  return finalResults;
+    seen.add(video.id);
+
+    return true;
+  });
 }
