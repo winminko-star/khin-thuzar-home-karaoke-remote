@@ -737,3 +737,46 @@ select {
     line-height: 1.35;
   }
 }
+.scroll-top-button {
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 1000;
+
+  width: 48px;
+  height: 48px;
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #c026d3
+  );
+
+  color: white;
+  font-size: 1.6rem;
+  font-weight: 800;
+
+  display: grid;
+  place-items: center;
+
+  cursor: pointer;
+
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.scroll-top-button:active {
+  transform: scale(0.94);
+}
+
+@media (max-width: 430px) {
+  .scroll-top-button {
+    right: 14px;
+    bottom: 18px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.4rem;
+  }
+}
