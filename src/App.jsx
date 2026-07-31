@@ -138,19 +138,29 @@ export default function App() {
   }, [baseArtists, customArtists]);
 
   async function runSearch(overrideQuery) {
-    const text = (overrideQuery ?? query).trim();
-    if (!text || searching) return;
-    setQuery(text);
-    setSearching(true);
-    setMessage("");
-    setTab("search");
-    try {
-      setResults(await searchYouTube(text, YOUTUBE_API_KEY));
-    } catch (error) {
-      setMessage(error.message);
-    } finally {
-      setSearching(false);
-    }
+  const text = (overrideQuery ?? query).trim();
+
+  if (!text || searching) return;
+
+  // Search နှိပ်တာနဲ့ input ကို ချက်ချင်းရှင်းမယ်
+  setQuery("");
+
+  setSearching(true);
+  setMessage("");
+  setTab("search");
+
+  try {
+    const searchResults = await searchYouTube(
+      text,
+      YOUTUBE_API_KEY
+    );
+
+    setResults(searchResults);
+  } catch (error) {
+    setMessage(error.message);
+  } finally {
+    setSearching(false);
+  }
   }
 
   function addToQueue(video, playNow = false) {
