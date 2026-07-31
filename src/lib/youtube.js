@@ -5,7 +5,7 @@ const API_URL =
    NORMALIZE YOUTUBE RESULT
 ========================================= */
 
-function normalizeItem(item, searchType) {
+function normalizeItem(item) {
   return {
     id: item.id.videoId,
 
@@ -22,32 +22,58 @@ function normalizeItem(item, searchType) {
     publishedAt: item.snippet.publishedAt,
 
     source: "youtube",
-
-    /*
-      "english" = query + karaoke
-      "myanmar" = query + ကာရာအိုကေ
-    */
-    searchType,
   };
 }
 
 /* =========================================
-   SEARCH ONE QUERY
+   YOUTUBE SEARCH
 ========================================= */
 
-async function searchOne(
+export async function searchYouTube(
   query,
   apiKey,
-  maxResults,
-  searchType
+  maxResults = 20
 ) {
+  if (!apiKey) {
+    throw new Error(
+      "YouTube API key မထည့်ရသေးပါ။"
+    );
+  }
+
+  const cleanQuery = String(query || "").trim();
+
+  if (!cleanQuery) {
+    return [];
+  }
+
+  /*
+    ဥပမာ User က
+
+    လေးဖြူ
+
+    လို့ရိုက်ရင် YouTube ကို
+
+    လေးဖြူ karaoke ကာရာအိုကေ
+
+    လို့ တစ်ခါတည်း ရှာမယ်။
+  */
+
+  const searchQuery =
+    `${cleanQuery} karaoke ကာရာအိုကေ`;
+
   const params = new URLSearchParams({
     part: "snippet",
-    q: query,
+
+    q: searchQuery,
+
     type: "video",
+
     videoEmbeddable: "true",
+
     safeSearch: "moderate",
+
     maxResults: String(maxResults),
+
     key: apiKey,
   });
 
@@ -64,149 +90,31 @@ async function searchOne(
     );
   }
 
-  return (data.items || [])
+  const results = (data.items || [])
     .filter((item) => item?.id?.videoId)
-    .map((item) =>
-      normalizeItem(item, searchType)
-    );
-}
-
-/* =========================================
-   MAIN SEARCH
-========================================= */
-
-export async function searchYouTube(
-  query,
-  apiKey,
-  maxResults = 12
-) {
-  if (!apiKey) {
-    throw new Error(
-      "YouTube API key မထည့်ရသေးပါ။"
-    );
-  }
-
-  const cleanQuery = String(query || "").trim();
-
-  if (!cleanQuery) {
-    return [];
-  }
+    .map(normalizeItem);
 
   /*
-    User က ဥပမာ
-
-    လေးဖြူ
-
-    လို့ပဲ ရိုက်မယ်။
-
-    နောက်ကွယ်မှာ
-
-    လေးဖြူ karaoke
-
-    လေးဖြူ ကာရာအိုကေ
-
-    ဆိုပြီး သီးခြား ၂ ကြိမ် ရှာမယ်။
+    Duplicate video ID ရှိရင် ဖယ်မယ်
   */
 
-  const englishQuery =
-    `${cleanQuery} karaoke`;
+  const seen = new Set();
 
-  const myanmarQuery =
-    `${cleanQuery} ကာရာအိုကေ`;
+  const finalResults = results.filter(
+    (video) => {
+      if (!video?.id) {
+        return false;
+      }
 
-  /*
-    နှစ်ဘက်စလုံးက maxResults အပြည့်ယူမယ်။
+      if (seen.has(video.id)) {
+        return false;
+      }
 
-    ဥပမာ maxResults = 12 ဆိုရင်
+      seen.add(video.id);
 
-    karaoke      → 12 ခုအထိ
-    ကာရာအိုကေ   → 12 ခုအထိ
-
-    ရလာနိုင်တယ်။
-  */
-
-  const [
-    englishResults,
-    myanmarResults,
-  ] = await Promise.all([
-    searchOne(
-      englishQuery,
-      apiKey,
-      maxResults,
-      "english"
-    ),
-
-    searchOne(
-      myanmarQuery,
-      apiKey,
-      maxResults,
-      "myanmar"
-    ),
-  ]);
-
-  /* =========================================
-     MIX BOTH SEARCH RESULTS
-  ========================================= */
-
-  const mixedResults = [];
-
-  const longest = Math.max(
-    englishResults.length,
-    myanmarResults.length
+      return true;
+    }
   );
-
-  /*
-    အလှည့်ကျထည့်မယ်။
-
-    karaoke result #1
-    ကာရာအိုကေ result #1
-
-    karaoke result #2
-    ကာရာအိုကေ result #2
-
-    ...
-  */
-
-  for (let i = 0; i < longest; i++) {
-    if (englishResults[i]) {
-      mixedResults.push(
-        englishResults[i]
-      );
-    }
-
-    if (myanmarResults[i]) {
-      mixedResults.push(
-        myanmarResults[i]
-      );
-    }
-  }
-
-  /* =========================================
-     REMOVE DUPLICATES
-  ========================================= */
-
-  const seenVideoIds = new Set();
-
-  const finalResults = [];
-
-  for (const video of mixedResults) {
-    if (!video?.id) {
-      continue;
-    }
-
-    /*
-      တူညီတဲ့ YouTube Video ကို
-      နှစ်ခါမပြဘူး။
-    */
-
-    if (seenVideoIds.has(video.id)) {
-      continue;
-    }
-
-    seenVideoIds.add(video.id);
-
-    finalResults.push(video);
-  }
 
   return finalResults;
 }
