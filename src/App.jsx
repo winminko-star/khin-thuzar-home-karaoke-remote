@@ -415,6 +415,18 @@ export default function App() {
       </main>
 
       <ArtistModal open={artistModal.open} artist={artistModal.artist} onClose={() => setArtistModal({ open: false, artist: null })} onSave={saveArtist} />
+      <button
+  className="scroll-top-button"
+  onClick={() =>
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  }
+  aria-label="Back to top"
+>
+  ↑
+</button>
     </div>
   );
 }
