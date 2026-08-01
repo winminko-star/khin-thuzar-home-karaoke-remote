@@ -604,14 +604,7 @@ export default function App() {
                       <h3>{video.title}</h3>
                       <p>{video.channel}</p>
 
-                      <div
-                        className="card-actions"
-                        style={{
-                          gridTemplateColumns: currentSong
-                            ? "1fr"
-                            : "1fr 1fr"
-                        }}
-                      >
+                  <div className="card-actions">
                         {!currentSong && (
                           <button
                             className="button primary"
