@@ -639,7 +639,7 @@ export default function App() {
                 );
               })}
             </div>
-            {!results.length && <div className="empty-state"><span>🎤</span><h3>သီချင်းရှာရန်အသင့်</h3><p>ရိုက်ထားတဲ့စာနောက်မှာ karaoke ထည့်ပြီး YouTube ကို တစ်ကြိမ်ပဲရှာမယ်။</p></div>}
+            {!results.length && <div className="empty-state"><span>🎤</span><h3>သီချင်းရှာရန်အသင့်</h3><p>ခင်သူဇာလှိုင်၏ HOME KARAOKEမှ လှိုက်လဲစွာ ကြိုဆိုပါသည်။</p></div>}
           </section>
         )}
 
