@@ -575,6 +575,20 @@ export default function App() {
           <button className="play-main" onClick={() => currentSong ? sendCommand("PLAY") : queue.length && playQueueIndex(0)}>▶<span>Play</span></button>
           <button onClick={handleNext}>⏭<span>Next</span></button>
           <button onClick={() => sendCommand("STOP")}>⏹<span>Stop</span></button>
+          <button onClick={() => sendCommand("VOLUME_DOWN")}>
+  🔉
+  <span>Vol −</span>
+</button>
+
+<button onClick={() => sendCommand("TOGGLE_MUTE")}>
+  🔇
+  <span>Mute</span>
+</button>
+
+<button onClick={() => sendCommand("VOLUME_UP")}>
+  🔊
+  <span>Vol +</span>
+</button>
         </section>
 
         <nav className="tabs">
