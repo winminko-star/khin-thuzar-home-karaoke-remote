@@ -639,7 +639,7 @@ export default function App() {
                 );
               })}
             </div>
-            {!results.length && <div className="empty-state"><span>🎤</span><h3>သီချင်းရှာရန်အသင့်</h3><p>ခင်သူဇာလှိုင်၏ HOME KARAOKEမှ လှိုက်လဲစွာ ကြိုဆိုပါသည်။</p></div>}
+            {!results.length && <div className="empty-state"><span>🎤</span><h3>သီချင်းရှာရန်အသင့်</h3><p>ခင်သူဇာလှိုင်၏ HOME KARAOKE မှ လှိုက်လဲစွာ ကြိုဆိုပါသည်။</p></div>}
           </section>
         )}
 
