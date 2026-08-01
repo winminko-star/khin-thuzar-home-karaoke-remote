@@ -316,49 +316,140 @@ select {
 ========================= */
 
 .video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 18px;
 }
 
 .video-card {
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 8px;
+
   border: 1px solid #27272a;
-  border-radius: 18px;
+  border-radius: 14px;
+
   background: #111113;
 }
 
 .video-card > img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
+  display: block;
+
+  width: 96px;
+  height: 54px;
+
   object-fit: cover;
+  border-radius: 9px;
 }
 
 .video-card-body {
-  padding: 13px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+
+  min-width: 0;
+  padding: 0;
 }
 
 .video-card h3 {
+  grid-column: 1;
+  grid-row: 1;
+
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+
+  font-size: 14px;
+  line-height: 1.45;
+
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+
+  display: block;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+
+  overflow-wrap: anywhere;
 }
 
 .video-card p {
-  margin: 8px 0;
+  grid-column: 1;
+  grid-row: 2;
+
+  margin: 0;
+
   color: #a1a1aa;
-  font-size: 0.78rem;
+  font-size: 11px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin: 0;
+}
+
+.card-actions .button {
+  min-width: 82px;
+  min-height: 34px;
+
+  padding: 7px 9px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@media (max-width: 430px) {
+  .video-card {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 8px;
+    padding: 7px;
+  }
+
+  .video-card > img {
+    width: 82px;
+    height: 46px;
+  }
+
+  .video-card h3 {
+    font-size: 12px;
+  }
+
+  .video-card p {
+    font-size: 10px;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card-actions .button {
+    min-width: 74px;
+    min-height: 30px;
+    padding: 6px 7px;
+    font-size: 9px;
+  }
 }
 
 /* =========================
