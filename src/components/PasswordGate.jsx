@@ -89,9 +89,30 @@ export default function PasswordGate({ children }) {
     );
   }
 
-  if (authenticated) {
-    return children;
-  }
+  async function handleLogout() {
+  await fetch("/api/auth/logout", {
+    method: "POST",
+    credentials: "include"
+  });
+
+  setAuthenticated(false);
+}
+
+if (authenticated) {
+  return (
+    <>
+      <button
+        type="button"
+        className="logout-button"
+        onClick={handleLogout}
+      >
+        Logout
+      </button>
+
+      {children}
+    </>
+  );
+}
 
   return (
     <main className="password-gate">
