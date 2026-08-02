@@ -241,24 +241,53 @@ export default function App() {
 
     loadSharedQueue();
 
-    const queueChannel = supabase
-      .channel(`karaoke-queue:${ROOM_ID}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "karaoke_queue",
-          filter: `room_id=eq.${ROOM_ID}`
-        },
-        () => {
-          window.clearTimeout(queueReloadTimerRef.current);
-          queueReloadTimerRef.current = window.setTimeout(() => {
-            loadSharedQueue();
-          }, 180);
-        }
-      )
-      .subscribe();
+    const reloadQueue = () => {
+  window.clearTimeout(queueReloadTimerRef.current);
+
+  queueReloadTimerRef.current = window.setTimeout(() => {
+    loadSharedQueue();
+  }, 180);
+};
+
+const queueChannel = supabase
+  .channel(`karaoke-queue:${ROOM_ID}`)
+
+  /* INSERT ကို room filter နဲ့နားထောင်မယ် */
+  .on(
+    "postgres_changes",
+    {
+      event: "INSERT",
+      schema: "public",
+      table: "karaoke_queue",
+      filter: `room_id=eq.${ROOM_ID}`
+    },
+    reloadQueue
+  )
+
+  /* UPDATE ကို room filter နဲ့နားထောင်မယ် */
+  .on(
+    "postgres_changes",
+    {
+      event: "UPDATE",
+      schema: "public",
+      table: "karaoke_queue",
+      filter: `room_id=eq.${ROOM_ID}`
+    },
+    reloadQueue
+  )
+
+  /* DELETE ကို filter မထည့်ရ */
+  .on(
+    "postgres_changes",
+    {
+      event: "DELETE",
+      schema: "public",
+      table: "karaoke_queue"
+    },
+    reloadQueue
+  )
+
+  .subscribe();
 
     queueChannelRef.current = queueChannel;
 
