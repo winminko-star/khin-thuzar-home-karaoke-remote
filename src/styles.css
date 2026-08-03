@@ -872,3 +872,19 @@ select {
     font-size: 1.4rem;
   }
 }
+.popup-overlay{
+    position:fixed;
+    inset:0;
+    z-index:999999;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(0,0,0,.85);
+}
+
+.popup-overlay img{
+    max-width:95vw;
+    max-height:95vh;
+}
