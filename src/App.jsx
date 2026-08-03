@@ -105,15 +105,9 @@ export default function App() {
     }
     await channelRef.current.send({ type: "broadcast", event: "karaoke-command", payload: packet });
   }, []);
-  async function showPopup() {
-  if (!channelRef.current) return;
-
-  await channelRef.current.send({
-    type: "broadcast",
-    event: "SHOW_POPUP",
-    payload: {}
-  });
-  }
+  const showPopup = useCallback(() => {
+  sendCommand("SHOW_POPUP");
+}, [sendCommand]);
 
   useEffect(() => {
     fetch("/artists.csv")
