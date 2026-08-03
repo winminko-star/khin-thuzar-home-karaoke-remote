@@ -105,6 +105,15 @@ export default function App() {
     }
     await channelRef.current.send({ type: "broadcast", event: "karaoke-command", payload: packet });
   }, []);
+  async function showPopup() {
+  if (!channelRef.current) return;
+
+  await channelRef.current.send({
+    type: "broadcast",
+    event: "SHOW_POPUP",
+    payload: {}
+  });
+  }
 
   useEffect(() => {
     fetch("/artists.csv")
@@ -760,6 +769,9 @@ const queueChannel = supabase
         </section>
 
         <section className="control-deck">
+          <button onClick={showPopup}>
+  🙋
+</button>
           <button onClick={handlePrevious}>⏮<span>Previous</span></button>
           <button onClick={() => sendCommand("PAUSE")}>⏸<span>Pause</span></button>
           <button className="play-main" onClick={() => currentSong ? sendCommand("PLAY") : queue.length && playQueueIndex(0)}>▶<span>Play</span></button>
