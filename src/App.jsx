@@ -866,7 +866,7 @@ const queueChannel = supabase
         </p>
 
         <h2>
-          YouTube API
+           API SETTING 
         </h2>
       </div>
     </div>
