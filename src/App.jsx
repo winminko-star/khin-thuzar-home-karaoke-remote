@@ -146,7 +146,7 @@ const [popupDuration, setPopupDuration] = useState(4);
   setYoutubeApiChoice(choice);
 
   setMessage(
-    `YouTube API ${choice} ကို ရွေးထားပါပြီ။`
+    ` API ${choice} ကို ရွေးထားပါပြီ။`
   );
   }
   const showPopup = useCallback(() => {
@@ -467,7 +467,7 @@ const queueChannel = supabase
     try {
   if (!selectedYouTubeApiKey) {
     throw new Error(
-      `YouTube API ${youtubeApiChoice} key မရှိပါ။`
+      ` API ${youtubeApiChoice} key မရှိပါ။`
     );
   }
 
