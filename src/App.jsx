@@ -842,6 +842,18 @@ const queueChannel = supabase
           <button className={tab === "search" ? "active" : ""} onClick={() => setTab("search")}>🔎 Search</button>
           <button className={tab === "artists" ? "active" : ""} onClick={() => setTab("artists")}>🎙 Artists</button>
           <button className={tab === "queue" ? "active" : ""} onClick={() => setTab("queue")}>🎶 Queue <b>{queue.length}</b></button>
+          <button
+  className={
+    tab === "settings"
+      ? "active"
+      : ""
+  }
+  onClick={() =>
+    setTab("settings")
+  }
+>
+  ⚙️ Settings
+</button>
         </nav>
 
         {message && <div className="notice" onClick={() => setMessage("")}>{message}</div>}
