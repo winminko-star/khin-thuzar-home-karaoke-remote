@@ -872,8 +872,8 @@ const queueChannel = supabase
     </div>
 
     <p className="settings-description">
-      YouTube Search မှာ သုံးမယ့် API ကို ရွေးပါ။
-      ရွေးပြီးတာနဲ့ နောက် Search ကစပြီး အသုံးပြုမယ်။
+      Search မှာ သုံးမယ့် API ကို ရွေးပါ။
+      ရွေးပြီးတာနဲ့ Search နှိပ်ပြီး သီချင်းရှာမယ်။
     </p>
 
     <div className="api-choice-grid">
