@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 const COOKIE_NAME = "kth_remote_session";
-const SESSION_SECONDS = 60 * 60 * 24 * 30;
+const SESSION_SECONDS = 60 * 60 * 24 * 7;
 
 function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
