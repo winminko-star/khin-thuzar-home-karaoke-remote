@@ -888,3 +888,113 @@ select {
     max-width:95vw;
     max-height:95vh;
 }
+.settings-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.settings-description {
+  margin: 0;
+  color: #a1a1aa;
+  line-height: 1.6;
+}
+
+.api-choice-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.api-choice-button {
+  display: grid;
+  gap: 5px;
+
+  min-height: 88px;
+  padding: 14px 10px;
+
+  border: 1px solid #3f3f46;
+  border-radius: 15px;
+
+  background: #18181b;
+  color: #ffffff;
+
+  text-align: center;
+  cursor: pointer;
+}
+
+.api-choice-button strong {
+  font-size: 1rem;
+}
+
+.api-choice-button span {
+  color: #a1a1aa;
+  font-size: 0.76rem;
+}
+
+.api-choice-button.selected {
+  border-color: #a78bfa;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.34),
+      rgba(192, 38, 211, 0.24)
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(139, 92, 246, 0.14);
+}
+
+.api-choice-button.selected span {
+  color: #ddd6fe;
+}
+
+.api-choice-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.current-api-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.1);
+
+  border-radius: 14px;
+  padding: 13px 15px;
+
+  background:
+    rgba(255, 255, 255, 0.04);
+
+  color: #a1a1aa;
+}
+
+.current-api-status strong {
+  color: #c4b5fd;
+}
+
+@media (max-width: 430px) {
+  .api-choice-grid {
+    grid-template-columns:
+      repeat(3, 1fr);
+    gap: 7px;
+  }
+
+  .api-choice-button {
+    min-height: 76px;
+    padding: 10px 5px;
+  }
+
+  .api-choice-button strong {
+    font-size: 0.9rem;
+  }
+
+  .api-choice-button span {
+    font-size: 0.66rem;
+  }
+}
