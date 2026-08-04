@@ -440,12 +440,23 @@ const queueChannel = supabase
     setMessage("");
     setTab("search");
     try {
-      setResults(await searchYouTube(text, YOUTUBE_API_KEY));
-    } catch (error) {
-      setMessage(error.message);
-    } finally {
-      setSearching(false);
-    }
+  if (!selectedYouTubeApiKey) {
+    throw new Error(
+      `YouTube API ${youtubeApiChoice} key မရှိပါ။`
+    );
+  }
+
+  setResults(
+    await searchYouTube(
+      text,
+      selectedYouTubeApiKey
+    )
+  );
+} catch (error) {
+  setMessage(error.message);
+} finally {
+  setSearching(false);
+}
   }
 
   async function addToQueue(video, playNow = false) {
