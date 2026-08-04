@@ -5,7 +5,14 @@ import { isSupabaseConfigured, supabase } from "./lib/supabase";
 import { searchYouTube } from "./lib/youtube";
 
 const ROOM_ID = import.meta.env.VITE_KARAOKE_ROOM_ID || "wmk-home-karaoke";
-const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || "";
+const YOUTUBE_API_KEYS = {
+  "1": import.meta.env.VITE_YOUTUBE_API_KEY || "",
+  "2": import.meta.env.VITE_YOUTUBE_API_KEY_2 || "",
+  "3": import.meta.env.VITE_YOUTUBE_API_KEY_3 || ""
+};
+
+const LOCAL_YOUTUBE_API_CHOICE_KEY =
+  "kth_youtube_api_choice";
 const LOCAL_ARTISTS_KEY = "kth_home_karaoke_custom_artists";
 const LOCAL_QUEUE_KEY = "kth_home_karaoke_queue";
 
@@ -70,6 +77,16 @@ function stateRowToSong(row) {
 
 export default function App() {
   const [tab, setTab] = useState("search");
+  const [youtubeApiChoice, setYoutubeApiChoice] =
+  useState(() => {
+    return (
+      localStorage.getItem(
+        LOCAL_YOUTUBE_API_CHOICE_KEY
+      ) || "1"
+    );
+  });
+  const selectedYouTubeApiKey =
+  YOUTUBE_API_KEYS[youtubeApiChoice] || "";
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -105,6 +122,29 @@ export default function App() {
     }
     await channelRef.current.send({ type: "broadcast", event: "karaoke-command", payload: packet });
   }, []);
+  function selectYouTubeApi(choice) {
+  const selectedKey =
+    YOUTUBE_API_KEYS[choice];
+
+  if (!selectedKey) {
+    setMessage(
+      `API ${choice} key ကို Netlify မှာ မထည့်ရသေးပါ။`
+    );
+
+    return;
+  }
+
+  localStorage.setItem(
+    LOCAL_YOUTUBE_API_CHOICE_KEY,
+    choice
+  );
+
+  setYoutubeApiChoice(choice);
+
+  setMessage(
+    `YouTube API ${choice} ကို ရွေးထားပါပြီ။`
+  );
+  }
   const showPopup = useCallback(() => {
   sendCommand("SHOW_POPUP");
 }, [sendCommand]);
