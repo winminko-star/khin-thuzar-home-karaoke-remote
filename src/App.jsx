@@ -87,6 +87,10 @@ export default function App() {
   });
   const selectedYouTubeApiKey =
   YOUTUBE_API_KEYS[youtubeApiChoice] || "";
+  const [returnTab, setReturnTab] = useState("search");
+
+const [popupText, setPopupText] = useState("");
+const [popupDuration, setPopupDuration] = useState(4);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -148,6 +152,27 @@ export default function App() {
   const showPopup = useCallback(() => {
   sendCommand("SHOW_POPUP");
 }, [sendCommand]);
+  const openTextPopupPage = useCallback(() => {
+  setReturnTab(tab);
+  setTab("popup");
+}, [tab]);
+
+const sendTextPopup = useCallback(() => {
+  const text = popupText.trim();
+
+  if (!text) {
+    setMessage("TV ပေါ်ပို့မယ့်စာကို အရင်ရိုက်ပါ။");
+    return;
+  }
+
+  sendCommand("SHOW_TEXT_POPUP", {
+    text,
+    duration: popupDuration
+  });
+
+  setPopupText("");
+  setMessage("TV ပေါ်သို့ စာပို့လိုက်ပါပြီ။");
+}, [popupText, popupDuration, sendCommand]);
 
   useEffect(() => {
     fetch("/artists.csv")
@@ -817,6 +842,13 @@ const queueChannel = supabase
           <button onClick={showPopup}>
   🙋
 </button>
+          <button
+  type="button"
+  onClick={openTextPopupPage}
+  aria-label="Open announcement page"
+>
+  💬
+</button>
           <button onClick={handlePrevious}>⏮<span>Previous</span></button>
           <button onClick={() => sendCommand("PAUSE")}>⏸<span>Pause</span></button>
           <button className="play-main" onClick={() => currentSong ? sendCommand("PLAY") : queue.length && playQueueIndex(0)}>▶<span>Play</span></button>
@@ -931,7 +963,91 @@ const queueChannel = supabase
     </div>
   </section>
 )}
+{tab === "popup" && (
+  <section className="panel popup-send-page">
+    <div className="popup-page-header">
+      <button
+        type="button"
+        className="button ghost"
+        onClick={() => {
+          setPopupText("");
+          setTab(returnTab);
+        }}
+      >
+        ← Back
+      </button>
 
+      <div>
+        <p className="eyebrow">
+          TV ANNOUNCEMENT
+        </p>
+
+        <h2>
+          စာပို့ရန်
+        </h2>
+      </div>
+    </div>
+
+    <textarea
+      className="popup-text-input"
+      value={popupText}
+      onChange={(event) =>
+        setPopupText(event.target.value)
+      }
+      placeholder="TV မှာပြချင်တဲ့စာကို ရိုက်ပါ"
+      rows={7}
+      maxLength={250}
+      autoFocus
+    />
+
+    <div className="popup-character-count">
+      {popupText.length} / 250
+    </div>
+
+    <label className="popup-duration-field">
+      <span>ပြမယ့်ကြာချိန်</span>
+
+      <select
+        value={popupDuration}
+        onChange={(event) =>
+          setPopupDuration(
+            Number(event.target.value)
+          )
+        }
+      >
+        <option value={4}>
+          4 Seconds
+        </option>
+
+        <option value={300}>
+          5 Minutes
+        </option>
+
+        <option value={1800}>
+          30 Minutes
+        </option>
+
+        <option value={3600}>
+          1 Hour
+        </option>
+
+        <option value={18000}>
+          5 Hours
+        </option>
+      </select>
+    </label>
+
+    <button
+      type="button"
+      className="button primary popup-send-button"
+      onClick={sendTextPopup}
+      disabled={!popupText.trim()}
+    >
+      Send to TV
+    </button>
+  </section>
+)}
+       
         {tab === "search" && (
           <section className="panel">
             <div className="search-row">
