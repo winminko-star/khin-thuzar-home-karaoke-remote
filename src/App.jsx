@@ -1168,29 +1168,34 @@ async function playFavoriteNow(video) {
                         )}
 
                         <button
-                          className="button ghost"
-                          onClick={() => addToQueue(video)}
-                          disabled={isNowPlaying || isInQueue}
-                        >
-                          {isNowPlaying
-                            ? "🎵 NOW PLAYING"
-                            : isInQueue
-                              ? "✓ IN QUEUE"
-                              : "＋ Queue"}
-                          <button
+  className="button ghost"
+  onClick={() => addToQueue(video)}
+  disabled={isNowPlaying || isInQueue}
+>
+  {isNowPlaying
+    ? "🎵 NOW PLAYING"
+    : isInQueue
+      ? "✓ IN QUEUE"
+      : "+ Queue"}
+</button>
+
+<button
   type="button"
   className={
     videoIsFavorite
-      ? "button favorite-button active"
-      : "button favorite-button"
+      ? "favorite-button is-favorite"
+      : "favorite-button"
   }
   onClick={() => toggleFavorite(video)}
 >
-  {videoIsFavorite
-    ? "★ Favorite"
-    : "☆ Favorite"}
+  <span className="favorite-star">
+    {videoIsFavorite ? "★" : "☆"}
+  </span>
+
+  <span>
+    {videoIsFavorite ? "Saved" : "Favorite"}
+  </span>
 </button>
-                        </button>
                       </div>
                     </div>
                   </article>
