@@ -1268,3 +1268,46 @@ select {
     grid-column: 4;
   }
 }
+.voice-button {
+  width: 52px;
+  min-width: 52px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff4d6d, #c9184a);
+  color: white;
+  box-shadow: 0 8px 20px rgba(201, 24, 74, 0.28);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.voice-button:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 12px 24px rgba(201, 24, 74, 0.38);
+}
+
+.voice-button:active {
+  transform: scale(0.94);
+}
+
+.voice-button:focus-visible {
+  outline: 3px solid rgba(255, 77, 109, 0.35);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .voice-button {
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    font-size: 21px;
+  }
+}
