@@ -1140,6 +1140,12 @@ async function playFavoriteNow(video) {
           <section className="panel">
             <div className="search-row">
               <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && runSearch()} placeholder="သီချင်း သို့မဟုတ် အဆိုတော်နာမည် ရိုက်ပါ" />
+              <button
+  className="button voice-button"
+  onClick={startVoiceSearch}
+>
+  🎤
+</button>
               <button className="button primary" onClick={() => runSearch()} disabled={searching}>{searching ? "Searching…" : "Search"}</button>
             </div>
             <div className="video-grid">
