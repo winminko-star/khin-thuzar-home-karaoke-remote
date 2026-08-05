@@ -1081,16 +1081,80 @@ select {
   width: 100%;
   min-height: 52px;
 }
-.favorite-button {
-  border: 1px solid rgba(255, 193, 7, 0.45);
-  background: rgba(255, 193, 7, 0.08);
-  color: #ffd45c;
+/* =========================
+   FAVORITE BUTTON
+========================= */
+
+.card-actions .favorite-button {
+  width: 100%;
+  min-width: 82px;
+  min-height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  padding: 7px 9px;
+
+  border: 1px solid rgba(250, 204, 21, 0.7);
+  border-radius: 9px;
+
+  background: rgba(250, 204, 21, 0.1);
+  color: #facc15;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+
+  white-space: nowrap;
+  cursor: pointer;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  box-shadow: none;
+  opacity: 1;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
 }
 
-.favorite-button.active {
-  border-color: #ffc107;
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffe082;
+.card-actions .favorite-button:hover {
+  background: rgba(250, 204, 21, 0.18);
+  border-color: #facc15;
+}
+
+.card-actions .favorite-button:active {
+  transform: scale(0.97);
+}
+
+.card-actions .favorite-button.is-favorite {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  border-color: #facc15;
+  color: #18181b;
+}
+
+.favorite-star {
+  font-size: 14px;
+  line-height: 1;
+}
+
+@media (max-width: 430px) {
+  .card-actions .favorite-button {
+    min-width: 74px;
+    min-height: 30px;
+    padding: 6px 7px;
+    font-size: 9px;
+  }
+
+  .favorite-star {
+    font-size: 13px;
+  }
 }
 
 .favorites-panel {
