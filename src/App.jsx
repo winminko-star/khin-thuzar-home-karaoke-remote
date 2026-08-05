@@ -496,6 +496,48 @@ const queueChannel = supabase
   setSearching(false);
 }
   }
+  function startVoiceSearch() {
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    setMessage("ဒီ Browser မှာ Voice Search မရနိုင်ပါ။");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+
+  // မြန်မာ + အင်္ဂလိပ် သီချင်းနာမည်အတွက် ပိုအဆင်ပြေ
+  recognition.lang = "en-US";
+
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 3;
+
+  setMessage("🎤 ပြောပါ...");
+
+  recognition.onresult = (event) => {
+    const text =
+      event.results[event.results.length - 1][0].transcript;
+
+    setQuery(text);
+
+    if (event.results[event.results.length - 1].isFinal) {
+      runSearch(text);
+      setMessage("");
+    }
+  };
+
+  recognition.onerror = () => {
+    setMessage("Voice Search မအောင်မြင်ပါ။");
+  };
+
+  recognition.onend = () => {
+    setMessage("");
+  };
+
+  recognition.start();
+  }
   function isFavorite(videoId) {
   return favorites.some((song) => song.id === videoId);
 }
