@@ -1328,3 +1328,8 @@ select {
     white-space: nowrap;
   }
 }
+@media (max-width: 600px) {
+  .search-row {
+    grid-template-columns: minmax(0, 0.9fr) auto auto;
+  }
+}
