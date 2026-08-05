@@ -514,7 +514,7 @@ const queueChannel = supabase
   recognition.interimResults = true;
   recognition.maxAlternatives = 3;
 
-  setMessage("🎤 ပြောပါ...");
+  setMessage("🎤 အင်္ဂလိပ်သီချင်းများရှာရန်အတွက်သာ။");
 
   recognition.onresult = (event) => {
     const text =
