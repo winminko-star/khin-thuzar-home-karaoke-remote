@@ -1268,3 +1268,28 @@ select {
     grid-column: 4;
   }
 }
+.app-shell{
+  position: relative;
+  min-height: 100vh;
+}
+
+.app-shell::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background-image: url("/logo.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 65%;
+
+  opacity: 0.05;
+
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-shell > *{
+  position: relative;
+  z-index: 1;
+}
