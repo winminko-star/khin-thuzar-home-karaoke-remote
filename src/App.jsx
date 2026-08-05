@@ -15,6 +15,8 @@ const LOCAL_YOUTUBE_API_CHOICE_KEY =
   "kth_youtube_api_choice";
 const LOCAL_ARTISTS_KEY = "kth_home_karaoke_custom_artists";
 const LOCAL_QUEUE_KEY = "kth_home_karaoke_queue";
+const LOCAL_FAVORITES_KEY = "kth_home_karaoke_favorites";
+const MAX_FAVORITES = 20;
 
 function mapCsvArtist(row, index) {
   return {
@@ -101,7 +103,12 @@ const [popupDuration, setPopupDuration] = useState(4);
   const [selectedLetter, setSelectedLetter] = useState("ALL");
   const [artistModal, setArtistModal] = useState({ open: false, artist: null });
   const [queue, setQueue] = useState(() => loadLocal(LOCAL_QUEUE_KEY, []));
-  const [currentSong, setCurrentSong] = useState(null);
+
+const [favorites, setFavorites] = useState(() =>
+  loadLocal(LOCAL_FAVORITES_KEY, [])
+);
+
+const [currentSong, setCurrentSong] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [repeatMode, setRepeatMode] = useState("off");
   const [connected, setConnected] = useState(false);
@@ -195,6 +202,12 @@ const sendTextPopup = useCallback(() => {
     localStorage.setItem(LOCAL_QUEUE_KEY, JSON.stringify(queue));
     queueRef.current = queue;
   }, [queue]);
+  useEffect(() => {
+  localStorage.setItem(
+    LOCAL_FAVORITES_KEY,
+    JSON.stringify(favorites)
+  );
+}, [favorites]);
 
   useEffect(() => {
     currentIndexRef.current = currentIndex;
@@ -483,6 +496,75 @@ const queueChannel = supabase
   setSearching(false);
 }
   }
+  function isFavorite(videoId) {
+  return favorites.some((song) => song.id === videoId);
+}
+
+function toggleFavorite(video) {
+  const alreadyFavorite = favorites.some(
+    (song) => song.id === video.id
+  );
+
+  if (alreadyFavorite) {
+    setFavorites((currentFavorites) =>
+      currentFavorites.filter(
+        (song) => song.id !== video.id
+      )
+    );
+
+    setMessage("Favorites ထဲက ဖယ်လိုက်ပါပြီ။");
+    return;
+  }
+
+  if (favorites.length >= MAX_FAVORITES) {
+    setMessage(
+      "Favorites 20 ပုဒ်ပြည့်နေပါပြီ။ အသစ်ထည့်ရန် အရင်တစ်ပုဒ်ကို ဖျက်ပါ။"
+    );
+    return;
+  }
+
+  const favoriteSong = {
+    id: video.id,
+    title: video.title || "",
+    channel: video.channel || "",
+    thumbnail: video.thumbnail || ""
+  };
+
+  setFavorites((currentFavorites) => [
+    ...currentFavorites,
+    favoriteSong
+  ]);
+
+  setMessage("Favorites ထဲသိမ်းလိုက်ပါပြီ။");
+}
+
+function removeFavorite(videoId) {
+  setFavorites((currentFavorites) =>
+    currentFavorites.filter(
+      (song) => song.id !== videoId
+    )
+  );
+
+  setMessage("Favorites ထဲက ဖယ်လိုက်ပါပြီ။");
+}
+
+async function playFavoriteNow(video) {
+  const saved = await savePlaybackState(video);
+
+  if (!saved) {
+    return;
+  }
+
+  sendCommand("LOAD_AND_PLAY", {
+    video,
+    queue: queueRef.current,
+    index: -1
+  });
+
+  setMessage(
+    "Favorite သီချင်းကို Now Playing အဖြစ် ဖွင့်လိုက်ပါပြီ။ Queue ကို မပြောင်းပါ။"
+  );
+}
 
   async function addToQueue(video, playNow = false) {
     const alreadyCurrent = currentSongRef.current?.id === video.id;
@@ -873,6 +955,12 @@ const queueChannel = supabase
         <nav className="tabs">
           <button className={tab === "search" ? "active" : ""} onClick={() => setTab("search")}>🔎 Search</button>
           <button className={tab === "artists" ? "active" : ""} onClick={() => setTab("artists")}>🎙 Artists</button>
+          <button
+  className={tab === "favorites" ? "active" : ""}
+  onClick={() => setTab("favorites")}
+>
+  ⭐ Favorites <b>{favorites.length}</b>
+</button>
           <button className={tab === "queue" ? "active" : ""} onClick={() => setTab("queue")}>🎶 Queue <b>{queue.length}</b></button>
           <button
   className={
@@ -1056,8 +1144,9 @@ const queueChannel = supabase
             </div>
             <div className="video-grid">
               {results.map((video) => {
-                const isNowPlaying = currentSong?.id === video.id;
-                const isInQueue = queue.some((item) => item.id === video.id);
+  const isNowPlaying = currentSong?.id === video.id;
+  const isInQueue = queue.some((item) => item.id === video.id);
+  const videoIsFavorite = isFavorite(video.id);
 
                 return (
                   <article className="video-card" key={video.id}>
@@ -1088,6 +1177,19 @@ const queueChannel = supabase
                             : isInQueue
                               ? "✓ IN QUEUE"
                               : "＋ Queue"}
+                          <button
+  type="button"
+  className={
+    videoIsFavorite
+      ? "button favorite-button active"
+      : "button favorite-button"
+  }
+  onClick={() => toggleFavorite(video)}
+>
+  {videoIsFavorite
+    ? "★ Favorite"
+    : "☆ Favorite"}
+</button>
                         </button>
                       </div>
                     </div>
@@ -1123,6 +1225,86 @@ const queueChannel = supabase
             </div>
           </section>
         )}
+        {tab === "favorites" && (
+  <section className="panel favorites-panel">
+    <div className="section-heading">
+      <div>
+        <p className="eyebrow">
+          {favorites.length} / {MAX_FAVORITES} SONGS
+        </p>
+
+        <h2>⭐ အကြိုက်ဆုံးသီချင်းများ</h2>
+      </div>
+    </div>
+
+    <p className="favorites-description">
+      သီချင်းကိုနှိပ်လျှင် Queue ထဲမထည့်ဘဲ
+      Now Playing အဖြစ် ချက်ချင်းဖွင့်ပါမည်။
+    </p>
+
+    <div className="favorites-list">
+      {favorites.map((favorite, index) => (
+        <article
+          className="favorite-item"
+          key={favorite.id}
+        >
+          <span className="favorite-number">
+            {index + 1}
+          </span>
+
+          <img
+            src={favorite.thumbnail}
+            alt=""
+          />
+
+          <button
+            type="button"
+            className="favorite-song"
+            onClick={() =>
+              playFavoriteNow(favorite)
+            }
+          >
+            <strong>{favorite.title}</strong>
+            <small>{favorite.channel}</small>
+          </button>
+
+          <button
+            type="button"
+            className="favorite-play-button"
+            onClick={() =>
+              playFavoriteNow(favorite)
+            }
+            aria-label="Play favorite now"
+          >
+            ▶
+          </button>
+
+          <button
+            type="button"
+            className="icon-button favorite-remove-button"
+            onClick={() =>
+              removeFavorite(favorite.id)
+            }
+            aria-label="Remove favorite"
+          >
+            ✕
+          </button>
+        </article>
+      ))}
+
+      {!favorites.length && (
+        <div className="empty-state">
+          <span>⭐</span>
+          <h3>Favorite သီချင်းမရှိသေးပါ</h3>
+          <p>
+            Search မှာ သီချင်းဘေးက Favorite
+            ခလုတ်ကိုနှိပ်ပြီး သိမ်းပါ။
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+)}
 
         {tab === "queue" && (
           <section className="panel">
