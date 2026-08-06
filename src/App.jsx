@@ -41,11 +41,31 @@ function loadLocal(key, fallback) {
     return fallback;
   }
 }
+function getSourceType(songOrId) {
+  const id =
+    typeof songOrId === "string"
+      ? songOrId
+      : songOrId?.id || "";
 
+  return String(id).startsWith("usb:")
+    ? "usb"
+    : "youtube";
+}
+
+function normalizeSongSource(song) {
+  if (!song) return null;
+
+  return {
+    ...song,
+    sourceType:
+      song.sourceType || getSourceType(song.id)
+  };
+}
 
 function queueRowToSong(row) {
   return {
     id: row.video_id,
+    sourceType: getSourceType(row.video_id),
     queueId: `db-${row.id}`,
     dbId: row.id,
     title: row.title || "",
@@ -71,6 +91,9 @@ function stateRowToSong(row) {
 
   return {
     id: row.current_video_id,
+    sourceType: getSourceType(
+      row.current_video_id
+    ),
     title: row.current_title || "",
     channel: row.current_channel || "",
     thumbnail: row.current_thumbnail || ""
@@ -96,6 +119,8 @@ const [popupDuration, setPopupDuration] = useState(4);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [usbSongs, setUsbSongs] = useState([]);
+const [usbLoading, setUsbLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [baseArtists, setBaseArtists] = useState([]);
   const [customArtists, setCustomArtists] = useState(() => loadLocal(LOCAL_ARTISTS_KEY, []));
@@ -422,13 +447,70 @@ const queueChannel = supabase
       config: { broadcast: { self: true } }
     });
     channel
-      .on("broadcast", { event: "tv-status" }, ({ payload }) => {
-        if (payload?.type === "READY") setConnected(true);
-        if (payload?.type === "VIDEO_ENDED") {
-          loadSharedQueue();
-          loadPlaybackState();
-        }
-      })
+      .on(
+  "broadcast",
+  { event: "tv-status" },
+  ({ payload }) => {
+    if (payload?.type === "READY") {
+      setConnected(true);
+    }
+
+    if (payload?.type === "VIDEO_ENDED") {
+      loadSharedQueue();
+      loadPlaybackState();
+    }
+
+    if (payload?.type === "USB_SONGS_LIST") {
+      const songs = Array.isArray(payload?.songs)
+        ? payload.songs.map((song) => {
+            const rawId =
+              song.id ||
+              song.fileId ||
+              song.uri ||
+              song.path ||
+              song.title;
+
+            const usbId = String(rawId).startsWith(
+              "usb:"
+            )
+              ? String(rawId)
+              : `usb:${rawId}`;
+
+            return {
+              ...song,
+              id: usbId,
+              sourceType: "usb",
+              channel:
+                song.channel ||
+                song.folder ||
+                "USB Storage",
+              thumbnail:
+                song.thumbnail || ""
+            };
+          })
+        : [];
+
+      setUsbSongs(songs);
+      setUsbLoading(false);
+
+      setMessage(
+        songs.length > 0
+          ? `USB သီချင်း ${songs.length} ပုဒ် ရပါပြီ။`
+          : "USB ထဲမှာ MP4 သီချင်းမတွေ့ပါ။"
+      );
+    }
+
+    if (payload?.type === "USB_ERROR") {
+      setUsbSongs([]);
+      setUsbLoading(false);
+
+      setMessage(
+        payload?.message ||
+          "USB သီချင်းစာရင်း ဖတ်မရပါ။"
+      );
+    }
+  }
+)
       .subscribe((status) => setConnected(status === "SUBSCRIBED"));
     channelRef.current = channel;
 
@@ -607,10 +689,41 @@ async function playFavoriteNow(video) {
     "Favorite သီချင်းကို Now Playing အဖြစ် ဖွင့်လိုက်ပါပြီ။ Queue ကို မပြောင်းပါ။"
   );
 }
+function requestUsbSongs() {
+  setUsbLoading(true);
+  setMessage(
+    "TV ထဲက USB သီချင်းစာရင်း ဖတ်နေပါသည်…"
+  );
 
-  async function addToQueue(video, playNow = false) {
-    const alreadyCurrent = currentSongRef.current?.id === video.id;
-    const alreadyQueued = queueRef.current.some((item) => item.id === video.id);
+  sendCommand("REQUEST_USB_SONGS");
+}
+  async function addToQueue(
+  video,
+  playNow = false
+) {
+  const normalizedVideo =
+    normalizeSongSource(video);
+
+  if (!normalizedVideo?.id) {
+    setMessage(
+      "သီချင်းအချက်အလက် မပြည့်စုံပါ။"
+    );
+    return;
+  }
+
+  const alreadyCurrent =
+    currentSongRef.current?.id ===
+      normalizedVideo.id &&
+    getSourceType(currentSongRef.current) ===
+      normalizedVideo.sourceType;
+
+  const alreadyQueued =
+    queueRef.current.some(
+      (item) =>
+        item.id === normalizedVideo.id &&
+        getSourceType(item) ===
+          normalizedVideo.sourceType
+    );
 
     if (alreadyCurrent || alreadyQueued) {
       setMessage("ဒီသီချင်းက Now Playing သို့မဟုတ် Queue ထဲမှာ ရှိပြီးသားပါ။");
@@ -618,14 +731,16 @@ async function playFavoriteNow(video) {
     }
 
     if (playNow) {
-      const saved = await savePlaybackState(video);
+      const saved = await savePlaybackState(
+  normalizedVideo
+);
       if (!saved) return;
 
       sendCommand("LOAD_AND_PLAY", {
-        video,
-        queue: queueRef.current,
-        index: -1
-      });
+  video: normalizedVideo,
+  queue: queueRef.current,
+  index: -1
+});
 
       setMessage("TV ပေါ်မှာ ဖွင့်လိုက်ပါပြီ။");
       return;
@@ -633,9 +748,15 @@ async function playFavoriteNow(video) {
 
     if (!isSupabaseConfigured) {
       const next = [
-        ...queueRef.current,
-        { ...video, queueId: `${video.id}-${Date.now()}` }
-      ];
+  ...queueRef.current,
+  {
+    ...normalizedVideo,
+    queueId:
+      `${normalizedVideo.sourceType}-` +
+      `${normalizedVideo.id}-` +
+      `${Date.now()}`
+  }
+];
 
       queueRef.current = next;
       setQueue(next);
