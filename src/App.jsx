@@ -121,6 +121,7 @@ const [popupDuration, setPopupDuration] = useState(4);
   const [searching, setSearching] = useState(false);
   const [usbSongs, setUsbSongs] = useState([]);
 const [usbLoading, setUsbLoading] = useState(false);
+  const [usbQuery, setUsbQuery] = useState("");
   const [message, setMessage] = useState("");
   const [baseArtists, setBaseArtists] = useState([]);
   const [customArtists, setCustomArtists] = useState(() => loadLocal(LOCAL_ARTISTS_KEY, []));
@@ -149,6 +150,33 @@ const [currentSong, setCurrentSong] = useState(null);
   const stateReloadTimerRef = useRef(null);
 
   const nextSong = queue[0] || null;
+  const filteredUsbSongs = useMemo(() => {
+  const keyword = usbQuery
+    .trim()
+    .toLocaleLowerCase("my");
+
+  if (!keyword) {
+    return usbSongs;
+  }
+
+  return usbSongs.filter((song) => {
+    const searchableText = [
+      song.title,
+      song.name,
+      song.fileName,
+      song.channel,
+      song.folder,
+      song.path,
+      song.uri,
+      song.searchText
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase("my");
+
+    return searchableText.includes(keyword);
+  });
+}, [usbSongs, usbQuery]);
 
   const sendCommand = useCallback(async (type, payload = {}) => {
     const packet = { type, payload, sentAt: new Date().toISOString() };
@@ -1336,9 +1364,29 @@ function requestUsbSongs() {
           : "🔄 Refresh"}
       </button>
     </div>
+    <div className="usb-search-row">
+  <input
+    type="search"
+    value={usbQuery}
+    onChange={(event) =>
+      setUsbQuery(event.target.value)
+    }
+    placeholder="USB သီချင်းရှာရန်"
+  />
+
+  {usbQuery && (
+    <button
+      type="button"
+      className="button ghost"
+      onClick={() => setUsbQuery("")}
+    >
+      ✕
+    </button>
+  )}
+</div>
 
     <div className="video-grid">
-      {usbSongs.map((song) => {
+      {filteredUsbSongs.map((song) => {
         const isNowPlaying =
           currentSong?.id === song.id &&
           getSourceType(currentSong) ===
@@ -1402,18 +1450,21 @@ function requestUsbSongs() {
     </div>
 
     {!usbLoading &&
-      usbSongs.length === 0 && (
+  filteredUsbSongs.length === 0 && (
         <div className="empty-state">
           <span>💾</span>
 
           <h3>
-            USB သီချင်း မရှိသေးပါ
-          </h3>
+  {usbQuery
+    ? "ရှာတဲ့စာနဲ့ ကိုက်ညီတဲ့ သီချင်းမတွေ့ပါ"
+    : "USB သီချင်း မရှိသေးပါ"}
+</h3>
 
-          <p>
-            USB ကို TV မှာတပ်ပြီး
-            Refresh နှိပ်ပါ။
-          </p>
+<p>
+  {usbQuery
+    ? "အခြားစာလုံးနဲ့ ပြန်ရှာပါ။"
+    : "USB ကို TV မှာတပ်ပြီး Refresh နှိပ်ပါ။"}
+</p>
         </div>
       )}
   </section>
