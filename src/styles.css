@@ -1333,3 +1333,21 @@ select {
     grid-template-columns: minmax(0, 0.9fr) auto auto;
   }
 }
+/* =========================
+   USB SONG RESULTS
+========================= */
+
+.usb-video-card {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.usb-video-card .video-card-body {
+  grid-column: 1;
+  width: 100%;
+}
+
+@media (max-width: 430px) {
+  .usb-video-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
