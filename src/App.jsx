@@ -1352,9 +1352,9 @@ function requestUsbSongs() {
 
         return (
           <article
-            className="video-card"
-            key={song.id}
-          >
+  className="video-card usb-video-card"
+  key={song.id}
+>
             <div className="video-card-body">
               <h3>{song.title}</h3>
 
