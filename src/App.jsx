@@ -780,7 +780,12 @@ function requestUsbSongs() {
     const position = lastRows?.length ? Number(lastRows[0].position) + 1 : 0;
     const { error } = await supabase
       .from("karaoke_queue")
-      .insert(queueSongToRow(video, position));
+      .insert(
+  queueSongToRow(
+    normalizedVideo,
+    position
+  )
+);
 
     if (error) {
       setMessage(`Queue ထဲထည့်မရပါ: ${error.message}`);
@@ -1117,6 +1122,17 @@ function requestUsbSongs() {
 
         <nav className="tabs">
           <button className={tab === "search" ? "active" : ""} onClick={() => setTab("search")}>🔎 Search</button>
+          <button
+  className={
+    tab === "usb" ? "active" : ""
+  }
+  onClick={() => {
+    setTab("usb");
+    requestUsbSongs();
+  }}
+>
+  💾 USB
+</button>
           <button className={tab === "artists" ? "active" : ""} onClick={() => setTab("artists")}>🎙 Artists</button>
           <button
   className={tab === "favorites" ? "active" : ""}
@@ -1296,6 +1312,110 @@ function requestUsbSongs() {
     >
       Send to TV
     </button>
+  </section>
+)}
+        {tab === "usb" && (
+  <section className="panel">
+    <div className="section-heading">
+      <div>
+        <p className="eyebrow">
+          USB STORAGE
+        </p>
+
+        <h2>USB Songs</h2>
+      </div>
+
+      <button
+        type="button"
+        className="button ghost"
+        onClick={requestUsbSongs}
+        disabled={usbLoading}
+      >
+        {usbLoading
+          ? "Loading…"
+          : "🔄 Refresh"}
+      </button>
+    </div>
+
+    <div className="video-grid">
+      {usbSongs.map((song) => {
+        const isNowPlaying =
+          currentSong?.id === song.id &&
+          getSourceType(currentSong) ===
+            "usb";
+
+        const isInQueue = queue.some(
+          (item) =>
+            item.id === song.id &&
+            getSourceType(item) === "usb"
+        );
+
+        return (
+          <article
+            className="video-card"
+            key={song.id}
+          >
+            <div className="video-card-body">
+              <h3>{song.title}</h3>
+
+              <p>
+                {song.channel ||
+                  "USB Storage"}
+              </p>
+
+              <div className="card-actions">
+                {!currentSong && (
+                  <button
+                    className="button primary"
+                    onClick={() =>
+                      addToQueue(song, true)
+                    }
+                    disabled={isInQueue}
+                  >
+                    {isInQueue
+                      ? "✓ IN QUEUE"
+                      : "▶ Play"}
+                  </button>
+                )}
+
+                <button
+                  className="button ghost"
+                  onClick={() =>
+                    addToQueue(song)
+                  }
+                  disabled={
+                    isNowPlaying ||
+                    isInQueue
+                  }
+                >
+                  {isNowPlaying
+                    ? "🎵 NOW PLAYING"
+                    : isInQueue
+                      ? "✓ IN QUEUE"
+                      : "+ Queue"}
+                </button>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    {!usbLoading &&
+      usbSongs.length === 0 && (
+        <div className="empty-state">
+          <span>💾</span>
+
+          <h3>
+            USB သီချင်း မရှိသေးပါ
+          </h3>
+
+          <p>
+            USB ကို TV မှာတပ်ပြီး
+            Refresh နှိပ်ပါ။
+          </p>
+        </div>
+      )}
   </section>
 )}
        
