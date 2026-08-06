@@ -1639,7 +1639,11 @@ function requestUsbSongs() {
                   className="queue-item"
                 >
                   <span className="drag">⋮⋮</span><span className="queue-number">{index + 1}</span>
-                  <img src={song.thumbnail} alt="" />
+                  {song.thumbnail ? (
+  <img src={song.thumbnail} alt="" />
+) : (
+  <div className="queue-placeholder">💾</div>
+)}
                   <button className="queue-song" onClick={() => playQueueIndex(index)}><strong>{song.title}</strong><small>{song.channel}</small></button>
                   <button className="icon-button" onClick={() => removeQueueItem(index)}>✕</button>
                 </article>
