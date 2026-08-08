@@ -579,32 +579,78 @@ const queueChannel = supabase
   }, [baseArtists, customArtists]);
 
   async function runSearch(overrideQuery) {
-    const text = (overrideQuery ?? query).trim();
-    if (!text || searching) return;
+  const text = (overrideQuery ?? query).trim();
+  if (!text || searching) return;
 
-    // Search နှိပ်တာနဲ့ input ကို ချက်ချင်းရှင်းမယ်။
-    setQuery("");
-    setSearching(true);
-    setMessage("");
-    setTab("search");
-    try {
-  if (!selectedYouTubeApiKey) {
-    throw new Error(
-      ` API ${youtubeApiChoice} key မရှိပါ။`
-    );
-  }
+  setQuery("");
+  setSearching(true);
+  setMessage("");
+  setTab("search");
 
-  setResults(
-    await searchYouTube(
+  const keyword = text.toLocaleLowerCase("my");
+
+  // USB ထဲမှာ တူတဲ့သီချင်းတွေကို အရင်ရှာမယ်
+  const usbMatches = usbSongs
+    .filter((song) => {
+      const searchableText = [
+        song.title,
+        song.name,
+        song.fileName,
+        song.channel,
+        song.folder,
+        song.path,
+        song.uri,
+        song.searchText
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase("my");
+
+      return searchableText.includes(keyword);
+    })
+    .map((song) => ({
+      ...song,
+      sourceType: "usb"
+    }));
+
+  try {
+    if (!selectedYouTubeApiKey) {
+      throw new Error(
+        ` API ${youtubeApiChoice} key မရှိပါ။`
+      );
+    }
+
+    const youtubeResults = await searchYouTube(
       text,
       selectedYouTubeApiKey
-    )
-  );
-} catch (error) {
-  setMessage(error.message);
-} finally {
-  setSearching(false);
-}
+    );
+
+    const normalizedYouTubeResults = youtubeResults.map(
+      (video) => ({
+        ...video,
+        sourceType: "youtube"
+      })
+    );
+
+    // USB ကို အမြဲထိပ်ဆုံးထားမယ်
+    setResults([
+      ...usbMatches,
+      ...normalizedYouTubeResults
+    ]);
+  } catch (error) {
+    // YouTube API error ဖြစ်လည်း USB result ရှိရင် ပြမယ်
+    setResults(usbMatches);
+
+    if (usbMatches.length > 0) {
+      setMessage(
+        `USB မှာ ${usbMatches.length} ပုဒ်တွေ့ပါတယ်။ YouTube Search: ${error.message}`
+      );
+    } else {
+      setMessage(error.message);
+    }
+  } finally {
+    setSearching(false);
+  }
   }
   function startVoiceSearch() {
   const SpeechRecognition =
@@ -1497,17 +1543,46 @@ function requestUsbSongs() {
             </div>
             <div className="video-grid">
               {results.map((video) => {
-  const isNowPlaying = currentSong?.id === video.id;
-  const isInQueue = queue.some((item) => item.id === video.id);
-  const videoIsFavorite = isFavorite(video.id);
+  const sourceType =
+    video.sourceType || getSourceType(video);
+
+  const isUsb = sourceType === "usb";
+
+  const isNowPlaying =
+    currentSong?.id === video.id &&
+    getSourceType(currentSong) === sourceType;
+
+  const isInQueue = queue.some(
+    (item) =>
+      item.id === video.id &&
+      getSourceType(item) === sourceType
+  );
+
+  const videoIsFavorite =
+    !isUsb && isFavorite(video.id);
 
                 return (
                   <article className="video-card" key={video.id}>
                     <img src={video.thumbnail} alt="" />
 
                     <div className="video-card-body">
-                      <h3>{video.title}</h3>
-                      <p>{video.channel}</p>
+  <div className="result-source-row">
+    <span
+      className={
+        isUsb
+          ? "result-source-badge usb"
+          : "result-source-badge tube"
+      }
+    >
+      {isUsb ? "USB" : "TUBE"}
+    </span>
+  </div>
+
+  <h3>{video.title}</h3>
+  <p>
+    {video.channel ||
+      (isUsb ? "USB Storage" : "YouTube")}
+  </p>
 
                   <div className="card-actions">
                         {!currentSong && (
@@ -1532,23 +1607,25 @@ function requestUsbSongs() {
       : "+ Queue"}
 </button>
 
-<button
-  type="button"
-  className={
-    videoIsFavorite
-      ? "favorite-button is-favorite"
-      : "favorite-button"
-  }
-  onClick={() => toggleFavorite(video)}
->
-  <span className="favorite-star">
-    {videoIsFavorite ? "★" : "☆"}
-  </span>
+{!isUsb && (
+  <button
+    type="button"
+    className={
+      videoIsFavorite
+        ? "favorite-button is-favorite"
+        : "favorite-button"
+    }
+    onClick={() => toggleFavorite(video)}
+  >
+    <span className="favorite-star">
+      {videoIsFavorite ? "★" : "☆"}
+    </span>
 
-  <span>
-    {videoIsFavorite ? "Saved" : "Favorite"}
-  </span>
-</button>
+    <span>
+      {videoIsFavorite ? "Saved" : "Favorite"}
+    </span>
+  </button>
+)}
                       </div>
                     </div>
                   </article>
