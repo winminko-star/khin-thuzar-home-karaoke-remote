@@ -1164,13 +1164,42 @@ function requestUsbSongs() {
 
       <main>
         <section className="hero-card">
-          <div>
-            <p className="eyebrow">NOW SINGING</p>
-            <h2>{currentSong?.title || "သီချင်းရွေးပါ"}</h2>
-            <p>{currentSong?.channel || "Remote မှာရှာပြီး TV ပေါ်ဖွင့်ပါ"}</p>
-          </div>
-          <div className="hero-next"><span>NEXT</span><strong>{nextSong?.title || "Queue empty"}</strong></div>
-        </section>
+  <div>
+    <p className="eyebrow">NOW SINGING</p>
+
+    <div className="now-singing-title">
+      {currentSong && (
+        <span
+          className="now-playing-bars"
+          aria-hidden="true"
+        >
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+        </span>
+      )}
+
+      <h2>
+        {currentSong?.title || "သီချင်းရွေးပါ"}
+      </h2>
+    </div>
+
+    <p>
+      {currentSong?.channel ||
+        "Remote မှာရှာပြီး TV ပေါ်ဖွင့်ပါ"}
+    </p>
+  </div>
+
+  <div className="hero-next">
+    <span>NEXT</span>
+
+    <strong>
+      {nextSong?.title || "Queue empty"}
+    </strong>
+  </div>
+</section>
 
         <section className="control-deck">
           <button onClick={showPopup}>
