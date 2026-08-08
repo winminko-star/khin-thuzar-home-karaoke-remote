@@ -1506,3 +1506,41 @@ select {
     height: 9px;
   }
 }
+/* =========================
+   RESULT ACTIONS FIX
+   NOW PLAYING + FAVORITE
+========================= */
+
+.card-actions {
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.card-actions .button,
+.card-actions .favorite-button {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.card-actions .button {
+  min-width: 92px;
+}
+
+.card-actions .favorite-button {
+  min-width: 92px;
+}
+
+/* Tablet / landscape phone */
+@media (max-width: 900px) {
+  .card-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .card-actions .button,
+  .card-actions .favorite-button {
+    width: 100%;
+    min-width: 110px;
+  }
+}
