@@ -894,6 +894,16 @@ function requestUsbSongs() {
       setMessage("Queue ထဲက သီချင်းအားလုံး ပြီးပါပြီ။");
     }
   }
+  async function handleStop() {
+  await savePlaybackState(null);
+
+  currentSongRef.current = null;
+  setCurrentSong(null);
+
+  sendCommand("STOP");
+
+  setMessage("သီချင်းကို ရပ်လိုက်ပါပြီ။");
+  }
 
   function handlePrevious() {
     setMessage("Now Playing ကို Queue ပြင်ပမှာထားတဲ့အတွက် Previous history မရှိသေးပါ။");
@@ -1131,7 +1141,9 @@ function requestUsbSongs() {
           <button onClick={() => sendCommand("PAUSE")}>⏸<span>Pause</span></button>
           <button className="play-main" onClick={() => currentSong ? sendCommand("PLAY") : queue.length && playQueueIndex(0)}>▶<span>Play</span></button>
           <button onClick={handleNext}>⏭<span>Next</span></button>
-          <button onClick={() => sendCommand("STOP")}>⏹<span>Stop</span></button>
+          <button onClick={handleStop}>
+  ⏹<span>Stop</span>
+</button>
           <button onClick={() => sendCommand("VOLUME_DOWN")}>
   🔉
   <span>Vol −</span>
