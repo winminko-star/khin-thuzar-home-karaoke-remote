@@ -358,7 +358,7 @@ select {
 .video-card-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   align-items: center;
   column-gap: 10px;
   row-gap: 4px;
@@ -369,7 +369,7 @@ select {
 
 .video-card h3 {
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 2;
 
   margin: 0;
 
@@ -389,7 +389,7 @@ select {
 
 .video-card p {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 3;
 
   margin: 0;
 
@@ -403,7 +403,7 @@ select {
 
 .card-actions {
   grid-column: 2;
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 3;
 
   display: flex;
   align-items: center;
@@ -1374,4 +1374,55 @@ select {
   box-shadow:
     0 0 0 3px
     rgba(139, 92, 246, 0.15);
+}
+/* =========================
+   SEARCH SOURCE BADGE
+   USB / TUBE
+========================= */
+
+.result-source-row {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.result-source-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 44px;
+  height: 20px;
+  padding: 0 7px;
+
+  border-radius: 6px;
+
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.06em;
+}
+
+/* USB */
+.result-source-badge.usb {
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.65);
+  color: #4ade80;
+}
+
+/* YOUTUBE */
+.result-source-badge.tube {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.65);
+  color: #f87171;
+}
+
+@media (max-width: 430px) {
+  .result-source-badge {
+    min-width: 40px;
+    height: 18px;
+    padding: 0 6px;
+    font-size: 8px;
+  }
 }
