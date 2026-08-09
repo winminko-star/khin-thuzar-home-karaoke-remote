@@ -828,7 +828,7 @@ function requestUsbSongs() {
   index: -1
 });
 
-      setMessage("TV ပေါ်မှာ ဖွင့်လိုက်ပါပြီ။");
+      setMessage("TV ပေါ်မှာ ဖွင့်buttonါပြီ။");
       return;
     }
 
@@ -963,9 +963,7 @@ function requestUsbSongs() {
   setMessage("သီချင်းကို ရပ်လိုက်ပါပြီ။");
   }
 
-  function handlePrevious() {
-    setMessage("Now Playing ကို Queue ပြင်ပမှာထားတဲ့အတွက် Previous history မရှိသေးပါ။");
-  }
+  
 
   async function removeQueueItem(index) {
     const target = queueRef.current[index];
@@ -1225,7 +1223,7 @@ function requestUsbSongs() {
 >
   💬
 </button>
-          <button onClick={handlePrevious}>⏮<span>Previous</span></button>
+          
           <button
   type="button"
   onClick={() => {
