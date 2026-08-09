@@ -127,6 +127,7 @@ const [usbLoading, setUsbLoading] = useState(false);
   const [customArtists, setCustomArtists] = useState(() => loadLocal(LOCAL_ARTISTS_KEY, []));
   const [artistQuery, setArtistQuery] = useState("");
   const [selectedLetter, setSelectedLetter] = useState("ALL");
+  const [sceneryActive, setSceneryActive] = useState(false);
   const [artistModal, setArtistModal] = useState({ open: false, artist: null });
   const [queue, setQueue] = useState(() => loadLocal(LOCAL_QUEUE_KEY, []));
 
@@ -214,11 +215,13 @@ const [currentSong, setCurrentSong] = useState(null);
 }, [sendCommand]);
   const startSceneryShow = useCallback(() => {
   sendCommand("START_SCENERY_SHOW");
+  setSceneryActive(true);
   setMessage("TV Scenery Show စတင်လိုက်ပါပြီ။");
 }, [sendCommand]);
 
 const stopSceneryShow = useCallback(() => {
   sendCommand("STOP_SCENERY_SHOW");
+  setSceneryActive(false);
   setMessage("TV Scenery Show ရပ်လိုက်ပါပြီ။");
 }, [sendCommand]);
   const openTextPopupPage = useCallback(() => {
@@ -1247,6 +1250,11 @@ function requestUsbSongs() {
         <div className="scenery-controls">
   <button
     type="button"
+    className={
+      sceneryActive
+        ? "scenery-start-button active"
+        : "scenery-start-button"
+    }
     onClick={startSceneryShow}
   >
     🖼️ SCENERY START
@@ -1254,6 +1262,11 @@ function requestUsbSongs() {
 
   <button
     type="button"
+    className={
+      !sceneryActive
+        ? "scenery-stop-button active"
+        : "scenery-stop-button"
+    }
     onClick={stopSceneryShow}
   >
     ⏹ STOP
