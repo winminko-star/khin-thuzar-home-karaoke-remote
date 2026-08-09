@@ -1288,7 +1288,12 @@ function requestUsbSongs() {
 </div>
 
         <nav className="tabs">
-          <button className={tab === "search" ? "active" : ""} onClick={() => setTab("search")}>🔎 Search</button>
+          <button
+  className={`search-tab ${tab === "search" ? "active" : ""}`}
+  onClick={() => setTab("search")}
+>
+  🔎 Search
+</button>
           <button
   className={
     tab === "usb" ? "active" : ""
