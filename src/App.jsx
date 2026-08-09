@@ -212,6 +212,15 @@ const [currentSong, setCurrentSong] = useState(null);
   const showPopup = useCallback(() => {
   sendCommand("SHOW_POPUP");
 }, [sendCommand]);
+  const startSceneryShow = useCallback(() => {
+  sendCommand("START_SCENERY_SHOW");
+  setMessage("TV Scenery Show စတင်လိုက်ပါပြီ။");
+}, [sendCommand]);
+
+const stopSceneryShow = useCallback(() => {
+  sendCommand("STOP_SCENERY_SHOW");
+  setMessage("TV Scenery Show ရပ်လိုက်ပါပြီ။");
+}, [sendCommand]);
   const openTextPopupPage = useCallback(() => {
   setReturnTab(tab);
   setTab("popup");
@@ -1205,6 +1214,21 @@ function requestUsbSongs() {
           <button onClick={showPopup}>
   🙋
 </button>
+          <div className="scenery-controls">
+  <button
+    type="button"
+    onClick={startSceneryShow}
+  >
+    🖼️ SCENERY START
+  </button>
+
+  <button
+    type="button"
+    onClick={stopSceneryShow}
+  >
+    ⏹ STOP
+  </button>
+</div>
           <button
   type="button"
   onClick={openTextPopupPage}
