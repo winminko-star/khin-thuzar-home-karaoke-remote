@@ -1209,6 +1209,15 @@ function requestUsbSongs() {
       {currentSong?.channel ||
         "Remote မှာရှာပြီး TV ပေါ်ဖွင့်ပါ"}
     </p>
+    <div className={`status-message ${message ? "has-message" : "standby"}`}>
+  {message ? (
+    <span>{message}</span>
+  ) : (
+    <span className="rainbow-text">
+      ရွှင်လန်းချမ်းမြေ့ပါစေ။
+    </span>
+  )}
+</div>
   </div>
 
   <div className="hero-next">
@@ -1341,8 +1350,7 @@ function requestUsbSongs() {
 </button>
         </nav>
 
-        {message && <div className="notice" onClick={() => setMessage("")}>{message}</div>}
-        {tab === "settings" && (
+         {tab === "settings" && (
   <section className="panel settings-panel">
     <div className="section-heading">
       <div>
