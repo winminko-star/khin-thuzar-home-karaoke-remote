@@ -828,7 +828,7 @@ function requestUsbSongs() {
   index: -1
 });
 
-      setMessage("TV ပေါ်မှာ ဖွင့်buttonါပြီ။");
+      setMessage("TV ပေါ်မှာ ဖွင့်နေပါပြီ။");
       return;
     }
 
