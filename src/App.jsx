@@ -1172,10 +1172,10 @@ function requestUsbSongs() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div>
-          <p className="eyebrow">Khin Thuzar Hlaing's</p>
-          <h1>HOME KARAOKE <span>🎤</span></h1>
-        </div>
+        <div className="brand-line">
+  <span className="brand-name">Khin Thuzar Hlaing's</span>
+  <span className="brand-title">HOME KARAOKE 🎤</span>
+</div>
         <div className={`connection ${connected ? "online" : "offline"}`}>
           <span />{connected ? "TV Connected" : "TV Offline"}
         </div>
