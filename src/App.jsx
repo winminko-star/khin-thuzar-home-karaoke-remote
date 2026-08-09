@@ -1244,6 +1244,21 @@ function requestUsbSongs() {
   <span>Vol +</span>
 </button>
         </section>
+        <div className="scenery-controls">
+  <button
+    type="button"
+    onClick={startSceneryShow}
+  >
+    🖼️ SCENERY START
+  </button>
+
+  <button
+    type="button"
+    onClick={stopSceneryShow}
+  >
+    ⏹ STOP
+  </button>
+</div>
 
         <nav className="tabs">
           <button className={tab === "search" ? "active" : ""} onClick={() => setTab("search")}>🔎 Search</button>
