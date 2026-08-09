@@ -1214,21 +1214,7 @@ function requestUsbSongs() {
           <button onClick={showPopup}>
   🙋
 </button>
-          <div className="scenery-controls">
-  <button
-    type="button"
-    onClick={startSceneryShow}
-  >
-    🖼️ SCENERY START
-  </button>
-
-  <button
-    type="button"
-    onClick={stopSceneryShow}
-  >
-    ⏹ STOP
-  </button>
-</div>
+          
           <button
   type="button"
   onClick={openTextPopupPage}
