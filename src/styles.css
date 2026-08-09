@@ -1549,22 +1549,24 @@ select {
 ========================= */
 
 .scenery-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 
   width: 100%;
-  margin: 0 0 16px;
-  padding: 0;
+  margin: 14px 0 18px;
 }
 
-.scenery-controls .scenery-start-button,
-.scenery-controls .scenery-stop-button {
-  width: 100%;
-  min-width: 0;
-  height: 48px;
+.scenery-controls button {
+  width: auto;
+  min-width: 150px;
+  max-width: 200px;
+  height: 46px;
 
-  border: 0;
+  padding: 0 18px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
 
   color: #fff;
@@ -1574,18 +1576,42 @@ select {
 
   white-space: nowrap;
   cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.scenery-controls .scenery-start-button {
-  background: linear-gradient(135deg, #7c3aed, #c026d3);
+.scenery-start-button {
+  background: #27272a;
 }
 
-.scenery-controls .scenery-stop-button {
+.scenery-stop-button {
+  background: #27272a;
+}
+
+.scenery-start-button.active {
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #c026d3
+  );
+
+  box-shadow:
+    0 0 0 2px rgba(167, 139, 250, 0.18),
+    0 8px 24px rgba(124, 58, 237, 0.34);
+}
+
+.scenery-stop-button.active {
   background: #7f1d1d;
+
+  box-shadow:
+    0 8px 24px rgba(127, 29, 29, 0.34);
 }
 
 .scenery-controls button:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 @media (max-width: 430px) {
@@ -1593,9 +1619,11 @@ select {
     gap: 8px;
   }
 
-  .scenery-controls .scenery-start-button,
-  .scenery-controls .scenery-stop-button {
+  .scenery-controls button {
+    min-width: 130px;
+    max-width: 160px;
     height: 44px;
+    padding: 0 12px;
     font-size: 11px;
   }
 }
