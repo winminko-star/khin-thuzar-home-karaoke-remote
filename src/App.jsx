@@ -123,6 +123,15 @@ const [popupDuration, setPopupDuration] = useState(4);
 const [usbLoading, setUsbLoading] = useState(false);
   const [usbQuery, setUsbQuery] = useState("");
   const [message, setMessage] = useState("");
+  useEffect(() => {
+  if (!message) return;
+
+  const timer = setTimeout(() => {
+    setMessage("");
+  }, 3000);
+
+  return () => clearTimeout(timer);
+}, [message]);
   const [baseArtists, setBaseArtists] = useState([]);
   const [customArtists, setCustomArtists] = useState(() => loadLocal(LOCAL_ARTISTS_KEY, []));
   const [artistQuery, setArtistQuery] = useState("");
