@@ -1627,3 +1627,38 @@ select {
     font-size: 11px;
   }
 }
+/* Search tab - rainbow moving color */
+.tabs .search-tab {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+
+  background: linear-gradient(
+    120deg,
+    #ff004c,
+    #ff8a00,
+    #ffd500,
+    #22c55e,
+    #00c6ff,
+    #6366f1,
+    #a855f7,
+    #ec4899,
+    #ff004c
+  );
+
+  background-size: 300% 300%;
+  animation: searchRainbow 8s linear infinite;
+}
+
+@keyframes searchRainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
