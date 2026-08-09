@@ -1544,3 +1544,98 @@ select {
     min-width: 110px;
   }
 }
+/* =========================
+   TV SCENERY SHOW
+   START / STOP
+========================= */
+
+.scenery-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+
+  width: 100%;
+  margin: 14px 0;
+  padding: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+
+  background: rgba(24, 24, 27, 0.84);
+  backdrop-filter: blur(16px);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.22);
+}
+
+.scenery-controls button {
+  min-width: 0;
+  min-height: 48px;
+
+  padding: 10px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 14px;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* START */
+.scenery-controls button:first-child {
+  background:
+    linear-gradient(
+      135deg,
+      #7c3aed,
+      #c026d3
+    );
+
+  box-shadow:
+    0 8px 22px
+    rgba(124, 58, 237, 0.28);
+}
+
+/* STOP */
+.scenery-controls button:last-child {
+  background: #7f1d1d;
+
+  border-color:
+    rgba(248, 113, 113, 0.28);
+
+  box-shadow:
+    0 8px 22px
+    rgba(127, 29, 29, 0.24);
+}
+
+.scenery-controls button:active {
+  transform: scale(0.96);
+}
+
+/* PHONE */
+@media (max-width: 430px) {
+  .scenery-controls {
+    gap: 7px;
+    padding: 9px;
+    margin: 10px 0;
+    border-radius: 15px;
+  }
+
+  .scenery-controls button {
+    min-height: 44px;
+    padding: 8px 6px;
+
+    font-size: 0.72rem;
+  }
+}
