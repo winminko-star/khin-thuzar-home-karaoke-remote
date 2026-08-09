@@ -1661,3 +1661,60 @@ select {
     background-position: 0% 50%;
   }
 }
+/* =========================
+   NOW PLAYING STATUS MESSAGE
+========================= */
+
+.status-message {
+  min-height: 30px;
+  margin-top: 6px;
+
+  display: flex;
+  align-items: center;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* Normal 3-second message */
+.status-message.has-message {
+  color: #ffffff;
+}
+
+/* Rainbow standby text */
+.rainbow-text {
+  display: inline-block;
+  font-weight: 800;
+
+  background: linear-gradient(
+    90deg,
+    #ff1744,
+    #ff9100,
+    #ffea00,
+    #00e676,
+    #00b0ff,
+    #651fff,
+    #d500f9,
+    #ff1744
+  );
+
+  background-size: 300% 100%;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+
+  animation: rainbowTextMove 5s linear infinite;
+}
+
+@keyframes rainbowTextMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 300% 50%;
+  }
+}
