@@ -525,7 +525,7 @@ const queueChannel = supabase
                 song.folder ||
                 "USB Storage",
               thumbnail:
-                song.thumbnail || ""
+  song.thumbnail || "/usb-default.png"
             };
           })
         : [];
@@ -1528,6 +1528,10 @@ function requestUsbSongs() {
   className="video-card usb-video-card"
   key={song.id}
 >
+            <img
+  src={song.thumbnail || "/usb-default.png"}
+  alt={song.title || "USB Karaoke"}
+/>
             <div className="video-card-body">
               <h3>{song.title}</h3>
 
@@ -1630,7 +1634,10 @@ function requestUsbSongs() {
 
                 return (
                   <article className="video-card" key={video.id}>
-                    <img src={video.thumbnail} alt="" />
+                    <img
+  src={isUsb ? "/usb-default.png" : video.thumbnail}
+  alt={video.title || ""}
+/>
 
                     <div className="video-card-body">
   <div className="result-source-row">
