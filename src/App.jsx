@@ -1226,6 +1226,20 @@ function requestUsbSongs() {
   💬
 </button>
           <button onClick={handlePrevious}>⏮<span>Previous</span></button>
+          <button
+  type="button"
+  onClick={() => {
+    if (!currentSong) {
+      setMessage("ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။");
+      return;
+    }
+
+    sendCommand("RE_SING");
+    setMessage("သီချင်းကို အစကနေ ပြန်ဆိုလိုက်ပါပြီ။");
+  }}
+>
+  🔄<span>Re-Sing</span>
+</button>
           <button onClick={() => sendCommand("PAUSE")}>⏸<span>Pause</span></button>
           <button className="play-main" onClick={() => currentSong ? sendCommand("PLAY") : queue.length && playQueueIndex(0)}>▶<span>Play</span></button>
           <button onClick={handleNext}>⏭<span>Next</span></button>
