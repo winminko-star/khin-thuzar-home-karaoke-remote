@@ -197,10 +197,24 @@ select {
 ========================= */
 
 .tabs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
   margin: 16px 0;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  padding-bottom: 6px;
+
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.tabs button {
+  flex: 0 0 auto;
+  min-width: 145px;
+  white-space: nowrap;
 }
 
 .tabs button {
