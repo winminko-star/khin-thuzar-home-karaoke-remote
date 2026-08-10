@@ -674,6 +674,17 @@ const queueChannel = supabase
   }
   }
   function startVoiceSearch() {
+  // Android APK မှာဆို Native Voice Search ကိုသုံးမယ်
+  if (
+    window.AndroidVoice &&
+    typeof window.AndroidVoice.startVoiceSearch === "function"
+  ) {
+    setMessage("🎤 မြန်မာလို ပြောပါ…");
+    window.AndroidVoice.startVoiceSearch();
+    return;
+  }
+
+  // Website / normal browser fallback
   const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
@@ -685,24 +696,17 @@ const queueChannel = supabase
 
   const recognition = new SpeechRecognition();
 
-  // မြန်မာ + အင်္ဂလိပ် သီချင်းနာမည်အတွက် ပိုအဆင်ပြေ
-  recognition.lang = "en-US";
+  recognition.lang = "my-MM";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
 
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 3;
-
-  setMessage("🎤 အင်္ဂလိပ်သီချင်းများရှာရန်အတွက်သာ။");
+  setMessage("🎤 မြန်မာလို ပြောပါ…");
 
   recognition.onresult = (event) => {
-    const text =
-      event.results[event.results.length - 1][0].transcript;
+    const text = event.results[0][0].transcript;
 
     setQuery(text);
-
-    if (event.results[event.results.length - 1].isFinal) {
-      runSearch(text);
-      setMessage("");
-    }
+    runSearch(text);
   };
 
   recognition.onerror = () => {
@@ -715,6 +719,27 @@ const queueChannel = supabase
 
   recognition.start();
   }
+  useEffect(() => {
+  window.handleAndroidVoiceResult = (text) => {
+    if (!text) return;
+
+    setQuery(text);
+    setMessage(`🎤 ${text}`);
+
+    runSearch(text);
+  };
+
+  window.handleAndroidVoiceError = (message) => {
+    setMessage(
+      message || "Voice Search မအောင်မြင်ပါ။"
+    );
+  };
+
+  return () => {
+    delete window.handleAndroidVoiceResult;
+    delete window.handleAndroidVoiceError;
+  };
+});
   function isFavorite(videoId) {
   return favorites.some((song) => song.id === videoId);
 }
