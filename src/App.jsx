@@ -1956,9 +1956,7 @@ function requestUsbSongs() {
   <input
   type="search"
   value={usbQuery}
-  onChange={(event) =>
-    setUsbQuery(event.target.value)
-  }
+  readOnly
   onFocus={() => {
     setKeyboardTarget("usb");
     setKeyboardOpen(true);
@@ -2075,7 +2073,7 @@ function requestUsbSongs() {
             <div className="search-row">
               <input
   value={query}
-  onChange={(e) => setQuery(e.target.value)}
+  readOnly
   onFocus={() => {
     setKeyboardTarget("main");
     setKeyboardOpen(true);
