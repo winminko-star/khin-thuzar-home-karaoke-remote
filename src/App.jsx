@@ -813,6 +813,9 @@ const queueChannel = supabase
 
   const receivedCount =
     usbReceivedChunksRef.current.size;
+      setMessage(
+  `USB Chunk ${receivedCount}/${totalChunks} ရောက်ပါပြီ`
+);
 
   // Chunk အကုန်ရပြီ
   if (receivedCount === totalChunks) {
