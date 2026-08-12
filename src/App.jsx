@@ -296,6 +296,9 @@ const [popupDuration, setPopupDuration] = useState(4);
   const [usbSongs, setUsbSongs] = useState([]);
 const [usbLoading, setUsbLoading] = useState(false);
   const [usbQuery, setUsbQuery] = useState("");
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+const [keyboardTarget, setKeyboardTarget] = useState("main");
+const [keyboardMode, setKeyboardMode] = useState("myanmar");
   const [message, setMessage] = useState("");
   useEffect(() => {
   let cancelled = false;
@@ -928,6 +931,54 @@ const queueChannel = supabase
   const letters = useMemo(() => {
     return ["ALL", ...new Set([...baseArtists, ...customArtists].map((a) => a.letter).filter(Boolean))];
   }, [baseArtists, customArtists]);
+  function getKeyboardText() {
+  return keyboardTarget === "usb"
+    ? usbQuery
+    : query;
+}
+
+function setKeyboardText(text) {
+  if (keyboardTarget === "usb") {
+    setUsbQuery(text);
+  } else {
+    setQuery(text);
+  }
+}
+
+function pressKeyboardKey(key) {
+  setKeyboardText(getKeyboardText() + key);
+}
+
+function keyboardBackspace() {
+  const text = getKeyboardText();
+
+  setKeyboardText(
+    Array.from(text).slice(0, -1).join("")
+  );
+}
+
+function keyboardSpace() {
+  setKeyboardText(getKeyboardText() + " ");
+}
+
+function clearKeyboardText() {
+  setKeyboardText("");
+}
+
+function submitKeyboardSearch() {
+  const text = getKeyboardText().trim();
+
+  if (!text) return;
+
+  if (keyboardTarget === "usb") {
+    setTab("usb");
+    setKeyboardOpen(false);
+    return;
+  }
+
+  setKeyboardOpen(false);
+  runSearch(text);
+}
 
         async function runSearch(overrideQuery) {
   const text = (overrideQuery ?? query).trim();
@@ -1902,13 +1953,21 @@ function requestUsbSongs() {
     </div>
     <div className="usb-search-row">
   <input
-    type="search"
-    value={usbQuery}
-    onChange={(event) =>
-      setUsbQuery(event.target.value)
-    }
-    placeholder="USB သီချင်းရှာရန်"
-  />
+  type="search"
+  value={usbQuery}
+  onChange={(event) =>
+    setUsbQuery(event.target.value)
+  }
+  onFocus={() => {
+    setKeyboardTarget("usb");
+    setKeyboardOpen(true);
+  }}
+  onClick={() => {
+    setKeyboardTarget("usb");
+    setKeyboardOpen(true);
+  }}
+  placeholder="USB သီချင်းရှာရန်"
+/>
 
   {usbQuery && (
     <button
@@ -2013,10 +2072,20 @@ function requestUsbSongs() {
         {tab === "search" && (
           <section className="panel">
             <div className="search-row">
-              <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && runSearch()} placeholder="သီချင်း သို့မဟုတ် အဆိုတော်နာမည် ရိုက်ပါ" />
-              
-              <button className="button primary" onClick={() => runSearch()} disabled={searching}>{searching ? "Searching…" : "Search"}</button>
-              <button
+              <input
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  onFocus={() => {
+    setKeyboardTarget("main");
+    setKeyboardOpen(true);
+  }}
+  onClick={() => {
+    setKeyboardTarget("main");
+    setKeyboardOpen(true);
+  }}
+  placeholder="သီချင်း သို့မဟုတ် အဆိုတော်နာမည် ရိုက်ပါ"
+/>
+               <button
   className="button voice-button"
   onClick={startVoiceSearch}
 >
@@ -2280,6 +2349,208 @@ function requestUsbSongs() {
       </main>
 
       <ArtistModal open={artistModal.open} artist={artistModal.artist} onClose={() => setArtistModal({ open: false, artist: null })} onSave={saveArtist} />
+      {keyboardOpen && (
+  <div className="karaoke-keyboard-backdrop">
+    <div className="karaoke-keyboard">
+
+      <div className="keyboard-display">
+        <div className="keyboard-display-label">
+          {keyboardTarget === "usb"
+            ? "USB SEARCH"
+            : "SEARCH"}
+        </div>
+
+        <div className="keyboard-display-text">
+          {getKeyboardText() || "စာရိုက်ပါ..."}
+        </div>
+      </div>
+
+      <div className="keyboard-mode-row">
+        <button
+          type="button"
+          className={
+            keyboardMode === "myanmar"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setKeyboardMode("myanmar")
+          }
+        >
+          မြန်မာ
+        </button>
+
+        <button
+          type="button"
+          className={
+            keyboardMode === "english"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setKeyboardMode("english")
+          }
+        >
+          ABC
+        </button>
+
+        <button
+          type="button"
+          className={
+            keyboardMode === "number"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setKeyboardMode("number")
+          }
+        >
+          123
+        </button>
+
+        <button
+          type="button"
+          className={
+            keyboardMode === "myanmarNumber"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setKeyboardMode("myanmarNumber")
+          }
+        >
+          ၁၂၃
+        </button>
+      </div>
+
+      {keyboardMode === "myanmar" && (
+        <div className="keyboard-keys myanmar-keys">
+          {[
+            "က","ခ","ဂ","ဃ","င",
+            "စ","ဆ","ဇ","ဈ","ည",
+            "ဋ","ဌ","ဍ","ဎ","ဏ",
+            "တ","ထ","ဒ","ဓ","န",
+            "ပ","ဖ","ဗ","ဘ","မ",
+            "ယ","ရ","လ","ဝ","သ",
+            "ဟ","ဠ","အ",
+            "ျ","ြ","ွ","ှ",
+            "ါ","ာ","ိ","ီ","ု","ူ",
+            "ေ","ဲ","ံ","့","း"
+          ].map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() =>
+                pressKeyboardKey(key)
+              }
+            >
+              {key}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {keyboardMode === "english" && (
+        <div className="keyboard-keys english-keys">
+          {"QWERTYUIOPASDFGHJKLZXCVBNM"
+            .split("")
+            .map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() =>
+                  pressKeyboardKey(key)
+                }
+              >
+                {key}
+              </button>
+            ))}
+        </div>
+      )}
+
+      {keyboardMode === "number" && (
+        <div className="keyboard-keys number-keys">
+          {"1234567890".split("").map(
+            (key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() =>
+                  pressKeyboardKey(key)
+                }
+              >
+                {key}
+              </button>
+            )
+          )}
+        </div>
+      )}
+
+      {keyboardMode === "myanmarNumber" && (
+        <div className="keyboard-keys number-keys">
+          {"၁၂၃၄၅၆၇၈၉၀".split("").map(
+            (key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() =>
+                  pressKeyboardKey(key)
+                }
+              >
+                {key}
+              </button>
+            )
+          )}
+        </div>
+      )}
+
+      <div className="keyboard-actions">
+        <button
+          type="button"
+          className="keyboard-clear"
+          onClick={clearKeyboardText}
+        >
+          CLEAR
+        </button>
+
+        <button
+          type="button"
+          className="keyboard-backspace"
+          onClick={keyboardBackspace}
+        >
+          ⌫
+        </button>
+
+        <button
+          type="button"
+          className="keyboard-space"
+          onClick={keyboardSpace}
+        >
+          SPACE
+        </button>
+
+        <button
+          type="button"
+          className="keyboard-search"
+          onClick={submitKeyboardSearch}
+        >
+          🔍 ရှာမယ်
+        </button>
+
+        <button
+          type="button"
+          className="keyboard-close"
+          onClick={() =>
+            setKeyboardOpen(false)
+          }
+        >
+          ✕ ပိတ်မယ်
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
 
       <button
         type="button"
