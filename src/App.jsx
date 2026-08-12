@@ -25,6 +25,8 @@ const USB_DB_NAME = "kth_karaoke_usb_db";
 const USB_DB_VERSION = 1;
 const USB_STORE_NAME = "usb_cache";
 const USB_CACHE_KEY = "current";
+const USB_BACKUP_CACHE_KEY = "backup";
+const USB_CACHE_DATA_VERSION = 1;
 
 function openUsbDatabase() {
   return new Promise((resolve, reject) => {
@@ -52,41 +54,83 @@ function openUsbDatabase() {
 }
 
 async function readUsbCache() {
-  const db = await openUsbDatabase();
+  async function readCacheKey(key) {
+    const db = await openUsbDatabase();
 
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(
-      USB_STORE_NAME,
-      "readonly"
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        USB_STORE_NAME,
+        "readonly"
+      );
+
+      const store =
+        transaction.objectStore(USB_STORE_NAME);
+
+      const request = store.get(key);
+
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+
+      transaction.oncomplete = () => {
+        db.close();
+      };
+
+      transaction.onerror = () => {
+        db.close();
+      };
+    });
+  }
+
+  try {
+    const currentCache = await readCacheKey(
+      USB_CACHE_KEY
     );
 
-    const store =
-      transaction.objectStore(USB_STORE_NAME);
+    if (Array.isArray(currentCache?.songs)) {
+      return currentCache.songs;
+    }
+  } catch (error) {
+    console.error(
+      "USB current cache read error:",
+      error
+    );
+  }
 
-    const request =
-      store.get(USB_CACHE_KEY);
+  try {
+    const backupCache = await readCacheKey(
+      USB_BACKUP_CACHE_KEY
+    );
 
-    request.onsuccess = () => {
-      const value = request.result;
-
-      resolve(
-        Array.isArray(value?.songs)
-          ? value.songs
-          : []
-      );
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-
-    transaction.oncomplete = () => {
-      db.close();
-    };
-  });
+    return Array.isArray(backupCache?.songs)
+      ? backupCache.songs
+      : [];
+  } catch (error) {
+    console.error(
+      "USB backup cache read error:",
+      error
+    );
+    return [];
+  }
 }
 
 async function saveUsbCache(songs) {
+  if (!Array.isArray(songs)) {
+    throw new Error("Invalid USB song cache");
+  }
+
+  const validSongs = songs.filter(
+    (song) => song && typeof song === "object"
+  );
+
+  if (songs.length > 0 && validSongs.length === 0) {
+    throw new Error("USB cache validation failed");
+  }
+
   const db = await openUsbDatabase();
 
   return new Promise((resolve, reject) => {
@@ -98,13 +142,32 @@ async function saveUsbCache(songs) {
     const store =
       transaction.objectStore(USB_STORE_NAME);
 
-    store.put(
-      {
-        songs,
-        savedAt: Date.now()
-      },
-      USB_CACHE_KEY
-    );
+    const currentRequest =
+      store.get(USB_CACHE_KEY);
+
+    currentRequest.onsuccess = () => {
+      const oldCache = currentRequest.result;
+
+      if (Array.isArray(oldCache?.songs)) {
+        store.put(
+          oldCache,
+          USB_BACKUP_CACHE_KEY
+        );
+      }
+
+      store.put(
+        {
+          version: USB_CACHE_DATA_VERSION,
+          songs: validSongs,
+          savedAt: Date.now()
+        },
+        USB_CACHE_KEY
+      );
+    };
+
+    currentRequest.onerror = () => {
+      transaction.abort();
+    };
 
     transaction.oncomplete = () => {
       db.close();
@@ -113,7 +176,18 @@ async function saveUsbCache(songs) {
 
     transaction.onerror = () => {
       db.close();
-      reject(transaction.error);
+      reject(
+        transaction.error ||
+          new Error("USB cache save failed")
+      );
+    };
+
+    transaction.onabort = () => {
+      db.close();
+      reject(
+        transaction.error ||
+          new Error("USB cache save aborted")
+      );
     };
   });
 }
@@ -283,6 +357,7 @@ const [currentSong, setCurrentSong] = useState(null);
 const usbTransferIdRef = useRef(null);
 const usbExpectedChunksRef = useRef(0);
 const usbReceivedChunksRef = useRef(new Set());
+const usbTransferTimeoutRef = useRef(null);
   const queueRef = useRef(queue);
   const currentSongRef = useRef(currentSong);
   const currentIndexRef = useRef(currentIndex);
@@ -387,7 +462,7 @@ const sendTextPopup = useCallback(() => {
 }, [popupText, popupDuration, sendCommand]);
 
   useEffect(() => {
-    fetch("/artists.csv")
+      fetch("/artists.csv")
       .then((response) => {
         if (!response.ok) throw new Error("Artist CSV မတွေ့ပါ။");
         return response.text();
@@ -641,6 +716,24 @@ const queueChannel = supabase
     }
 
     if (payload?.type === "USB_SONGS_CHUNK") {
+  window.clearTimeout(
+    usbTransferTimeoutRef.current
+  );
+
+  usbTransferTimeoutRef.current =
+    window.setTimeout(() => {
+      setUsbLoading(false);
+      usbChunksRef.current = [];
+      usbReceivedChunksRef.current = new Set();
+      usbTransferIdRef.current = null;
+      usbExpectedChunksRef.current = 0;
+      usbTransferTimeoutRef.current = null;
+
+      setMessage(
+        "USB စာရင်းပို့တာ မပြီးဆုံးပါ။ အရင် Cache ကို ဆက်သုံးနေပါသည်။"
+      );
+    }, 15000);
+
   const transferId =
     payload?.transferId || "default";
 
@@ -710,9 +803,8 @@ const queueChannel = supabase
         };
       });
 
-    usbChunksRef.current.push(
-      ...normalizedSongs
-    );
+    usbChunksRef.current[chunkIndex] =
+      normalizedSongs;
 
     usbReceivedChunksRef.current.add(
       chunkIndex
@@ -722,15 +814,15 @@ const queueChannel = supabase
   const receivedCount =
     usbReceivedChunksRef.current.size;
 
-  setMessage(
-    `USB List ${receivedCount}/${totalChunks} လက်ခံနေပါသည်…`
-  );
-
   // Chunk အကုန်ရပြီ
   if (receivedCount === totalChunks) {
-    const fullList = [
-      ...usbChunksRef.current
-    ];
+    window.clearTimeout(
+      usbTransferTimeoutRef.current
+    );
+    usbTransferTimeoutRef.current = null;
+
+    const fullList =
+      usbChunksRef.current.flat();
 
     setUsbSongs(fullList);
     setUsbLoading(false);
@@ -767,6 +859,11 @@ const queueChannel = supabase
     }
 
     if (payload?.type === "USB_ERROR") {
+  window.clearTimeout(
+    usbTransferTimeoutRef.current
+  );
+  usbTransferTimeoutRef.current = null;
+
   setUsbLoading(false);
 
   usbChunksRef.current = [];
@@ -789,6 +886,11 @@ const queueChannel = supabase
     channelRef.current = channel;
 
     return () => {
+      window.clearTimeout(
+        usbTransferTimeoutRef.current
+      );
+      usbTransferTimeoutRef.current = null;
+
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
@@ -824,7 +926,7 @@ const queueChannel = supabase
     return ["ALL", ...new Set([...baseArtists, ...customArtists].map((a) => a.letter).filter(Boolean))];
   }, [baseArtists, customArtists]);
 
-  async function runSearch(overrideQuery) {
+        async function runSearch(overrideQuery) {
   const text = (overrideQuery ?? query).trim();
   if (!text || searching) return;
 
@@ -1040,6 +1142,24 @@ function requestUsbSongs() {
     "TV ထဲက USB သီချင်းစာရင်း ဖတ်နေပါသည်…"
   );
 
+  window.clearTimeout(
+    usbTransferTimeoutRef.current
+  );
+
+  usbTransferTimeoutRef.current =
+    window.setTimeout(() => {
+      setUsbLoading(false);
+      usbChunksRef.current = [];
+      usbReceivedChunksRef.current = new Set();
+      usbTransferIdRef.current = null;
+      usbExpectedChunksRef.current = 0;
+      usbTransferTimeoutRef.current = null;
+
+      setMessage(
+        "TV မှ USB စာရင်း မရောက်လာပါ။ အရင် Cache ကို ဆက်သုံးနေပါသည်။"
+      );
+    }, 15000);
+
   sendCommand("REQUEST_USB_SONGS");
 }
   async function addToQueue(
@@ -1113,7 +1233,7 @@ function requestUsbSongs() {
     const { data: lastRows, error: lastError } = await supabase
       .from("karaoke_queue")
       .select("position")
-      .eq("room_id", ROOM_ID)
+          .eq("room_id", ROOM_ID)
       .order("position", { ascending: false })
       .limit(1);
 
@@ -1571,10 +1691,7 @@ function requestUsbSongs() {
   className={
     tab === "usb" ? "active" : ""
   }
-  onClick={() => {
-    setTab("usb");
-    requestUsbSongs();
-  }}
+  onClick={() => setTab("usb")}
 >
   💾 USB
 </button>
@@ -1800,7 +1917,7 @@ function requestUsbSongs() {
     </button>
   )}
 </div>
-
+    
     <div className="video-grid">
       {filteredUsbSongs.map((song) => {
         const isNowPlaying =
