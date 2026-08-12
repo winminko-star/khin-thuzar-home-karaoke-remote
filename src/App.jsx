@@ -299,6 +299,7 @@ const [usbLoading, setUsbLoading] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 const [keyboardTarget, setKeyboardTarget] = useState("main");
 const [keyboardMode, setKeyboardMode] = useState("myanmar");
+  const [englishUppercase, setEnglishUppercase] = useState(true);
   const [message, setMessage] = useState("");
   useEffect(() => {
   let cancelled = false;
@@ -2424,49 +2425,71 @@ function requestUsbSongs() {
       </div>
 
       {keyboardMode === "myanmar" && (
-        <div className="keyboard-keys myanmar-keys">
-          {[
-            "က","ခ","ဂ","ဃ","င",
-            "စ","ဆ","ဇ","ဈ","ည",
-            "ဋ","ဌ","ဍ","ဎ","ဏ",
-            "တ","ထ","ဒ","ဓ","န",
-            "ပ","ဖ","ဗ","ဘ","မ",
-            "ယ","ရ","လ","ဝ","သ",
-            "ဟ","ဠ","အ",
-            "ျ","ြ","ွ","ှ",
-            "ါ","ာ","ိ","ီ","ု","ူ",
-            "ေ","ဲ","ံ","့","း"
-          ].map((key) => (
+  <div className="keyboard-keys myanmar-keys">
+    {[
+      "က","ခ","ဂ","ဃ","င",
+      "စ","ဆ","ဇ","ဈ","ဉ","ည",
+      "ဋ","ဌ","ဍ","ဎ","ဏ",
+      "တ","ထ","ဒ","ဓ","န",
+      "ပ","ဖ","ဗ","ဘ","မ",
+      "ယ","ရ","လ","ဝ","သ",
+      "ဟ","ဠ","အ",
+      "ျ","ြ","ွ","ှ",
+      "ါ","ာ","ိ","ီ","ု","ူ",
+      "ေ","ဲ","ံ","့","း","်"
+    ].map((key) => (
+      <button
+        key={key}
+        type="button"
+        onClick={() => pressKeyboardKey(key)}
+      >
+        {key}
+      </button>
+    ))}
+  </div>
+)}
+
+      {keyboardMode === "english" && (
+  <>
+    <div className="english-shift-row">
+      <button
+        type="button"
+        className={
+          englishUppercase
+            ? "english-shift active"
+            : "english-shift"
+        }
+        onClick={() =>
+          setEnglishUppercase((value) => !value)
+        }
+      >
+        ⇧ {englishUppercase ? "ABC" : "abc"}
+      </button>
+    </div>
+
+    <div className="keyboard-keys english-keys">
+      {"qwertyuiopasdfghjklzxcvbnm"
+        .split("")
+        .map((key) => {
+          const displayKey = englishUppercase
+            ? key.toUpperCase()
+            : key;
+
+          return (
             <button
               key={key}
               type="button"
               onClick={() =>
-                pressKeyboardKey(key)
+                pressKeyboardKey(displayKey)
               }
             >
-              {key}
+              {displayKey}
             </button>
-          ))}
-        </div>
-      )}
-
-      {keyboardMode === "english" && (
-        <div className="keyboard-keys english-keys">
-          {"QWERTYUIOPASDFGHJKLZXCVBNM"
-            .split("")
-            .map((key) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() =>
-                  pressKeyboardKey(key)
-                }
-              >
-                {key}
-              </button>
-            ))}
-        </div>
-      )}
+          );
+        })}
+    </div>
+  </>
+)}
 
       {keyboardMode === "number" && (
         <div className="keyboard-keys number-keys">
