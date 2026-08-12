@@ -17,6 +17,106 @@ const LOCAL_ARTISTS_KEY = "kth_home_karaoke_custom_artists";
 const LOCAL_QUEUE_KEY = "kth_home_karaoke_queue";
 const LOCAL_FAVORITES_KEY = "kth_home_karaoke_favorites";
 const MAX_FAVORITES = 20;
+// ========================================
+// USB SONG CACHE - INDEXEDDB
+// ========================================
+
+const USB_DB_NAME = "kth_karaoke_usb_db";
+const USB_DB_VERSION = 1;
+const USB_STORE_NAME = "usb_cache";
+const USB_CACHE_KEY = "current";
+
+function openUsbDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(
+      USB_DB_NAME,
+      USB_DB_VERSION
+    );
+
+    request.onupgradeneeded = () => {
+      const db = request.result;
+
+      if (!db.objectStoreNames.contains(USB_STORE_NAME)) {
+        db.createObjectStore(USB_STORE_NAME);
+      }
+    };
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+
+async function readUsbCache() {
+  const db = await openUsbDatabase();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(
+      USB_STORE_NAME,
+      "readonly"
+    );
+
+    const store =
+      transaction.objectStore(USB_STORE_NAME);
+
+    const request =
+      store.get(USB_CACHE_KEY);
+
+    request.onsuccess = () => {
+      const value = request.result;
+
+      resolve(
+        Array.isArray(value?.songs)
+          ? value.songs
+          : []
+      );
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+    };
+  });
+}
+
+async function saveUsbCache(songs) {
+  const db = await openUsbDatabase();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(
+      USB_STORE_NAME,
+      "readwrite"
+    );
+
+    const store =
+      transaction.objectStore(USB_STORE_NAME);
+
+    store.put(
+      {
+        songs,
+        savedAt: Date.now()
+      },
+      USB_CACHE_KEY
+    );
+
+    transaction.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+
+    transaction.onerror = () => {
+      db.close();
+      reject(transaction.error);
+    };
+  });
+}
 
 function mapCsvArtist(row, index) {
   return {
