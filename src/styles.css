@@ -2208,7 +2208,7 @@ select {
 .keyboard-keys .myanmar-vowel-key {
   min-height: 64px;
 
-  font-size: 1.55rem;
+  font-size: 1.9rem;
   font-weight: 900;
 
   background:
@@ -2236,7 +2236,8 @@ select {
 }
 @media (max-width: 700px) {
   .keyboard-keys .myanmar-vowel-key {
-    min-height: 58px;
-    font-size: 1.4rem;
+    min-height: 62px;
+    font-size: 1.75rem;
+    font-weight: 900;
   }
 }
