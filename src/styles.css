@@ -1931,10 +1931,7 @@ select {
   margin-bottom: 14px;
 }
 
-.myanmar-keys {
-  grid-template-columns:
-    repeat(8, minmax(0, 1fr));
-}
+
 
 .english-keys {
   grid-template-columns:
@@ -2184,4 +2181,62 @@ select {
 
 .english-shift:active {
   transform: scale(0.95);
+}
+.myanmar-consonant-keys {
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+}
+.myanmar-vowel-keys {
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  margin-top: 16px;
+}
+.keyboard-keys .myanmar-consonant-key {
+  background:
+    linear-gradient(
+      180deg,
+      #3b3b46,
+      #202027
+    );
+
+  border-color:
+    rgba(167, 139, 250, 0.4);
+
+  color: #ffffff;
+}
+.keyboard-keys .myanmar-vowel-key {
+  min-height: 64px;
+
+  font-size: 1.55rem;
+  font-weight: 900;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0f4c5c,
+      #123844
+    );
+
+  border: 2px solid
+    rgba(56, 189, 248, 0.78);
+
+  color: #ffffff;
+
+  box-shadow:
+    0 5px 0 #071a20,
+    0 0 16px
+      rgba(56, 189, 248, 0.22);
+}
+.keyboard-display-text,
+.keyboard-keys button {
+  letter-spacing: 0;
+  font-kerning: normal;
+  font-variant-ligatures: normal;
+}
+@media (max-width: 700px) {
+  .keyboard-keys .myanmar-vowel-key {
+    min-height: 58px;
+    font-size: 1.4rem;
+  }
 }
