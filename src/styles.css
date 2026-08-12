@@ -2146,3 +2146,42 @@ select {
     min-height: 48px;
   }
 }
+.english-shift-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.english-shift {
+  min-width: 110px;
+  min-height: 44px;
+
+  border: 1px solid #52525b;
+  border-radius: 12px;
+
+  background: #27272a;
+  color: #ffffff;
+
+  font-size: 1rem;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.english-shift.active {
+  border-color: #a78bfa;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5b21b6,
+      #7c3aed
+    );
+
+  box-shadow:
+    0 0 16px rgba(139, 92, 246, 0.3);
+}
+
+.english-shift:active {
+  transform: scale(0.95);
+}
