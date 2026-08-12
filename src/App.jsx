@@ -299,6 +299,7 @@ const [usbLoading, setUsbLoading] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 const [keyboardTarget, setKeyboardTarget] = useState("main");
 const [keyboardMode, setKeyboardMode] = useState("myanmar");
+  const [pendingE, setPendingE] = useState(false);
   const [englishUppercase, setEnglishUppercase] = useState(true);
   const [message, setMessage] = useState("");
   useEffect(() => {
@@ -952,37 +953,24 @@ function pressKeyboardKey(key) {
   const myanmarConsonants =
     "ကခဂဃငစဆဇဈညဋဌဍဎဏတထဒဓနပဖဗဘမယရလဝသဟဠအဉ";
 
-  // ေ ကို တစ်လုံးတည်း အရင်နှိပ်ထားမှ
-  // နောက်ဗျည်းရဲ့နောက်ကို ရွှေ့မယ်
-  if (
-    myanmarConsonants.includes(key) &&
-    text.endsWith("ေ")
-  ) {
-    const chars = Array.from(text);
-
-    // ေ ရဲ့အရှေ့က character
-    const beforeE = chars[chars.length - 2];
-
-    // ရှေ့မှာ ဗျည်းရှိပြီးသားဆို မရွှေ့ဘူး
-    // မ + ေ + သ => မေသ
-    if (
-      beforeE &&
-      myanmarConsonants.includes(beforeE)
-    ) {
-      setKeyboardText(text + key);
-      return;
-    }
-
-    // ေ + မ => မေ
-    chars.pop();
-
-    setKeyboardText(
-      chars.join("") + key + "ေ"
-    );
-
+  // ေ ကိုနှိပ်ရင် pending အနေနဲ့ထား
+  if (key === "ေ") {
+    setPendingE(true);
     return;
   }
 
+  // ေ pending ဖြစ်နေပြီး ဗျည်းနှိပ်ရင်
+  // ဗျည်း + ေ အဖြစ်ထည့်
+  if (
+    pendingE &&
+    myanmarConsonants.includes(key)
+  ) {
+    setKeyboardText(text + key + "ေ");
+    setPendingE(false);
+    return;
+  }
+
+  // တခြား key နှိပ်ရင် ပုံမှန်ထည့်
   setKeyboardText(text + key);
 }
 
@@ -2492,13 +2480,17 @@ function requestUsbSongs() {
     "်"
   ].map((key) => (
     <button
-      key={key}
-      type="button"
-      className="myanmar-vowel-key"
-      onClick={() => pressKeyboardKey(key)}
-    >
-      {key}
-    </button>
+  key={key}
+  type="button"
+  className={
+    key === "ေ" && pendingE
+      ? "myanmar-vowel-key pending-e"
+      : "myanmar-vowel-key"
+  }
+  onClick={() => pressKeyboardKey(key)}
+>
+  {key}
+</button>
   ))}
 
   <button
