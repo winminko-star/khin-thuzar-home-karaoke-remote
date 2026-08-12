@@ -947,7 +947,27 @@ function setKeyboardText(text) {
 }
 
 function pressKeyboardKey(key) {
-  setKeyboardText(getKeyboardText() + key);
+  const text = getKeyboardText();
+
+  const myanmarConsonants =
+    "ကခဂဃငစဆဇဈညဋဌဍဎဏတထဒဓနပဖဗဘမယရလဝသဟဠအဉ";
+
+  // ေ ကိုအရင်နှိပ်ပြီး နောက်မှ ဗျည်းနှိပ်ရင်
+  // Unicode order ကို မှန်အောင် ပြန်စီမယ်
+  if (
+    myanmarConsonants.includes(key) &&
+    text.endsWith("ေ")
+  ) {
+    const withoutE = text.slice(0, -1);
+
+    setKeyboardText(
+      withoutE + key + "ေ"
+    );
+
+    return;
+  }
+
+  setKeyboardText(text + key);
 }
 
 function keyboardBackspace() {
@@ -2423,27 +2443,51 @@ function requestUsbSongs() {
       </div>
 
       {keyboardMode === "myanmar" && (
-  <div className="keyboard-keys myanmar-keys">
-    {[
-      "က","ခ","ဂ","ဃ","င",
-      "စ","ဆ","ဇ","ဈ","ဉ","ည",
-      "ဋ","ဌ","ဍ","ဎ","ဏ",
-      "တ","ထ","ဒ","ဓ","န",
-      "ပ","ဖ","ဗ","ဘ","မ",
-      "ယ","ရ","လ","ဝ","သ",
-      "ဟ","ဠ","အ",
-      "ျ","ြ","ွ","ှ",
-      "ါ","ာ","ိ","ီ","ု","ူ",
-      "ေ","ဲ","ံ","့","း","်"
-    ].map((key) => (
-      <button
-        key={key}
-        type="button"
-        onClick={() => pressKeyboardKey(key)}
-      >
-        {key}
-      </button>
-    ))}
+  <div className="myanmar-keyboard-area">
+
+    <div className="keyboard-keys myanmar-consonant-keys">
+      {[
+        "က","ခ","ဂ","ဃ","င",
+        "စ","ဆ","ဇ","ဈ","ည",
+        "ဋ","ဌ","ဍ","ဎ","ဏ",
+        "တ","ထ","ဒ","ဓ","န",
+        "ပ","ဖ","ဗ","ဘ","မ",
+        "ယ","ရ","လ","ဝ","သ",
+        "ဟ","ဠ","အ","ဉ"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="myanmar-consonant-key"
+          onClick={() =>
+            pressKeyboardKey(key)
+          }
+        >
+          {key}
+        </button>
+      ))}
+    </div>
+
+    <div className="keyboard-keys myanmar-vowel-keys">
+      {[
+        "ျ","ြ","ွ","ှ","ါ",
+        "ာ","ိ","ီ","ု","ူ",
+        "ေ","ဲ","ံ","့","း",
+        "်"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="myanmar-vowel-key"
+          onClick={() =>
+            pressKeyboardKey(key)
+          }
+        >
+          {key}
+        </button>
+      ))}
+    </div>
+
   </div>
 )}
 
