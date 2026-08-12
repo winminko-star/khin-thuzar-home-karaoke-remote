@@ -279,6 +279,10 @@ const [currentSong, setCurrentSong] = useState(null);
   const channelRef = useRef(null);
   const queueChannelRef = useRef(null);
   const stateChannelRef = useRef(null);
+  const usbChunksRef = useRef([]);
+const usbTransferIdRef = useRef(null);
+const usbExpectedChunksRef = useRef(0);
+const usbReceivedChunksRef = useRef(new Set());
   const queueRef = useRef(queue);
   const currentSongRef = useRef(currentSong);
   const currentIndexRef = useRef(currentIndex);
@@ -636,54 +640,148 @@ const queueChannel = supabase
       loadPlaybackState();
     }
 
-    if (payload?.type === "USB_SONGS_LIST") {
-      const songs = Array.isArray(payload?.songs)
-        ? payload.songs.map((song) => {
-            const rawId =
-              song.id ||
-              song.fileId ||
-              song.uri ||
-              song.path ||
-              song.title;
+    if (payload?.type === "USB_SONGS_CHUNK") {
+  const transferId =
+    payload?.transferId || "default";
 
-            const usbId = String(rawId).startsWith(
-              "usb:"
-            )
-              ? String(rawId)
-              : `usb:${rawId}`;
+  const chunkIndex =
+    Number(payload?.chunkIndex ?? 0);
 
-            return {
-              ...song,
-              id: usbId,
-              sourceType: "usb",
-              channel:
-                song.channel ||
-                song.folder ||
-                "USB Storage",
-              thumbnail:
-  song.thumbnail || "/usb-default.png"
-            };
-          })
-        : [];
+  const totalChunks =
+    Number(payload?.totalChunks ?? 1);
 
-      setUsbSongs(songs);
-      setUsbLoading(false);
+  const incomingSongs =
+    Array.isArray(payload?.songs)
+      ? payload.songs
+      : [];
 
-      setMessage(
-        songs.length > 0
-          ? `USB သီချင်း ${songs.length} ပုဒ် ရပါပြီ။`
-          : "USB ထဲမှာ MP4 သီချင်းမတွေ့ပါ။"
-      );
+  // Transfer အသစ်စရင် buffer reset
+  if (
+    usbTransferIdRef.current !==
+    transferId
+  ) {
+    usbTransferIdRef.current =
+      transferId;
+
+    usbChunksRef.current = [];
+
+    usbReceivedChunksRef.current =
+      new Set();
+
+    usbExpectedChunksRef.current =
+      totalChunks;
+  }
+
+  // Duplicate chunk မထည့်
+  if (
+    !usbReceivedChunksRef.current.has(
+      chunkIndex
+    )
+  ) {
+    const normalizedSongs =
+      incomingSongs.map((song) => {
+        const rawId =
+          song.id ||
+          song.fileId ||
+          song.uri ||
+          song.path ||
+          song.title;
+
+        const usbId =
+          String(rawId).startsWith("usb:")
+            ? String(rawId)
+            : `usb:${rawId}`;
+
+        return {
+          ...song,
+
+          id: usbId,
+
+          sourceType: "usb",
+
+          channel:
+            song.channel ||
+            song.folder ||
+            "USB Storage",
+
+          thumbnail:
+            song.thumbnail ||
+            "/usb-default.png"
+        };
+      });
+
+    usbChunksRef.current.push(
+      ...normalizedSongs
+    );
+
+    usbReceivedChunksRef.current.add(
+      chunkIndex
+    );
+  }
+
+  const receivedCount =
+    usbReceivedChunksRef.current.size;
+
+  setMessage(
+    `USB List ${receivedCount}/${totalChunks} လက်ခံနေပါသည်…`
+  );
+
+  // Chunk အကုန်ရပြီ
+  if (receivedCount === totalChunks) {
+    const fullList = [
+      ...usbChunksRef.current
+    ];
+
+    setUsbSongs(fullList);
+    setUsbLoading(false);
+
+    saveUsbCache(fullList)
+      .then(() => {
+        console.log(
+          `USB cache saved: ${fullList.length}`
+        );
+      })
+      .catch((error) => {
+        console.error(
+          "USB cache save error:",
+          error
+        );
+      });
+
+    setMessage(
+      fullList.length > 0
+        ? `USB သီချင်း ${fullList.length} ပုဒ် ရပါပြီ။`
+        : "USB ထဲမှာ MP4 သီချင်းမတွေ့ပါ။"
+    );
+
+    // Buffer cleanup
+    usbChunksRef.current = [];
+
+    usbReceivedChunksRef.current =
+      new Set();
+
+    usbTransferIdRef.current = null;
+
+    usbExpectedChunksRef.current = 0;
+  }
     }
 
     if (payload?.type === "USB_ERROR") {
-      setUsbSongs([]);
-      setUsbLoading(false);
+  setUsbLoading(false);
 
-      setMessage(
-        payload?.message ||
-          "USB သီချင်းစာရင်း ဖတ်မရပါ။"
-      );
+  usbChunksRef.current = [];
+
+  usbReceivedChunksRef.current =
+    new Set();
+
+  usbTransferIdRef.current = null;
+
+  usbExpectedChunksRef.current = 0;
+
+  setMessage(
+    payload?.message ||
+      "USB သီချင်းစာရင်းအသစ် ဖတ်မရပါ။ အရင် Cache ကို ဆက်သုံးနေပါသည်။"
+  );
     }
   }
 )
