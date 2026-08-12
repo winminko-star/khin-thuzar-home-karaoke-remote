@@ -952,18 +952,25 @@ function pressKeyboardKey(key) {
   const myanmarConsonants =
     "ကခဂဃငစဆဇဈညဋဌဍဎဏတထဒဓနပဖဗဘမယရလဝသဟဠအဉ";
 
-  // ေ ကိုအရင်နှိပ်ပြီး နောက်မှ ဗျည်းနှိပ်ရင်
-  // Unicode order ကို မှန်အောင် ပြန်စီမယ်
+  // ေ ကို ဗျည်းမတိုင်ခင် အရင်နှိပ်ထားတဲ့အခြေအနေမှာပဲ
+  // Unicode order ပြန်စီမယ်
   if (
     myanmarConsonants.includes(key) &&
     text.endsWith("ေ")
   ) {
-    const withoutE = text.slice(0, -1);
+    const beforeE = text.slice(0, -1);
+    const previousChar =
+      Array.from(beforeE).at(-1) || "";
 
-    setKeyboardText(
-      withoutE + key + "ေ"
-    );
+    // ေ ရဲ့ရှေ့မှာ ဗျည်းရှိပြီးသားဆို
+    // မေ + သ => မေသ ဖြစ်အောင် မရွှေ့တော့ဘူး
+    if (myanmarConsonants.includes(previousChar)) {
+      setKeyboardText(text + key);
+      return;
+    }
 
+    // ဥပမာ ေ + မ => မေ
+    setKeyboardText(beforeE + key + "ေ");
     return;
   }
 
