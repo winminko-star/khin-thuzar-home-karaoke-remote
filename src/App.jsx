@@ -224,6 +224,33 @@ const [usbLoading, setUsbLoading] = useState(false);
   const [usbQuery, setUsbQuery] = useState("");
   const [message, setMessage] = useState("");
   useEffect(() => {
+  let cancelled = false;
+
+  async function loadUsbSongsFromCache() {
+    try {
+      const cachedSongs = await readUsbCache();
+
+      if (cancelled) return;
+
+      if (cachedSongs.length > 0) {
+        setUsbSongs(cachedSongs);
+
+        setMessage(
+          `USB Cache မှ သီချင်း ${cachedSongs.length} ပုဒ် ဖတ်ပြီးပါပြီ။`
+        );
+      }
+    } catch (error) {
+      console.error("USB cache read error:", error);
+    }
+  }
+
+  loadUsbSongsFromCache();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+  useEffect(() => {
   if (!message) return;
 
   const timer = setTimeout(() => {
