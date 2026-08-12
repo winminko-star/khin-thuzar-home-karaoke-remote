@@ -2485,24 +2485,30 @@ function requestUsbSongs() {
     </div>
 
     <div className="keyboard-keys myanmar-vowel-keys">
-      {[
-        "ျ","ြ","ွ","ှ","ါ",
-        "ာ","ိ","ီ","ု","ူ",
-        "ေ","ဲ","ံ","့","း",
-        "်"
-      ].map((key) => (
-        <button
-          key={key}
-          type="button"
-          className="myanmar-vowel-key"
-          onClick={() =>
-            pressKeyboardKey(key)
-          }
-        >
-          {key}
-        </button>
-      ))}
-    </div>
+  {[
+    "ျ","ြ","ွ","ှ","ါ",
+    "ာ","ိ","ီ","ု","ူ",
+    "ေ","ဲ","ံ","့","း",
+    "်"
+  ].map((key) => (
+    <button
+      key={key}
+      type="button"
+      className="myanmar-vowel-key"
+      onClick={() => pressKeyboardKey(key)}
+    >
+      {key}
+    </button>
+  ))}
+
+  <button
+    type="button"
+    className="myanmar-stack-key"
+    onClick={() => pressKeyboardKey("္")}
+  >
+    ဆင့်
+  </button>
+</div>
 
   </div>
 )}
