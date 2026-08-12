@@ -2241,3 +2241,45 @@ select {
     font-weight: 900;
   }
 }
+.keyboard-keys .myanmar-stack-key {
+  min-height: 64px;
+
+  border: 2px solid rgba(250, 204, 21, 0.9);
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #854d0e,
+      #422006
+    );
+
+  color: #fff7cc;
+
+  font-family:
+    "Noto Sans Myanmar",
+    system-ui,
+    sans-serif;
+
+  font-size: 1.3rem;
+  font-weight: 900;
+
+  box-shadow:
+    0 5px 0 #1c0f03,
+    0 0 18px rgba(250, 204, 21, 0.25);
+
+  cursor: pointer;
+}
+
+.keyboard-keys .myanmar-stack-key:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 #1c0f03,
+    0 3px 7px rgba(0, 0, 0, 0.3);
+}
+@media (max-width: 700px) {
+  .keyboard-keys .myanmar-stack-key {
+    min-height: 62px;
+    font-size: 1.25rem;
+  }
+}
