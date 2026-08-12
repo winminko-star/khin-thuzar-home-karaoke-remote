@@ -2283,3 +2283,20 @@ select {
     font-size: 1.25rem;
   }
 }
+.keyboard-keys .myanmar-vowel-key.pending-e {
+  background:
+    linear-gradient(
+      180deg,
+      #f59e0b,
+      #b45309
+    );
+
+  border-color: #fde047;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(250, 204, 21, 0.22),
+    0 0 24px rgba(245, 158, 11, 0.55);
+}
+
