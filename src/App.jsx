@@ -1027,17 +1027,29 @@ function keyboardBackspace() {
     return;
   }
 
-  // ဥပမာ လွေ / လှေ / ကျေ / ကြေ
-  // Back နှိပ်ရင် ေ ကိုမဖျက်ဘဲ
-  // ျ ြ ွ ှ ကိုအရင်ဖျက်
+  // ဥပမာ လျေ / လြေ / လွေ / လှေ
+  // Back နှိပ်ရင် ျ ြ ွ ှ ကိုအရင်ဖျက်
   if (text.endsWith("ေ") && text.length >= 2) {
     const beforeE = text.slice(0, -1);
-    const lastChar = Array.from(beforeE).slice(-1)[0];
+    const chars = Array.from(beforeE);
+    const lastChar = chars[chars.length - 1];
 
     if (["ျ", "ြ", "ွ", "ှ"].includes(lastChar)) {
-      setKeyboardText(
-        Array.from(beforeE).slice(0, -1).join("") + "ေ"
-      );
+      chars.pop();
+      setKeyboardText(chars.join("") + "ေ");
+      return;
+    }
+
+    // ဗျည်း + ေ ဖြစ်နေရင်
+    // Back နှိပ်ရင် ဗျည်းကိုဖျက်ပြီး
+    // ေ ကို pending ပြန်ထား
+    const myanmarConsonants =
+      "ကခဂဃငစဆဇဈညဋဌဍဎဏတထဒဓနပဖဗဘမယရလဝသဟဠအဉ";
+
+    if (lastChar && myanmarConsonants.includes(lastChar)) {
+      chars.pop();
+      setKeyboardText(chars.join(""));
+      setPendingE(true);
       return;
     }
   }
