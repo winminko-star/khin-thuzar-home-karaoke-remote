@@ -1021,6 +1021,28 @@ function pressKeyboardKey(key) {
 function keyboardBackspace() {
   const text = getKeyboardText();
 
+  // ေ ကိုနှိပ်ထားပြီး ဗျည်းမနှိပ်ရသေးရင်
+  if (pendingE) {
+    setPendingE(false);
+    return;
+  }
+
+  // ဥပမာ လွေ / လှေ / ကျေ / ကြေ
+  // Back နှိပ်ရင် ေ ကိုမဖျက်ဘဲ
+  // ျ ြ ွ ှ ကိုအရင်ဖျက်
+  if (text.endsWith("ေ") && text.length >= 2) {
+    const beforeE = text.slice(0, -1);
+    const lastChar = Array.from(beforeE).slice(-1)[0];
+
+    if (["ျ", "ြ", "ွ", "ှ"].includes(lastChar)) {
+      setKeyboardText(
+        Array.from(beforeE).slice(0, -1).join("") + "ေ"
+      );
+      return;
+    }
+  }
+
+  // ပုံမှန် Backspace
   setKeyboardText(
     Array.from(text).slice(0, -1).join("")
   );
