@@ -601,6 +601,16 @@ const sendTextPopup = useCallback(() => {
     setCurrentSong(song);
     return true;
   }, []);
+  const handleAdjust = useCallback(() => {
+  if (!connected) {
+    setMessage("TV connection မရသေးပါ။");
+    return;
+  }
+
+  setMessage("TV Now Playing နဲ့ Queue ကို ပြန်ညှိနေပါသည်…");
+
+  sendCommand("REQUEST_TV_STATE");
+}, [connected, sendCommand]);
 
   useEffect(() => {
     if (!isSupabaseConfigured) return undefined;
@@ -713,6 +723,28 @@ const queueChannel = supabase
   ({ payload }) => {
     if (payload?.type === "READY") {
       setConnected(true);
+    }
+    if (payload?.type === "TV_STATE") {
+  const tvNowPlaying = payload?.currentSong || null;
+
+  const tvQueue = Array.isArray(payload?.queue)
+    ? payload.queue
+    : [];
+
+  currentSongRef.current = tvNowPlaying;
+  setCurrentSong(tvNowPlaying);
+
+  queueRef.current = tvQueue;
+  setQueue(tvQueue);
+
+  setCurrentIndex(-1);
+  currentIndexRef.current = -1;
+
+  setMessage(
+    tvNowPlaying
+      ? `Adjust ပြီးပါပြီ — ${tvNowPlaying.title || "Now Playing"}`
+      : "Adjust ပြီးပါပြီ။ TV မှာ Now Playing မရှိပါ။"
+  );
     }
 
     if (payload?.type === "VIDEO_ENDED") {
@@ -1704,6 +1736,12 @@ function requestUsbSongs() {
   }}
 >
   🔄<span>Re-Sing</span>
+</button>
+          <button
+  type="button"
+  onClick={handleAdjust}
+>
+  🔗<span>Adjust</span>
 </button>
           <button
   onClick={() => {
