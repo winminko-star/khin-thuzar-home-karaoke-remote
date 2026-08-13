@@ -985,14 +985,14 @@ function pressKeyboardKey(key) {
   const myanmarConsonants =
     "ကခဂဃငစဆဇဈညဋဌဍဎဏတထဒဓနပဖဗဘမယရလဝသဟဠအဉ";
 
-  // ေ ကိုနှိပ်ရင် pending အနေနဲ့ထား
+  // ေ ကိုအရင်နှိပ်ရင် pending ထား
   if (key === "ေ") {
     setPendingE(true);
     return;
   }
 
-  // ေ pending ဖြစ်နေပြီး ဗျည်းနှိပ်ရင်
-  // ဗျည်း + ေ အဖြစ်ထည့်
+  // ေ pending + ဗျည်း
+  // ဥပမာ ေ + လ => လေ
   if (
     pendingE &&
     myanmarConsonants.includes(key)
@@ -1002,7 +1002,19 @@ function pressKeyboardKey(key) {
     return;
   }
 
-  // တခြား key နှိပ်ရင် ပုံမှန်ထည့်
+  // ေ ရှိပြီးသား syllable မှာ
+  // ျ ြ ွ ှ ကို ေ ရဲ့ရှေ့မှာ ထည့်
+  if (
+    ["ျ", "ြ", "ွ", "ှ"].includes(key) &&
+    text.endsWith("ေ")
+  ) {
+    setKeyboardText(
+      text.slice(0, -1) + key + "ေ"
+    );
+    return;
+  }
+
+  // တခြား key ပုံမှန်ထည့်
   setKeyboardText(text + key);
 }
 
