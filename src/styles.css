@@ -1767,7 +1767,7 @@ select {
   }
 }
 /* ========================================
-   KARAOKE CUSTOM KEYBOARD
+   KARAOKE CUSTOM KEYBOARD - GBOARD STYLE
 ======================================== */
 
 .karaoke-keyboard-backdrop {
@@ -1779,76 +1779,127 @@ select {
   align-items: flex-end;
   justify-content: center;
 
-  padding: 14px;
-
-  background: rgba(0, 0, 0, 0.78);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .karaoke-keyboard {
-  width: min(980px, 100%);
-  max-height: 92vh;
+  width: min(900px, 100%);
+  max-height: 94vh;
   overflow-y: auto;
 
-  padding: 18px;
+  padding: 10px;
 
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 28px;
+  border-radius: 24px 24px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
 
   background:
-    radial-gradient(
-      circle at top left,
-      rgba(124, 58, 237, 0.28),
-      transparent 35%
-    ),
-    radial-gradient(
-      circle at top right,
-      rgba(219, 39, 119, 0.22),
-      transparent 35%
-    ),
-    rgba(16, 16, 20, 0.96);
+    linear-gradient(
+      180deg,
+      #24153f 0%,
+      #17152a 35%,
+      #10111a 100%
+    );
 
   box-shadow:
-    0 25px 80px rgba(0, 0, 0, 0.6),
-    0 0 30px rgba(139, 92, 246, 0.14);
+    0 -12px 40px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(168, 85, 247, 0.22);
 }
 
 /* =========================
-   DISPLAY
+   TITLE
+========================= */
+
+.keyboard-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 48px;
+  margin-bottom: 8px;
+  padding: 7px 12px;
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ff1493,
+      #a855f7,
+      #06b6d4,
+      #22c55e,
+      #facc15,
+      #ff1493
+    );
+
+  background-size: 250% 100%;
+
+  animation: keyboardRainbow 7s linear infinite;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 0 18px rgba(236, 72, 153, 0.35);
+}
+
+.keyboard-title strong {
+  font-size: clamp(1rem, 4vw, 1.45rem);
+  font-weight: 900;
+  text-align: center;
+
+  text-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.45);
+}
+
+.keyboard-title span {
+  font-size: 1.25rem;
+}
+
+@keyframes keyboardRainbow {
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 250% 50%;
+  }
+}
+
+/* =========================
+   SEARCH DISPLAY
 ========================= */
 
 .keyboard-display {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
 
-  padding: 15px 18px;
-
-  border: 1px solid rgba(167, 139, 250, 0.5);
-  border-radius: 20px;
+  border: 2px solid rgba(168, 85, 247, 0.65);
+  border-radius: 16px;
 
   background:
     linear-gradient(
       135deg,
-      rgba(76, 29, 149, 0.6),
-      rgba(30, 58, 138, 0.45)
+      rgba(88, 28, 135, 0.72),
+      rgba(30, 64, 175, 0.6)
     );
 
   box-shadow:
-    inset 0 0 24px rgba(139, 92, 246, 0.12),
-    0 8px 30px rgba(0, 0, 0, 0.3);
+    inset 0 0 18px rgba(255, 255, 255, 0.05),
+    0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .keyboard-display-label {
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 
-  color: #c4b5fd;
+  color: #f0abfc;
 
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 900;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
 }
 
 .keyboard-display-text {
-  min-height: 58px;
+  min-height: 42px;
 
   display: flex;
   align-items: center;
@@ -1861,9 +1912,9 @@ select {
     system-ui,
     sans-serif;
 
-  font-size: clamp(1.65rem, 5vw, 2.8rem);
+  font-size: clamp(1.35rem, 5vw, 2rem);
   font-weight: 900;
-  line-height: 1.35;
+  line-height: 1.3;
 
   overflow-wrap: anywhere;
 }
@@ -1875,63 +1926,79 @@ select {
 .keyboard-mode-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
 
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .keyboard-mode-row button {
-  min-height: 48px;
+  min-height: 42px;
 
-  border: 1px solid #3f3f46;
-  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 13px;
 
-  background: #27272a;
-  color: #d4d4d8;
+  background:
+    linear-gradient(
+      180deg,
+      #34303f,
+      #24212c
+    );
 
-  font-size: 1rem;
+  color: #e5e7eb;
+
+  font-size: 0.95rem;
   font-weight: 900;
 
   cursor: pointer;
 
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease,
-    border-color 0.12s ease;
+  box-shadow:
+    0 3px 0 #09090b;
 }
 
 .keyboard-mode-row button.active {
-  border-color: #c4b5fd;
+  border-color: #f0abfc;
 
   background:
     linear-gradient(
       135deg,
       #7c3aed,
-      #c026d3
+      #d946ef,
+      #ec4899
     );
 
   color: #ffffff;
 
   box-shadow:
-    0 0 18px rgba(192, 38, 211, 0.35);
+    0 3px 0 #581c87,
+    0 0 15px rgba(217, 70, 239, 0.45);
 }
 
 .keyboard-mode-row button:active {
-  transform: scale(0.95);
+  transform: translateY(2px);
 }
 
 /* =========================
-   NORMAL KEYS
+   ALL KEY GRIDS
 ========================= */
 
 .keyboard-keys {
   display: grid;
-  gap: 7px;
+  gap: 6px;
 
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
+.myanmar-consonant-keys {
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+}
 
+.myanmar-vowel-keys {
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  margin-top: 10px;
+}
 
 .english-keys {
   grid-template-columns:
@@ -1943,21 +2010,27 @@ select {
     repeat(10, minmax(0, 1fr));
 }
 
+/* =========================
+   NORMAL KEY
+========================= */
+
 .keyboard-keys button {
   min-width: 0;
-  min-height: 56px;
+  min-height: 52px;
 
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 13px;
+  padding: 4px 2px;
+
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 11px;
 
   background:
     linear-gradient(
       180deg,
-      #3f3f46,
-      #18181b
+      #ffffff,
+      #e7e8ef
     );
 
-  color: #ffffff;
+  color: #171717;
 
   font-family:
     "Noto Sans Myanmar",
@@ -1965,85 +2038,212 @@ select {
     system-ui,
     sans-serif;
 
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 900;
 
   cursor: pointer;
 
   box-shadow:
-    0 5px 0 #09090b,
-    0 9px 15px rgba(0, 0, 0, 0.3);
+    0 3px 0 #9ca3af,
+    0 6px 10px rgba(0, 0, 0, 0.25);
 
   transition:
-    transform 0.08s ease,
-    box-shadow 0.08s ease,
-    border-color 0.08s ease;
+    transform 0.07s ease,
+    box-shadow 0.07s ease;
 }
 
 .keyboard-keys button:active {
-  transform: translateY(4px);
+  transform: translateY(3px);
 
   box-shadow:
-    0 1px 0 #09090b,
-    0 4px 8px rgba(0, 0, 0, 0.3);
-
-  border-color: #a78bfa;
+    0 1px 0 #9ca3af,
+    0 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 /* =========================
-   BOTTOM ACTION KEYS
+   MYANMAR CONSONANTS
+========================= */
+
+.keyboard-keys .myanmar-consonant-key {
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #e5e7eb
+    );
+
+  border-color: #c4b5fd;
+
+  color: #171717;
+}
+
+/* =========================
+   VOWELS
+========================= */
+
+.keyboard-keys .myanmar-vowel-key {
+  min-height: 58px;
+
+  font-size: 1.75rem;
+  font-weight: 900;
+
+  background:
+    linear-gradient(
+      180deg,
+      #22d3ee,
+      #0891b2
+    );
+
+  border: 2px solid #67e8f9;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 3px 0 #155e75,
+    0 0 12px rgba(34, 211, 238, 0.35);
+}
+
+/* သဝေထိုး Pending */
+.keyboard-keys .myanmar-vowel-key.pending-e {
+  background:
+    linear-gradient(
+      180deg,
+      #facc15,
+      #f59e0b
+    );
+
+  border-color: #fef08a;
+
+  color: #111827;
+
+  box-shadow:
+    0 0 0 3px rgba(250, 204, 21, 0.25),
+    0 0 22px rgba(250, 204, 21, 0.7);
+}
+
+/* =========================
+   STACK KEY
+========================= */
+
+.keyboard-keys .myanmar-stack-key {
+  min-height: 58px;
+
+  border: 2px solid #fde047;
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f97316,
+      #ea580c
+    );
+
+  color: #ffffff;
+
+  font-size: 1rem;
+  font-weight: 900;
+
+  box-shadow:
+    0 3px 0 #9a3412,
+    0 0 12px rgba(249, 115, 22, 0.35);
+}
+
+/* =========================
+   ENGLISH SHIFT
+========================= */
+
+.english-shift-row {
+  display: flex;
+  justify-content: flex-start;
+
+  margin-bottom: 6px;
+}
+
+.english-shift {
+  min-width: 110px;
+  min-height: 40px;
+
+  border: 1px solid #c4b5fd;
+  border-radius: 12px;
+
+  background: #312e81;
+  color: #ffffff;
+
+  font-size: 0.9rem;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.english-shift.active {
+  background:
+    linear-gradient(
+      135deg,
+      #7c3aed,
+      #ec4899
+    );
+
+  box-shadow:
+    0 0 14px rgba(236, 72, 153, 0.4);
+}
+
+/* =========================
+   BOTTOM ACTIONS
 ========================= */
 
 .keyboard-actions {
   display: grid;
 
   grid-template-columns:
-    0.8fr
-    0.8fr
-    1.8fr
-    1.8fr
-    1fr;
+    0.85fr
+    0.85fr
+    1.7fr
+    1.7fr
+    0.9fr;
 
-  gap: 8px;
+  gap: 6px;
 }
 
 .keyboard-actions button {
-  min-height: 54px;
+  min-height: 48px;
 
   border: 0;
-  border-radius: 14px;
+  border-radius: 12px;
 
   color: #ffffff;
 
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 900;
 
   cursor: pointer;
-
-  transition:
-    transform 0.1s ease,
-    filter 0.1s ease;
-}
-
-.keyboard-actions button:active {
-  transform: scale(0.96);
 }
 
 .keyboard-clear {
-  background: #7f1d1d;
+  background:
+    linear-gradient(
+      135deg,
+      #dc2626,
+      #f43f5e
+    );
 }
 
 .keyboard-backspace {
-  background: #374151;
-  font-size: 1.4rem !important;
+  background:
+    linear-gradient(
+      135deg,
+      #475569,
+      #1e293b
+    );
+
+  font-size: 1.35rem !important;
 }
 
 .keyboard-space {
   background:
     linear-gradient(
       135deg,
-      #1e3a8a,
-      #4338ca
+      #2563eb,
+      #4f46e5
     );
 }
 
@@ -2051,16 +2251,25 @@ select {
   background:
     linear-gradient(
       135deg,
-      #7c3aed,
-      #db2777
+      #a855f7,
+      #ec4899
     );
 
   box-shadow:
-    0 0 20px rgba(219, 39, 119, 0.3);
+    0 0 16px rgba(236, 72, 153, 0.4);
 }
 
 .keyboard-close {
-  background: #27272a;
+  background:
+    linear-gradient(
+      135deg,
+      #334155,
+      #111827
+    );
+}
+
+.keyboard-actions button:active {
+  transform: scale(0.96);
 }
 
 /* =========================
@@ -2069,44 +2278,65 @@ select {
 
 @media (max-width: 700px) {
 
-  .karaoke-keyboard-backdrop {
-    padding: 6px;
+  .karaoke-keyboard {
+    width: 100%;
+    max-height: 96vh;
+
+    padding: 7px;
+
+    border-radius: 20px 20px 0 0;
   }
 
-  .karaoke-keyboard {
-    padding: 11px;
-    border-radius: 20px;
+  .keyboard-title {
+    min-height: 42px;
+    margin-bottom: 6px;
+    padding: 5px 8px;
+  }
+
+  .keyboard-title strong {
+    font-size: 1rem;
+  }
+
+  .keyboard-title span {
+    font-size: 1.05rem;
   }
 
   .keyboard-display {
-    padding: 11px 13px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
+    padding: 6px 10px;
   }
 
   .keyboard-display-text {
-    min-height: 48px;
-    font-size: clamp(1.4rem, 7vw, 2rem);
+    min-height: 38px;
+    font-size: 1.45rem;
   }
 
   .keyboard-mode-row {
-    gap: 5px;
-    margin-bottom: 9px;
+    gap: 4px;
+    margin-bottom: 6px;
   }
 
   .keyboard-mode-row button {
-    min-height: 42px;
-    padding: 5px;
-    font-size: 0.82rem;
+    min-height: 38px;
+    padding: 3px;
+    font-size: 0.78rem;
   }
 
   .keyboard-keys {
     gap: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
 
-  .myanmar-keys {
+  .myanmar-consonant-keys {
     grid-template-columns:
-      repeat(6, minmax(0, 1fr));
+      repeat(5, minmax(0, 1fr));
+  }
+
+  .myanmar-vowel-keys {
+    grid-template-columns:
+      repeat(5, minmax(0, 1fr));
+
+    margin-top: 7px;
   }
 
   .english-keys {
@@ -2120,13 +2350,22 @@ select {
   }
 
   .keyboard-keys button {
-    min-height: 48px;
+    min-height: 47px;
 
-    padding: 5px 2px;
+    padding: 3px 1px;
 
-    font-size: 1.08rem;
+    border-radius: 9px;
 
-    border-radius: 10px;
+    font-size: 1.18rem;
+  }
+
+  .keyboard-keys .myanmar-vowel-key {
+    min-height: 52px;
+    font-size: 1.55rem;
+  }
+
+  .keyboard-keys .myanmar-stack-key {
+    min-height: 52px;
   }
 
   .keyboard-actions {
@@ -2140,163 +2379,51 @@ select {
   }
 
   .keyboard-actions button {
-    min-height: 48px;
+    min-height: 44px;
   }
-}
-.english-shift-row {
+  }
+/* =========================
+   KARAOKE KEYBOARD TITLE
+========================= */
+
+.keyboard-title {
   display: flex;
-  justify-content: flex-start;
-  margin-bottom: 8px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  margin-bottom: 12px;
+  padding: 10px 12px;
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ff1493,
+      #8b5cf6,
+      #00d4ff,
+      #22c55e,
+      #facc15,
+      #ff1493
+    );
+
+  box-shadow:
+    0 0 18px rgba(236, 72, 153, 0.35);
+
+  color: #ffffff;
 }
 
-.english-shift {
-  min-width: 110px;
-  min-height: 44px;
-
-  border: 1px solid #52525b;
-  border-radius: 12px;
-
-  background: #27272a;
-  color: #ffffff;
-
-  font-size: 1rem;
+.keyboard-title strong {
+  font-size: clamp(1rem, 4vw, 1.55rem);
   font-weight: 900;
+  text-align: center;
 
-  cursor: pointer;
+  text-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.english-shift.active {
-  border-color: #a78bfa;
-
-  background:
-    linear-gradient(
-      135deg,
-      #5b21b6,
-      #7c3aed
-    );
-
-  box-shadow:
-    0 0 16px rgba(139, 92, 246, 0.3);
-}
-
-.english-shift:active {
-  transform: scale(0.95);
-}
-.myanmar-consonant-keys {
-  grid-template-columns:
-    repeat(5, minmax(0, 1fr));
-}
-.myanmar-vowel-keys {
-  grid-template-columns:
-    repeat(5, minmax(0, 1fr));
-
-  margin-top: 16px;
-}
-.keyboard-keys .myanmar-consonant-key {
-  background:
-    linear-gradient(
-      180deg,
-      #3b3b46,
-      #202027
-    );
-
-  border-color:
-    rgba(167, 139, 250, 0.4);
-
-  color: #ffffff;
-}
-.keyboard-keys .myanmar-vowel-key {
-  min-height: 64px;
-
-  font-size: 1.9rem;
-  font-weight: 900;
-
-  background:
-    linear-gradient(
-      180deg,
-      #0f4c5c,
-      #123844
-    );
-
-  border: 2px solid
-    rgba(56, 189, 248, 0.78);
-
-  color: #ffffff;
-
-  box-shadow:
-    0 5px 0 #071a20,
-    0 0 16px
-      rgba(56, 189, 248, 0.22);
-}
-.keyboard-display-text,
-.keyboard-keys button {
-  letter-spacing: 0;
-  font-kerning: normal;
-  font-variant-ligatures: normal;
-}
-@media (max-width: 700px) {
-  .keyboard-keys .myanmar-vowel-key {
-    min-height: 62px;
-    font-size: 1.75rem;
-    font-weight: 900;
-  }
-}
-.keyboard-keys .myanmar-stack-key {
-  min-height: 64px;
-
-  border: 2px solid rgba(250, 204, 21, 0.9);
-  border-radius: 14px;
-
-  background:
-    linear-gradient(
-      180deg,
-      #854d0e,
-      #422006
-    );
-
-  color: #fff7cc;
-
-  font-family:
-    "Noto Sans Myanmar",
-    system-ui,
-    sans-serif;
-
-  font-size: 1.3rem;
-  font-weight: 900;
-
-  box-shadow:
-    0 5px 0 #1c0f03,
-    0 0 18px rgba(250, 204, 21, 0.25);
-
-  cursor: pointer;
-}
-
-.keyboard-keys .myanmar-stack-key:active {
-  transform: translateY(4px);
-  box-shadow:
-    0 1px 0 #1c0f03,
-    0 3px 7px rgba(0, 0, 0, 0.3);
-}
-@media (max-width: 700px) {
-  .keyboard-keys .myanmar-stack-key {
-    min-height: 62px;
-    font-size: 1.25rem;
-  }
-}
-.keyboard-keys .myanmar-vowel-key.pending-e {
-  background:
-    linear-gradient(
-      180deg,
-      #f59e0b,
-      #b45309
-    );
-
-  border-color: #fde047;
-
-  color: #ffffff;
-
-  box-shadow:
-    0 0 0 3px rgba(250, 204, 21, 0.22),
-    0 0 24px rgba(245, 158, 11, 0.55);
+.keyboard-title span {
+  font-size: 1.4rem;
 }
 
