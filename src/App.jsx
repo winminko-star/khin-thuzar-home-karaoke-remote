@@ -2538,11 +2538,11 @@ function requestUsbSongs() {
       {keyboardMode === "myanmar" && (
   <div className="myanmar-keyboard-area">
 
-    {/* Gboard Style Row 1 */}
+    {/* အသုံးများတဲ့ ဗျည်း - Row 1 */}
     <div className="gboard-row gboard-row-10">
       {[
-        "ဈ","ဝ","ဣ","ဤ","ဦ",
-        "ဧ","ရ","က","တ","စ"
+        "က","ခ","ဂ","င","စ",
+        "ဆ","ဇ","ည","တ","ထ"
       ].map((key) => (
         <button
           key={key}
@@ -2555,11 +2555,11 @@ function requestUsbSongs() {
       ))}
     </div>
 
-    {/* Gboard Style Row 2 */}
+    {/* အသုံးများတဲ့ ဗျည်း - Row 2 */}
     <div className="gboard-row gboard-row-10">
       {[
-        "ဆ","ထ","န","မ","အ",
-        "ပ","ဂ","င","သ","ည"
+        "ဒ","ဓ","န","ပ","ဖ",
+        "ဘ","ဗ","မ","ယ","ရ"
       ].map((key) => (
         <button
           key={key}
@@ -2572,11 +2572,43 @@ function requestUsbSongs() {
       ))}
     </div>
 
-    {/* Gboard Style Vowel / Mark Row */}
-    <div className="gboard-row gboard-row-10">
+    {/* အသုံးများတဲ့ ဗျည်း + ဥ */}
+    <div className="gboard-row gboard-row-9">
       {[
-        "ေ","ျ","ြ","ွ","ှ",
-        "ိ","ီ","ု","ူ","း"
+        "လ","ဝ","သ","ဟ","အ",
+        "ဥ","ဃ","ဈ","ဏ"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="myanmar-consonant-key"
+          onClick={() => pressKeyboardKey(key)}
+        >
+          {key}
+        </button>
+      ))}
+    </div>
+
+    {/* မြန်မာ သရ / အမှတ်များ */}
+    <div className="gboard-row gboard-row-10 myanmar-mark-row">
+      {[
+        "ျ","ြ","ွ","ှ","ါ",
+        "ာ","ိ","ီ","ု","ူ"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="myanmar-vowel-key"
+          onClick={() => pressKeyboardKey(key)}
+        >
+          {key}
+        </button>
+      ))}
+    </div>
+
+    <div className="gboard-row gboard-row-7 myanmar-mark-row">
+      {[
+        "ေ","ဲ","ံ","့","း","်"
       ].map((key) => (
         <button
           key={key}
@@ -2586,23 +2618,6 @@ function requestUsbSongs() {
               ? "myanmar-vowel-key pending-e"
               : "myanmar-vowel-key"
           }
-          onClick={() => pressKeyboardKey(key)}
-        >
-          {key}
-        </button>
-      ))}
-    </div>
-
-    {/* Gboard Style Row 4 */}
-    <div className="gboard-row gboard-row-bottom">
-      {[
-        "ဖ","ဓ","ခ","လ","ဘ",
-        "ဃ","ဏ","ဟ","ဠ"
-      ].map((key) => (
-        <button
-          key={key}
-          type="button"
-          className="myanmar-consonant-key"
           onClick={() => pressKeyboardKey(key)}
         >
           {key}
@@ -2618,15 +2633,16 @@ function requestUsbSongs() {
       </button>
     </div>
 
-    {/* ကျန်သရများ */}
-    <div className="gboard-row gboard-extra-row">
+    {/* အသုံးနည်း / Special Myanmar */}
+    <div className="gboard-row gboard-special-row">
       {[
-        "ါ","ာ","ဲ","ံ","့","်"
+        "ဣ","ဤ","ဦ","၌","၍","၏",
+        "ဏ္ဌ","ဏ္ဍ","ဠ"
       ].map((key) => (
         <button
           key={key}
           type="button"
-          className="myanmar-vowel-key"
+          className="myanmar-special-key"
           onClick={() => pressKeyboardKey(key)}
         >
           {key}
