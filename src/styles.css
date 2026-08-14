@@ -2683,6 +2683,11 @@ select {
 
 /* သရ / အမှတ် */
 .gboard-row .myanmar-vowel-key {
+  min-height: 68px;
+
+  font-size: 2.2rem;
+  font-weight: 900;
+
   border: 2px solid #67e8f9;
 
   background:
@@ -2775,6 +2780,11 @@ select {
 
   .gboard-row .myanmar-special-key {
     font-size: 0.95rem;
+  }
+  .gboard-row .myanmar-vowel-key {
+  min-height: 68px;
+  font-size: 2.2rem;
+  font-weight: 900;
   }
 }
 
