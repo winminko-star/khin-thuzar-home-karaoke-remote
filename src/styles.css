@@ -2426,4 +2426,183 @@ select {
 .keyboard-title span {
   font-size: 1.4rem;
 }
+/* ========================================
+   GBOARD STYLE ROW LAYOUT
+======================================== */
+
+.gboard-row {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.gboard-row-10 {
+  grid-template-columns:
+    repeat(10, minmax(0, 1fr));
+}
+
+.gboard-row-9 {
+  grid-template-columns:
+    repeat(9, minmax(0, 1fr));
+
+  width: 91%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gboard-row-7 {
+  grid-template-columns:
+    repeat(7, minmax(0, 1fr));
+
+  width: 74%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gboard-row-bottom {
+  grid-template-columns:
+    repeat(10, minmax(0, 1fr));
+}
+
+.gboard-extra-row {
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+
+  width: 72%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gboard-row button {
+  min-width: 0;
+  min-height: 50px;
+
+  padding: 3px 1px;
+
+  border-radius: 9px;
+
+  font-family:
+    "Noto Sans Myanmar",
+    Inter,
+    system-ui,
+    sans-serif;
+
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+/* English Gboard */
+.english-gboard {
+  width: 100%;
+}
+
+.english-gboard .gboard-row button {
+  border: 1px solid rgba(255,255,255,0.8);
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #e5e7eb
+    );
+
+  color: #111827;
+
+  box-shadow:
+    0 3px 0 #9ca3af;
+}
+
+/* Myanmar consonants */
+.gboard-row .myanmar-consonant-key {
+  border: 1px solid #c4b5fd;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #e5e7eb
+    );
+
+  color: #111827;
+
+  box-shadow:
+    0 3px 0 #9ca3af;
+}
+
+/* Myanmar vowel keys */
+.gboard-row .myanmar-vowel-key {
+  border: 2px solid #67e8f9;
+
+  background:
+    linear-gradient(
+      180deg,
+      #22d3ee,
+      #0891b2
+    );
+
+  color: white;
+
+  box-shadow:
+    0 3px 0 #155e75;
+}
+
+/* သဝေထိုး selected */
+.gboard-row .myanmar-vowel-key.pending-e {
+  background:
+    linear-gradient(
+      180deg,
+      #facc15,
+      #f59e0b
+    );
+
+  border-color: #fef08a;
+
+  color: #111827;
+
+  box-shadow:
+    0 0 18px rgba(250, 204, 21, 0.75);
+}
+
+/* ဆင့် key */
+.gboard-row .myanmar-stack-key {
+  border: 2px solid #fde047;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f97316,
+      #ea580c
+    );
+
+  color: white;
+}
+
+@media (max-width: 700px) {
+
+  .gboard-row {
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+
+  .gboard-row button {
+    min-height: 46px;
+
+    padding: 2px 0;
+
+    font-size: 1.08rem;
+  }
+
+  .gboard-row-9 {
+    width: 94%;
+  }
+
+  .gboard-row-7 {
+    width: 78%;
+  }
+
+  .gboard-extra-row {
+    width: 78%;
+  }
+}
 
