@@ -2576,7 +2576,7 @@ function requestUsbSongs() {
     <div className="gboard-row gboard-row-9">
       {[
         "လ","ဝ","သ","ဟ","အ",
-        "ဥ","ဃ","ဈ","ဏ"
+        "ဥ","ဈ","ဏ"
       ].map((key) => (
         <button
           key={key}
@@ -2636,9 +2636,10 @@ function requestUsbSongs() {
     {/* အသုံးနည်း / Special Myanmar */}
     <div className="gboard-row gboard-special-row">
       {[
-        "ဣ","ဤ","ဦ","၌","၍","၏",
-        "ဏ္ဌ","ဏ္ဍ","ဠ"
-      ].map((key) => (
+  "ဃ","ဋ","ဌ","ဍ","ဎ","ဉ",
+  "ဣ","ဤ","ဦ","၌","၍","၏",
+  "ဏ္ဌ","ဏ္ဍ","ဠ"
+].map((key) => (
         <button
           key={key}
           type="button"
