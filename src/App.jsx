@@ -2459,6 +2459,11 @@ function requestUsbSongs() {
       {keyboardOpen && (
   <div className="karaoke-keyboard-backdrop">
     <div className="karaoke-keyboard">
+      <div className="keyboard-title">
+  <span>🎤</span>
+  <strong>Khin Thuzar Home Karaoke</strong>
+  <span>🎵</span>
+</div>
 
       <div className="keyboard-display">
         <div className="keyboard-display-label">
