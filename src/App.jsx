@@ -2473,8 +2473,17 @@ function requestUsbSongs() {
         </div>
 
         <div className="keyboard-display-text">
-          {getKeyboardText() || "စာရိုက်ပါ..."}
-        </div>
+  {getKeyboardText() || pendingE ? (
+    <>
+      {getKeyboardText()}
+      {pendingE && (
+        <span className="pending-e-preview">ေ</span>
+      )}
+    </>
+  ) : (
+    "စာရိုက်ပါ..."
+  )}
+</div>
       </div>
 
       <div className="keyboard-mode-row">
