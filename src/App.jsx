@@ -2538,58 +2538,101 @@ function requestUsbSongs() {
       {keyboardMode === "myanmar" && (
   <div className="myanmar-keyboard-area">
 
-    <div className="keyboard-keys myanmar-consonant-keys">
+    {/* Gboard Style Row 1 */}
+    <div className="gboard-row gboard-row-10">
       {[
-        "က","ခ","ဂ","ဃ","င",
-        "စ","ဆ","ဇ","ဈ","ည",
-        "ဋ","ဌ","ဍ","ဎ","ဏ",
-        "တ","ထ","ဒ","ဓ","န",
-        "ပ","ဖ","ဗ","ဘ","မ",
-        "ယ","ရ","လ","ဝ","သ",
-        "ဟ","ဠ","အ","ဉ"
+        "ဈ","ဝ","ဣ","ဤ","ဦ",
+        "ဧ","ရ","က","တ","စ"
       ].map((key) => (
         <button
           key={key}
           type="button"
           className="myanmar-consonant-key"
-          onClick={() =>
-            pressKeyboardKey(key)
-          }
+          onClick={() => pressKeyboardKey(key)}
         >
           {key}
         </button>
       ))}
     </div>
 
-    <div className="keyboard-keys myanmar-vowel-keys">
-  {[
-    "ျ","ြ","ွ","ှ","ါ",
-    "ာ","ိ","ီ","ု","ူ",
-    "ေ","ဲ","ံ","့","း",
-    "်"
-  ].map((key) => (
-    <button
-  key={key}
-  type="button"
-  className={
-    key === "ေ" && pendingE
-      ? "myanmar-vowel-key pending-e"
-      : "myanmar-vowel-key"
-  }
-  onClick={() => pressKeyboardKey(key)}
->
-  {key}
-</button>
-  ))}
+    {/* Gboard Style Row 2 */}
+    <div className="gboard-row gboard-row-10">
+      {[
+        "ဆ","ထ","န","မ","အ",
+        "ပ","ဂ","င","သ","ည"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="myanmar-consonant-key"
+          onClick={() => pressKeyboardKey(key)}
+        >
+          {key}
+        </button>
+      ))}
+    </div>
 
-  <button
-    type="button"
-    className="myanmar-stack-key"
-    onClick={() => pressKeyboardKey("္")}
-  >
-    ဆင့်
-  </button>
-</div>
+    {/* Gboard Style Vowel / Mark Row */}
+    <div className="gboard-row gboard-row-10">
+      {[
+        "ေ","ျ","ြ","ွ","ှ",
+        "ိ","ီ","ု","ူ","း"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className={
+            key === "ေ" && pendingE
+              ? "myanmar-vowel-key pending-e"
+              : "myanmar-vowel-key"
+          }
+          onClick={() => pressKeyboardKey(key)}
+        >
+          {key}
+        </button>
+      ))}
+    </div>
+
+    {/* Gboard Style Row 4 */}
+    <div className="gboard-row gboard-row-bottom">
+      {[
+        "ဖ","ဓ","ခ","လ","ဘ",
+        "ဃ","ဏ","ဟ","ဠ"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="myanmar-consonant-key"
+          onClick={() => pressKeyboardKey(key)}
+        >
+          {key}
+        </button>
+      ))}
+
+      <button
+        type="button"
+        className="myanmar-stack-key"
+        onClick={() => pressKeyboardKey("္")}
+      >
+        ဆင့်
+      </button>
+    </div>
+
+    {/* ကျန်သရများ */}
+    <div className="gboard-row gboard-extra-row">
+      {[
+        "ါ","ာ","ဲ","ံ","့","်"
+      ].map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="myanmar-vowel-key"
+          onClick={() => pressKeyboardKey(key)}
+        >
+          {key}
+        </button>
+      ))}
+    </div>
 
   </div>
 )}
@@ -2612,27 +2655,63 @@ function requestUsbSongs() {
       </button>
     </div>
 
-    <div className="keyboard-keys english-keys">
-      {"qwertyuiopasdfghjklzxcvbnm"
-        .split("")
-        .map((key) => {
-          const displayKey = englishUppercase
-            ? key.toUpperCase()
-            : key;
+    <div className="english-gboard">
 
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() =>
-                pressKeyboardKey(displayKey)
-              }
-            >
-              {displayKey}
-            </button>
-          );
-        })}
-    </div>
+  <div className="gboard-row gboard-row-10">
+    {"qwertyuiop".split("").map((key) => {
+      const displayKey = englishUppercase
+        ? key.toUpperCase()
+        : key;
+
+      return (
+        <button
+          key={key}
+          type="button"
+          onClick={() => pressKeyboardKey(displayKey)}
+        >
+          {displayKey}
+        </button>
+      );
+    })}
+  </div>
+
+  <div className="gboard-row gboard-row-9">
+    {"asdfghjkl".split("").map((key) => {
+      const displayKey = englishUppercase
+        ? key.toUpperCase()
+        : key;
+
+      return (
+        <button
+          key={key}
+          type="button"
+          onClick={() => pressKeyboardKey(displayKey)}
+        >
+          {displayKey}
+        </button>
+      );
+    })}
+  </div>
+
+  <div className="gboard-row gboard-row-7">
+    {"zxcvbnm".split("").map((key) => {
+      const displayKey = englishUppercase
+        ? key.toUpperCase()
+        : key;
+
+      return (
+        <button
+          key={key}
+          type="button"
+          onClick={() => pressKeyboardKey(displayKey)}
+        >
+          {displayKey}
+        </button>
+      );
+    })}
+  </div>
+
+</div>
   </>
 )}
 
