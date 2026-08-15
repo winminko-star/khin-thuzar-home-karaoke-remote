@@ -966,17 +966,30 @@ const queueChannel = supabase
     return ["ALL", ...new Set([...baseArtists, ...customArtists].map((a) => a.letter).filter(Boolean))];
   }, [baseArtists, customArtists]);
   function getKeyboardText() {
-  return keyboardTarget === "usb"
-    ? usbQuery
-    : query;
+  if (keyboardTarget === "usb") return usbQuery;
+  if (keyboardTarget === "artist") return artistQuery;
+  if (keyboardTarget === "popup") return popupText;
+
+  return query;
 }
 
 function setKeyboardText(text) {
   if (keyboardTarget === "usb") {
     setUsbQuery(text);
-  } else {
-    setQuery(text);
+    return;
   }
+
+  if (keyboardTarget === "artist") {
+    setArtistQuery(text);
+    return;
+  }
+
+  if (keyboardTarget === "popup") {
+    setPopupText(text);
+    return;
+  }
+
+  setQuery(text);
 }
 
 function pressKeyboardKey(key) {
@@ -1075,6 +1088,16 @@ function submitKeyboardSearch() {
 
   if (keyboardTarget === "usb") {
     setTab("usb");
+    setKeyboardOpen(false);
+    return;
+  }
+
+  if (keyboardTarget === "artist") {
+    setKeyboardOpen(false);
+    return;
+  }
+
+  if (keyboardTarget === "popup") {
     setKeyboardOpen(false);
     return;
   }
@@ -1980,16 +2003,21 @@ function requestUsbSongs() {
     </div>
 
     <textarea
-      className="popup-text-input"
-      value={popupText}
-      onChange={(event) =>
-        setPopupText(event.target.value)
-      }
-      placeholder="TV မှာပြချင်တဲ့စာကို ရိုက်ပါ"
-      rows={7}
-      maxLength={250}
-      autoFocus
-    />
+  className="popup-text-input"
+  value={popupText}
+  readOnly
+  onFocus={() => {
+    setKeyboardTarget("popup");
+    setKeyboardOpen(true);
+  }}
+  onClick={() => {
+    setKeyboardTarget("popup");
+    setKeyboardOpen(true);
+  }}
+  placeholder="TV မှာပြချင်တဲ့စာကို ရိုက်ပါ"
+  rows={7}
+  maxLength={250}
+/>
 
     <div className="popup-character-count">
       {popupText.length} / 250
@@ -2303,7 +2331,20 @@ function requestUsbSongs() {
               <div><p className="eyebrow">{baseArtists.length + customArtists.length} ARTISTS</p><h2>အဆိုတော်စာရင်း</h2></div>
               <button className="button primary" onClick={() => setArtistModal({ open: true, artist: null })}>＋ Add Artist</button>
             </div>
-            <input className="artist-search" value={artistQuery} onChange={(e) => setArtistQuery(e.target.value)} placeholder="အဆိုတော်နာမည်ရှာရန်" />
+            <input
+  className="artist-search"
+  value={artistQuery}
+  readOnly
+  onFocus={() => {
+    setKeyboardTarget("artist");
+    setKeyboardOpen(true);
+  }}
+  onClick={() => {
+    setKeyboardTarget("artist");
+    setKeyboardOpen(true);
+  }}
+  placeholder="အဆိုတော်နာမည်ရှာရန်"
+/>
             <div className="letter-strip">{letters.map((letter) => <button key={letter} className={selectedLetter === letter ? "active" : ""} onClick={() => setSelectedLetter(letter)}>{letter}</button>)}</div>
             <div className="artist-grid">
               {artists.map((artist) => (
@@ -2807,7 +2848,7 @@ function requestUsbSongs() {
           className="keyboard-search"
           onClick={submitKeyboardSearch}
         >
-          🔍 ရှာမယ်
+          အတည်ပြုမယ်
         </button>
 
         <button
