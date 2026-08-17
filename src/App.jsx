@@ -2005,7 +2005,7 @@ function requestUsbSongs() {
     <textarea
   className="popup-text-input"
   value={popupText}
-  readOnly
+  
   onFocus={() => {
     setKeyboardTarget("popup");
     setKeyboardOpen(true);
@@ -2092,7 +2092,7 @@ function requestUsbSongs() {
   <input
   type="search"
   value={usbQuery}
-  readOnly
+  
   onFocus={() => {
     setKeyboardTarget("usb");
     setKeyboardOpen(true);
@@ -2209,7 +2209,7 @@ function requestUsbSongs() {
             <div className="search-row">
               <input
   value={query}
-  readOnly
+  
   onFocus={() => {
     setKeyboardTarget("main");
     setKeyboardOpen(true);
@@ -2334,7 +2334,7 @@ function requestUsbSongs() {
             <input
   className="artist-search"
   value={artistQuery}
-  readOnly
+  
   onFocus={() => {
     setKeyboardTarget("artist");
     setKeyboardOpen(true);
@@ -2497,7 +2497,7 @@ function requestUsbSongs() {
       </main>
 
       <ArtistModal open={artistModal.open} artist={artistModal.artist} onClose={() => setArtistModal({ open: false, artist: null })} onSave={saveArtist} />
-      {keyboardOpen && (
+      {false && keyboardOpen && (
   <div className="karaoke-keyboard-backdrop">
     <div className="karaoke-keyboard">
       <div className="keyboard-title">
