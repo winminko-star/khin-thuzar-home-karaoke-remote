@@ -290,6 +290,15 @@ export default function App() {
 
 const [popupText, setPopupText] = useState("");
 const [popupDuration, setPopupDuration] = useState(4);
+  const [goFlash, setGoFlash] = useState("");
+
+function flashGo(target) {
+  setGoFlash(target);
+
+  setTimeout(() => {
+    setGoFlash("");
+  }, 1500);
+}
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -1813,9 +1822,17 @@ function requestUsbSongs() {
           TV ANNOUNCEMENT
         </p>
 
-        <h2>
-          စာပို့ရန်
-        </h2>
+        <div className="popup-title-row">
+  <h2>စာပို့ရန်</h2>
+
+  <button
+    type="button"
+    className={`fake-go-button ${goFlash === "popup" ? "active" : ""}`}
+    onClick={() => flashGo("popup")}
+  >
+    {goFlash === "popup" ? "Go" : "➜"}
+  </button>
+</div>
       </div>
     </div>
 
@@ -1909,6 +1926,13 @@ function requestUsbSongs() {
     }
     placeholder="USB သီချင်းရှာရန်"
   />
+     <button
+  type="button"
+  className={`fake-go-button ${goFlash === "usb" ? "active" : ""}`}
+  onClick={() => flashGo("usb")}
+>
+  {goFlash === "usb" ? "Go" : "➜"}
+</button> 
 
   {usbQuery && (
     <button
@@ -2127,7 +2151,22 @@ function requestUsbSongs() {
               <div><p className="eyebrow">{baseArtists.length + customArtists.length} ARTISTS</p><h2>အဆိုတော်စာရင်း</h2></div>
               <button className="button primary" onClick={() => setArtistModal({ open: true, artist: null })}>＋ Add Artist</button>
             </div>
-            <input className="artist-search" value={artistQuery} onChange={(e) => setArtistQuery(e.target.value)} placeholder="အဆိုတော်နာမည်ရှာရန်" />
+            <div className="artist-search-row">
+  <input
+    className="artist-search"
+    value={artistQuery}
+    onChange={(e) => setArtistQuery(e.target.value)}
+    placeholder="အဆိုတော်နာမည်ရှာရန်"
+  />
+
+  <button
+    type="button"
+    className={`fake-go-button ${goFlash === "artist" ? "active" : ""}`}
+    onClick={() => flashGo("artist")}
+  >
+    {goFlash === "artist" ? "Go" : "➜"}
+  </button>
+</div>
             <div className="letter-strip">{letters.map((letter) => <button key={letter} className={selectedLetter === letter ? "active" : ""} onClick={() => setSelectedLetter(letter)}>{letter}</button>)}</div>
             <div className="artist-grid">
               {artists.map((artist) => (
