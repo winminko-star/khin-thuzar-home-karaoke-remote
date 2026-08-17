@@ -2787,4 +2787,46 @@ select {
   font-weight: 900;
   }
 }
+.fake-go-button {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border: none;
+  border-radius: 50%;
+  background: #20c997;
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.fake-go-button.active {
+  background: #7c3aed;
+  font-size: 16px;
+}
+
+.artist-search-row,
+.popup-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.artist-search-row .artist-search {
+  flex: 1;
+}
+
+.usb-search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.usb-search-row input {
+  flex: 1;
+}
 
