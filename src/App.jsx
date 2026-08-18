@@ -2265,13 +2265,13 @@ function requestUsbSongs() {
           <span>💾</span>
 
           <h3>
-  {usbQuery
+  {usbSearchQuery
     ? "ရှာတဲ့စာနဲ့ ကိုက်ညီတဲ့ သီချင်းမတွေ့ပါ"
     : "USB သီချင်း မရှိသေးပါ"}
 </h3>
 
 <p>
-  {usbQuery
+  {usbSearchQuery
     ? "အခြားစာလုံးနဲ့ ပြန်ရှာပါ။"
     : "USB ကို TV မှာတပ်ပြီး Refresh နှိပ်ပါ။"}
 </p>
