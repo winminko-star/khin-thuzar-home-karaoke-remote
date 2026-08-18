@@ -297,7 +297,7 @@ function flashGo(target) {
 
   setTimeout(() => {
     setGoFlash("");
-  }, 1500);
+  }, 1000);
 }
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
