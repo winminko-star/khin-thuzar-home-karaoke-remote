@@ -496,6 +496,7 @@ function flashGo(target) {
   const [usbSongs, setUsbSongs] = useState([]);
 const [usbLoading, setUsbLoading] = useState(false);
   const [usbQuery, setUsbQuery] = useState("");
+  const [usbSearchQuery, setUsbSearchQuery] = useState("");
   const [message, setMessage] = useState("");
   useEffect(() => {
   let cancelled = false;
@@ -594,7 +595,7 @@ const usbTransferTimeoutRef = useRef(null);
   useMemo(() => {
     const keyword =
       normalizeMyanmarSearch(
-        usbQuery
+        usbSearchQuery
       );
 
     if (!keyword) {
@@ -612,7 +613,7 @@ const usbTransferTimeoutRef = useRef(null);
   }, [
     indexedUsbSongs,
     usbSongs,
-    usbQuery
+    usbSearchQuery
   ]);
   const sendCommand = useCallback(async (type, payload = {}) => {
     const packet = { type, payload, sentAt: new Date().toISOString() };
@@ -2168,17 +2169,22 @@ function requestUsbSongs() {
   />
      <button
   type="button"
-  className={`fake-go-button ${goFlash === "usb" ? "active" : ""}`}
-  onClick={() => flashGo("usb")}
+  className="fake-go-button"
+  onClick={() => {
+    setUsbSearchQuery(usbQuery);
+  }}
 >
-  {goFlash === "usb" ? "Go" : "➜"}
-</button> 
+  🔍 Search
+</button>
 
   {usbQuery && (
     <button
       type="button"
       className="button ghost"
-      onClick={() => setUsbQuery("")}
+      onClick={() => {
+  setUsbQuery("");
+  setUsbSearchQuery("");
+}}
     >
       ✕
     </button>
