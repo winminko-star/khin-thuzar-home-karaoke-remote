@@ -2152,12 +2152,24 @@ function requestUsbSongs() {
               <button className="button primary" onClick={() => setArtistModal({ open: true, artist: null })}>＋ Add Artist</button>
             </div>
             <div className="artist-search-row">
+  <div className="artist-search-row">
   <input
     className="artist-search"
     value={artistQuery}
     onChange={(e) => setArtistQuery(e.target.value)}
     placeholder="အဆိုတော်နာမည်ရှာရန်"
   />
+
+  {artistQuery && (
+    <button
+      type="button"
+      className="button ghost"
+      onClick={() => setArtistQuery("")}
+    >
+      ✕
+    </button>
+  )}
+</div>
 
   <button
     type="button"
