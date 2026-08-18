@@ -2174,7 +2174,7 @@ function requestUsbSongs() {
     setUsbSearchQuery(usbQuery);
   }}
 >
-  🔍 Search
+  🔍 
 </button>
 
   {usbQuery && (
