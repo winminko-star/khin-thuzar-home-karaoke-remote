@@ -614,24 +614,6 @@ const usbTransferTimeoutRef = useRef(null);
     usbSongs,
     usbQuery
   ]);
-    const searchableText = [
-      song.title,
-      song.name,
-      song.fileName,
-      song.channel,
-      song.folder,
-      song.path,
-      song.uri,
-      song.searchText
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLocaleLowerCase("my");
-
-    return searchableText.includes(keyword);
-  });
-}, [usbSongs, usbQuery]);
-
   const sendCommand = useCallback(async (type, payload = {}) => {
     const packet = { type, payload, sentAt: new Date().toISOString() };
     if (!channelRef.current) {
@@ -1200,10 +1182,7 @@ const queueChannel = supabase
       ...item.song,
       sourceType: "usb"
     }));
-    .map((song) => ({
-      ...song,
-      sourceType: "usb"
-    }));
+    
 
   try {
     if (!selectedYouTubeApiKey) {
