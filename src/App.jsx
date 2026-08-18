@@ -1160,19 +1160,45 @@ const queueChannel = supabase
   }, []);
 
   const artists = useMemo(() => {
-    const combined = [...baseArtists, ...customArtists];
-    const needle = artistQuery.trim().toLowerCase();
-    return combined
-      .filter((artist) => selectedLetter === "ALL" || artist.letter === selectedLetter)
-      .filter((artist) => {
-        if (!needle) return true;
-        return [artist.display_name, artist.myanmar_name, artist.english_name, artist.search_keys]
+  const combined = [
+    ...baseArtists,
+    ...customArtists
+  ];
+
+  const needle =
+    artistQuery.trim().toLowerCase();
+
+  return combined
+    .filter((artist) => {
+      if (needle) {
+        return [
+          artist.display_name,
+          artist.myanmar_name,
+          artist.english_name,
+          artist.search_keys
+        ]
           .join(" ")
           .toLowerCase()
           .includes(needle);
-      })
-      .sort((a, b) => a.display_name.localeCompare(b.display_name, "my"));
-  }, [baseArtists, customArtists, artistQuery, selectedLetter]);
+      }
+
+      return (
+        selectedLetter === "ALL" ||
+        artist.letter === selectedLetter
+      );
+    })
+    .sort((a, b) =>
+      a.display_name.localeCompare(
+        b.display_name,
+        "my"
+      )
+    );
+}, [
+  baseArtists,
+  customArtists,
+  artistQuery,
+  selectedLetter
+]);
 
   const letters = useMemo(() => {
     return ["ALL", ...new Set([...baseArtists, ...customArtists].map((a) => a.letter).filter(Boolean))];
