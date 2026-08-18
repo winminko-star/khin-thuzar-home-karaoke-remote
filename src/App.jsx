@@ -368,6 +368,7 @@ const usbExpectedChunksRef = useRef(0);
 const usbReceivedChunksRef = useRef(new Set());
 const usbTransferTimeoutRef = useRef(null);
   const queueRef = useRef(queue);
+  const autoAdjustDoneRef = useRef(false);
   const currentSongRef = useRef(currentSong);
   const currentIndexRef = useRef(currentIndex);
   const repeatModeRef = useRef(repeatMode);
@@ -411,6 +412,14 @@ const usbTransferTimeoutRef = useRef(null);
     }
     await channelRef.current.send({ type: "broadcast", event: "karaoke-command", payload: packet });
   }, []);
+  useEffect(() => {
+  if (!connected) return;
+  if (autoAdjustDoneRef.current) return;
+
+  autoAdjustDoneRef.current = true;
+
+  sendCommand("REQUEST_TV_STATE");
+}, [connected]);
   function selectYouTubeApi(choice) {
   const selectedKey =
     YOUTUBE_API_KEYS[choice];
