@@ -1568,7 +1568,7 @@ function requestUsbSongs() {
   <span className="brand-title">HOME KARAOKE 🎤</span>
 </div>
         <div className={`connection ${connected ? "online" : "offline"}`}>
-          <span />{connected ? "TV ကိုဖတ်နေသည်။" : "TV Offline"}
+          <span />{connected ? "TVကို ချိတ်ဆက်နေသည်။" : "TV Offline"}
         </div>
       </header>
 
