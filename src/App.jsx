@@ -2151,14 +2151,23 @@ function requestUsbSongs() {
               <div><p className="eyebrow">{baseArtists.length + customArtists.length} ARTISTS</p><h2>အဆိုတော်စာရင်း</h2></div>
               <button className="button primary" onClick={() => setArtistModal({ open: true, artist: null })}>＋ Add Artist</button>
             </div>
-            <div className="artist-search-row">
-  <div className="artist-search-row">
+            
+
+  <div className="usb-search-row">
   <input
-    className="artist-search"
+    type="search"
     value={artistQuery}
     onChange={(e) => setArtistQuery(e.target.value)}
     placeholder="အဆိုတော်နာမည်ရှာရန်"
   />
+
+  <button
+    type="button"
+    className={`fake-go-button ${goFlash === "artist" ? "active" : ""}`}
+    onClick={() => flashGo("artist")}
+  >
+    {goFlash === "artist" ? "Go" : "➜"}
+  </button>
 
   {artistQuery && (
     <button
@@ -2169,15 +2178,6 @@ function requestUsbSongs() {
       ✕
     </button>
   )}
-</div>
-
-  <button
-    type="button"
-    className={`fake-go-button ${goFlash === "artist" ? "active" : ""}`}
-    onClick={() => flashGo("artist")}
-  >
-    {goFlash === "artist" ? "Go" : "➜"}
-  </button>
 </div>
             <div className="letter-strip">{letters.map((letter) => <button key={letter} className={selectedLetter === letter ? "active" : ""} onClick={() => setSelectedLetter(letter)}>{letter}</button>)}</div>
             <div className="artist-grid">
