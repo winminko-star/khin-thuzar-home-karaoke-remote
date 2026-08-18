@@ -2829,4 +2829,30 @@ select {
 .usb-search-row input {
   flex: 1;
 }
+/* =========================
+   DISABLE LONG PRESS / COPY
+========================= */
+
+/* စာ၊ ပုံတွေ Long Press / Select မရအောင် */
+body,
+body *:not(input):not(textarea) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ပုံ Long Press / Drag ပိတ် */
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+/* Input / Textarea မှာတော့ စာရေး၊ Paste လုပ်လို့ရအောင် */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
 
