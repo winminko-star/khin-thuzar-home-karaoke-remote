@@ -273,6 +273,197 @@ function stateRowToSong(row) {
     thumbnail: row.current_thumbnail || ""
   };
 }
+function normalizeMyanmarSearch(text = "") {
+  return String(text)
+    .normalize("NFC")
+    .toLocaleLowerCase("my")
+
+    // space / punctuation ဖယ်
+    .replace(/\s+/g, "")
+    .replace(
+      /[၊။\-_.()[\]{}'"`~!@#$%^&*+=:;?/\\|<>]/g,
+      ""
+    )
+
+    // မြန်မာရေးပုံကွဲများ
+    .replace(/တစ်ကယ်/g, "တကယ်");
+}
+
+function levenshteinWithinLimit(
+  a,
+  b,
+  maxDistance
+) {
+  const source = Array.from(a);
+  const target = Array.from(b);
+
+  if (
+    Math.abs(
+      source.length - target.length
+    ) > maxDistance
+  ) {
+    return false;
+  }
+
+  const previous =
+    Array.from(
+      { length: target.length + 1 },
+      (_, i) => i
+    );
+
+  const current =
+    new Array(target.length + 1);
+
+  for (
+    let i = 1;
+    i <= source.length;
+    i += 1
+  ) {
+    current[0] = i;
+
+    let rowMinimum = current[0];
+
+    for (
+      let j = 1;
+      j <= target.length;
+      j += 1
+    ) {
+      const cost =
+        source[i - 1] ===
+        target[j - 1]
+          ? 0
+          : 1;
+
+      current[j] = Math.min(
+        current[j - 1] + 1,
+        previous[j] + 1,
+        previous[j - 1] + cost
+      );
+
+      rowMinimum = Math.min(
+        rowMinimum,
+        current[j]
+      );
+    }
+
+    // ဒီ row ကတည်းက
+    // distance များနေပြီဆို စောစောရပ်
+    if (rowMinimum > maxDistance) {
+      return false;
+    }
+
+    for (
+      let j = 0;
+      j <= target.length;
+      j += 1
+    ) {
+      previous[j] = current[j];
+    }
+  }
+
+  return (
+    previous[target.length] <=
+    maxDistance
+  );
+}
+
+function fuzzyMyanmarMatch(
+  normalizedText,
+  normalizedQuery
+) {
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  // Exact / partial match အရင်
+  if (
+    normalizedText.includes(
+      normalizedQuery
+    )
+  ) {
+    return true;
+  }
+
+  const queryChars =
+    Array.from(normalizedQuery);
+
+  // 1–3 လုံးဆို fuzzy မလုပ်
+  // result မှားများမလာအောင်
+  if (queryChars.length < 4) {
+    return false;
+  }
+
+  // Typo ခွင့်ပြုချက်
+  const maxDistance =
+    queryChars.length <= 6
+      ? 1
+      : queryChars.length <= 12
+        ? 2
+        : 3;
+
+  const textChars =
+    Array.from(normalizedText);
+
+  const minLength =
+    Math.max(
+      1,
+      queryChars.length -
+        maxDistance
+    );
+
+  const maxLength =
+    queryChars.length +
+    maxDistance;
+
+  for (
+    let start = 0;
+    start < textChars.length;
+    start += 1
+  ) {
+    // ပထမစာလုံးနဲ့တောင်
+    // အရမ်းမဆိုင်ရင် skip
+    if (
+      textChars[start] !==
+        queryChars[0] &&
+      queryChars.length >= 5
+    ) {
+      continue;
+    }
+
+    for (
+      let length = minLength;
+      length <= maxLength;
+      length += 1
+    ) {
+      if (
+        start + length >
+        textChars.length
+      ) {
+        break;
+      }
+
+      const candidate =
+        textChars
+          .slice(
+            start,
+            start + length
+          )
+          .join("");
+
+      if (
+        levenshteinWithinLimit(
+          candidate,
+          normalizedQuery,
+          maxDistance
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 export default function App() {
   const [tab, setTab] = useState("search");
@@ -376,16 +567,53 @@ const usbTransferTimeoutRef = useRef(null);
   const stateReloadTimerRef = useRef(null);
 
   const nextSong = queue[0] || null;
-  const filteredUsbSongs = useMemo(() => {
-  const keyword = usbQuery
-    .trim()
-    .toLocaleLowerCase("my");
+  const indexedUsbSongs =
+  useMemo(() => {
+    return usbSongs.map((song) => {
+      const searchableText = [
+        song.title,
+        song.name,
+        song.fileName,
+        song.channel,
+        song.folder,
+        song.searchText
+      ]
+        .filter(Boolean)
+        .join(" ");
 
-  if (!keyword) {
-    return usbSongs;
-  }
+      return {
+        song,
+        normalizedSearchText:
+          normalizeMyanmarSearch(
+            searchableText
+          )
+      };
+    });
+  }, [usbSongs]);
+  const filteredUsbSongs =
+  useMemo(() => {
+    const keyword =
+      normalizeMyanmarSearch(
+        usbQuery
+      );
 
-  return usbSongs.filter((song) => {
+    if (!keyword) {
+      return usbSongs;
+    }
+
+    return indexedUsbSongs
+      .filter((item) =>
+        fuzzyMyanmarMatch(
+          item.normalizedSearchText,
+          keyword
+        )
+      )
+      .map((item) => item.song);
+  }, [
+    indexedUsbSongs,
+    usbSongs,
+    usbQuery
+  ]);
     const searchableText = [
       song.title,
       song.name,
@@ -956,27 +1184,22 @@ const queueChannel = supabase
   setMessage("");
   setTab("search");
 
-  const keyword = text.toLocaleLowerCase("my");
+  const keyword =
+  normalizeMyanmarSearch(text);
 
   // USB ထဲမှာ တူတဲ့သီချင်းတွေကို အရင်ရှာမယ်
-  const usbMatches = usbSongs
-    .filter((song) => {
-      const searchableText = [
-        song.title,
-        song.name,
-        song.fileName,
-        song.channel,
-        song.folder,
-        song.path,
-        song.uri,
-        song.searchText
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase("my");
-
-      return searchableText.includes(keyword);
-    })
+  const usbMatches =
+  indexedUsbSongs
+    .filter((item) =>
+      fuzzyMyanmarMatch(
+        item.normalizedSearchText,
+        keyword
+      )
+    )
+    .map((item) => ({
+      ...item.song,
+      sourceType: "usb"
+    }));
     .map((song) => ({
       ...song,
       sourceType: "usb"
