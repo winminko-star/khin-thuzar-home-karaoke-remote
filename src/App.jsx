@@ -1823,6 +1823,15 @@ function requestUsbSongs() {
 </section>
 
         <section className="control-deck">
+          <button
+  type="button"
+  onClick={() => {
+    sendCommand("REQUEST_TV_STATE");
+    setMessage("TV နဲ့ Remote ကို Adjust လုပ်နေပါသည်…");
+  }}
+>
+  🔄<span>Adjust</span>
+</button>
           <button onClick={showPopup}>
   🙋
 </button>
