@@ -1941,6 +1941,21 @@ function requestUsbSongs() {
   🔄<span>Re-Sing</span>
 </button>
           <button
+  type="button"
+  className="fast-resing-button"
+  onClick={() => {
+    if (!currentSong) {
+      setMessage("ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။");
+      return;
+    }
+
+    sendCommand("FAST_RE_SING");
+    setMessage("Fast Re-Sing လုပ်လိုက်ပါပြီ။");
+  }}
+>
+  ⚡<span>F Re-Sing</span>
+</button>
+          <button
   onClick={() => {
     sendCommand("PAUSE");
     setMessage("သီချင်းကို ခဏရပ်လိုက်ပါပြီ။");
