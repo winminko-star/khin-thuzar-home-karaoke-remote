@@ -2900,4 +2900,31 @@ textarea {
     font-weight: 900;
   }
 }
+/* =========================
+   FAST RE-SING BUTTON
+========================= */
+
+.control-deck .fast-resing-button {
+  background: linear-gradient(
+    135deg,
+    #dc2626,
+    #991b1b
+  );
+
+  color: #ffffff;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.18);
+
+  box-shadow:
+    0 5px 16px rgba(220, 38, 38, 0.35);
+}
+
+.control-deck .fast-resing-button span {
+  color: #ffffff;
+}
+
+.control-deck .fast-resing-button:active {
+  transform: scale(0.95);
+}
 
