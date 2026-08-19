@@ -387,11 +387,11 @@ function fuzzyMyanmarMatch(
   const queryChars =
     Array.from(normalizedQuery);
 
-  // 1–3 လုံးဆို fuzzy မလုပ်
-  // result မှားများမလာအောင်
-  if (queryChars.length < 4) {
-    return false;
-  }
+  // စာတိုရင် fuzzy မလုပ်
+// Exact / partial match ပဲသုံးမယ်
+if (queryChars.length <= 5) {
+  return false;
+}
 
   // Typo ကို အများဆုံး 1 လုံးပဲ ခွင့်ပြုမယ်
 const maxDistance = 1;
