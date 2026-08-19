@@ -561,6 +561,8 @@ const usbTransferTimeoutRef = useRef(null);
   const repeatModeRef = useRef(repeatMode);
   const queueReloadTimerRef = useRef(null);
   const stateReloadTimerRef = useRef(null);
+  const fastReSingConfirmRef = useRef(false);
+const fastReSingConfirmTimerRef = useRef(null);
 
   const nextSong = queue[0] || null;
   const indexedUsbSongs =
@@ -636,6 +638,13 @@ const usbTransferTimeoutRef = useRef(null);
     }
     await channelRef.current.send({ type: "broadcast", event: "karaoke-command", payload: packet });
   }, []);
+  useEffect(() => {
+  return () => {
+    window.clearTimeout(
+      fastReSingConfirmTimerRef.current
+    );
+  };
+}, []);
   useEffect(() => {
   if (!connected) return;
   if (autoAdjustDoneRef.current) return;
@@ -1944,14 +1953,38 @@ function requestUsbSongs() {
   type="button"
   className="fast-resing-button"
   onClick={() => {
-    if (!currentSong) {
-      setMessage("ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။");
-      return;
-    }
+  if (!currentSong) {
+    setMessage("ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။");
+    return;
+  }
 
-    sendCommand("FAST_RE_SING");
-    setMessage("Fast Re-Sing လုပ်လိုက်ပါပြီ။");
-  }}
+  if (!fastReSingConfirmRef.current) {
+    fastReSingConfirmRef.current = true;
+
+    setMessage("F Re-Sing ကို နောက်တစ်ချက်နှိပ်ပါ။");
+
+    window.clearTimeout(
+      fastReSingConfirmTimerRef.current
+    );
+
+    fastReSingConfirmTimerRef.current =
+      window.setTimeout(() => {
+        fastReSingConfirmRef.current = false;
+      }, 3000);
+
+    return;
+  }
+
+  fastReSingConfirmRef.current = false;
+
+  window.clearTimeout(
+    fastReSingConfirmTimerRef.current
+  );
+
+  sendCommand("FAST_RE_SING");
+
+  setMessage("Fast Re-Sing လုပ်လိုက်ပါပြီ။");
+}}
 >
   ⚡<span>F Re-Sing</span>
 </button>
