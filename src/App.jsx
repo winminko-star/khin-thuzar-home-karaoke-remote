@@ -586,30 +586,48 @@ const usbTransferTimeoutRef = useRef(null);
       };
     });
   }, [usbSongs]);
-  const filteredUsbSongs =
-  useMemo(() => {
-    const keyword =
-      normalizeMyanmarSearch(
-        usbSearchQuery
-      );
+  const filteredUsbSongs = useMemo(() => {
+  const keyword = normalizeMyanmarSearch(
+    usbSearchQuery
+  );
 
-    if (!keyword) {
-      return usbSongs;
+  if (!keyword) {
+    return usbSongs;
+  }
+
+  const exactMatches = [];
+  const fuzzyMatches = [];
+
+  indexedUsbSongs.forEach((item) => {
+    const text = item.normalizedSearchText;
+
+    // တိကျတဲ့ result ကို အပေါ်ဆုံး
+    if (text.includes(keyword)) {
+      exactMatches.push(item.song);
+      return;
     }
 
-    return indexedUsbSongs
-      .filter((item) =>
-        fuzzyMyanmarMatch(
-          item.normalizedSearchText,
-          keyword
-        )
+    // မတိကျတာကို အရင် fuzzy logic နဲ့ ဆက်ရှာ
+    if (
+      fuzzyMyanmarMatch(
+        text,
+        keyword
       )
-      .map((item) => item.song);
-  }, [
-    indexedUsbSongs,
-    usbSongs,
-    usbSearchQuery
-  ]);
+    ) {
+      fuzzyMatches.push(item.song);
+    }
+  });
+
+  return [
+    ...exactMatches,
+    ...fuzzyMatches.slice(0, 5)
+  ];
+
+}, [
+  indexedUsbSongs,
+  usbSongs,
+  usbSearchQuery
+]);
   const sendCommand = useCallback(async (type, payload = {}) => {
     const packet = { type, payload, sentAt: new Date().toISOString() };
     if (!channelRef.current) {
@@ -1211,19 +1229,41 @@ const queueChannel = supabase
   const keyword =
   normalizeMyanmarSearch(text);
 
-  // USB ထဲမှာ တူတဲ့သီချင်းတွေကို အရင်ရှာမယ်
-  const usbMatches =
-  indexedUsbSongs
-    .filter((item) =>
-      fuzzyMyanmarMatch(
-        item.normalizedSearchText,
-        keyword
-      )
-    )
-    .map((item) => ({
+const exactUsbMatches = [];
+const fuzzyUsbMatches = [];
+
+indexedUsbSongs.forEach((item) => {
+  const searchText =
+    item.normalizedSearchText;
+
+  // တိကျတဲ့ USB result ကို အပေါ်ဆုံး
+  if (searchText.includes(keyword)) {
+    exactUsbMatches.push({
       ...item.song,
       sourceType: "usb"
-    }));
+    });
+
+    return;
+  }
+
+  // မတိကျတာကို အရင် fuzzy logic နဲ့ ဆက်ရှာ
+  if (
+    fuzzyMyanmarMatch(
+      searchText,
+      keyword
+    )
+  ) {
+    fuzzyUsbMatches.push({
+      ...item.song,
+      sourceType: "usb"
+    });
+  }
+});
+
+const usbMatches = [
+  ...exactUsbMatches,
+  ...fuzzyUsbMatches.slice(0, 5)
+];
     
 
   try {
