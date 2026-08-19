@@ -1961,7 +1961,7 @@ function requestUsbSongs() {
   if (!fastReSingConfirmRef.current) {
     fastReSingConfirmRef.current = true;
 
-    setMessage("F Re-Sing ကို နောက်တစ်ချက်နှိပ်ပါ။");
+    setMessage("F Re-Sing Standby");
 
     window.clearTimeout(
       fastReSingConfirmTimerRef.current
