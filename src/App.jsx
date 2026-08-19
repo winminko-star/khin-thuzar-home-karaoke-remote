@@ -393,13 +393,8 @@ function fuzzyMyanmarMatch(
     return false;
   }
 
-  // Typo ခွင့်ပြုချက်
-  const maxDistance =
-    queryChars.length <= 6
-      ? 1
-      : queryChars.length <= 12
-        ? 2
-        : 3;
+  // Typo ကို အများဆုံး 1 လုံးပဲ ခွင့်ပြုမယ်
+const maxDistance = 1;
 
   const textChars =
     Array.from(normalizedText);
