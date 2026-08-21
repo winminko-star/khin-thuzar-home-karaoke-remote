@@ -21,23 +21,15 @@ function SettingsTab({
 
       <div className="api-choice-grid">
         {["1", "2", "3"].map((choice) => {
-          const available = Boolean(
-            youtubeApiKeys[choice]
-          );
-
-          const selected =
-            youtubeApiChoice === choice;
+          const available = Boolean(youtubeApiKeys[choice]);
+          const selected = youtubeApiChoice === choice;
 
           return (
             <button
               type="button"
               key={choice}
-              className={`api-choice-button ${
-                selected ? "selected" : ""
-              }`}
-              onClick={() =>
-                selectYouTubeApi(choice)
-              }
+              className={`api-choice-button ${selected ? "selected" : ""}`}
+              onClick={() => selectYouTubeApi(choice)}
               disabled={!available}
             >
               <strong>API {choice}</strong>
