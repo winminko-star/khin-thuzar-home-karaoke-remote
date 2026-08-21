@@ -3002,4 +3002,7 @@ img {
 .usb-load-more-trigger {
   height: 1px;
 }
+.control-deck button:active {
+  transform: scale(0.96) !important;
+}
 
