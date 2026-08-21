@@ -1233,8 +1233,12 @@ const queueChannel = supabase
     return ["ALL", ...new Set([...baseArtists, ...customArtists].map((a) => a.letter).filter(Boolean))];
   }, [baseArtists, customArtists]);
 
-        async function runSearch(overrideQuery) {
-  const text = (overrideQuery ?? query).trim();
+        const runSearch = useCallback(async (
+  overrideQuery
+) => {
+  const text =
+    (overrideQuery ?? query).trim();
+
   if (!text || searching) return;
 
   setQuery("");
@@ -1243,44 +1247,43 @@ const queueChannel = supabase
   setTab("search");
 
   const keyword =
-  normalizeMyanmarSearch(text);
+    normalizeMyanmarSearch(text);
 
-const exactUsbMatches = [];
-const fuzzyUsbMatches = [];
+  const exactUsbMatches = [];
+  const fuzzyUsbMatches = [];
 
-indexedUsbSongs.forEach((item) => {
-  const searchText =
-    item.normalizedSearchText;
+  indexedUsbSongs.forEach((item) => {
+    const searchText =
+      item.normalizedSearchText;
 
-  // တိကျတဲ့ USB result ကို အပေါ်ဆုံး
-  if (searchText.includes(keyword)) {
-    exactUsbMatches.push({
-      ...item.song,
-      sourceType: "usb"
-    });
+    if (
+      searchText.includes(keyword)
+    ) {
+      exactUsbMatches.push({
+        ...item.song,
+        sourceType: "usb"
+      });
 
-    return;
-  }
+      return;
+    }
 
-  // မတိကျတာကို အရင် fuzzy logic နဲ့ ဆက်ရှာ
-  if (
-    fuzzyMyanmarMatch(
-      searchText,
-      keyword
-    )
-  ) {
-    fuzzyUsbMatches.push({
-      ...item.song,
-      sourceType: "usb"
-    });
-  }
-});
+    if (
+      fuzzyMyanmarMatch(
+        searchText,
+        keyword
+      )
+    ) {
+      fuzzyUsbMatches.push({
+        ...item.song,
+        sourceType: "usb"
+      });
+    }
+  });
 
-const usbMatches = [
-  ...exactUsbMatches,
-  ...fuzzyUsbMatches.slice(0, 5)
-];
-    
+  const usbMatches = [
+    ...exactUsbMatches,
+    ...fuzzyUsbMatches.slice(0, 5)
+  ];
 
   try {
     if (!selectedYouTubeApiKey) {
@@ -1289,25 +1292,25 @@ const usbMatches = [
       );
     }
 
-    const youtubeResults = await searchYouTube(
-      text,
-      selectedYouTubeApiKey
-    );
+    const youtubeResults =
+      await searchYouTube(
+        text,
+        selectedYouTubeApiKey
+      );
 
-    const normalizedYouTubeResults = youtubeResults.map(
-      (video) => ({
-        ...video,
-        sourceType: "youtube"
-      })
-    );
+    const normalizedYouTubeResults =
+      youtubeResults.map(
+        (video) => ({
+          ...video,
+          sourceType: "youtube"
+        })
+      );
 
-    // USB ကို အမြဲထိပ်ဆုံးထားမယ်
     setResults([
       ...usbMatches,
       ...normalizedYouTubeResults
     ]);
   } catch (error) {
-    // YouTube API error ဖြစ်လည်း USB result ရှိရင် ပြမယ်
     setResults(usbMatches);
 
     if (usbMatches.length > 0) {
@@ -1315,12 +1318,20 @@ const usbMatches = [
         `USB မှာ ${usbMatches.length} ပုဒ်တွေ့ပါတယ်။ YouTube Search: ${error.message}`
       );
     } else {
-      setMessage(error.message);
+      setMessage(
+        error.message
+      );
     }
   } finally {
     setSearching(false);
   }
-  }
+}, [
+  query,
+  searching,
+  indexedUsbSongs,
+  selectedYouTubeApiKey,
+  youtubeApiChoice
+]);
   function startVoiceSearch() {
   // Android APK မှာဆို Native Voice Search ကိုသုံးမယ်
   if (
@@ -1457,32 +1468,45 @@ async function playFavoriteNow(video) {
     "Favorite သီချင်းကို Now Playing အဖြစ် ဖွင့်လိုက်ပါပြီ။ Queue ကို မပြောင်းပါ။"
   );
 }
-function requestUsbSongs() {
-  setUsbLoading(true);
-  setMessage(
-    "TV ထဲက USB သီချင်းစာရင်း ဖတ်နေပါသည်…"
-  );
+const requestUsbSongs =
+  useCallback(() => {
+    setUsbLoading(true);
 
-  window.clearTimeout(
-    usbTransferTimeoutRef.current
-  );
+    setMessage(
+      "TV ထဲက USB သီချင်းစာရင်း ဖတ်နေပါသည်…"
+    );
 
-  usbTransferTimeoutRef.current =
-    window.setTimeout(() => {
-      setUsbLoading(false);
-      usbChunksRef.current = [];
-      usbReceivedChunksRef.current = new Set();
-      usbTransferIdRef.current = null;
-      usbExpectedChunksRef.current = 0;
-      usbTransferTimeoutRef.current = null;
+    window.clearTimeout(
+      usbTransferTimeoutRef.current
+    );
 
-      setMessage(
-        "TV မှ USB စာရင်း မရောက်လာပါ။ အရင် Cache ကို ဆက်သုံးနေပါသည်။"
-      );
-    }, 15000);
+    usbTransferTimeoutRef.current =
+      window.setTimeout(() => {
+        setUsbLoading(false);
 
-  sendCommand("REQUEST_USB_SONGS");
-}
+        usbChunksRef.current = [];
+
+        usbReceivedChunksRef.current =
+          new Set();
+
+        usbTransferIdRef.current =
+          null;
+
+        usbExpectedChunksRef.current =
+          0;
+
+        usbTransferTimeoutRef.current =
+          null;
+
+        setMessage(
+          "TV မှ USB စာရင်း မရောက်လာပါ။ အရင် Cache ကို ဆက်သုံးနေပါသည်။"
+        );
+      }, 15000);
+
+    sendCommand(
+      "REQUEST_USB_SONGS"
+    );
+  }, [sendCommand]);
   const addToQueue = useCallback(async (
   video,
   playNow = false
