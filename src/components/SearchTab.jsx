@@ -1,7 +1,4 @@
-import {
-  memo,
-  useMemo
-} from "react";
+import { memo } from "react";
 
 function SearchTab({
   query,
@@ -17,40 +14,13 @@ function SearchTab({
   toggleFavorite,
   addToQueue
 }) {
-  const queueKeys =
-    useMemo(() => {
-
-      const keys =
-        new Set();
-
-      for (
-        const item of queue
-      ) {
-        keys.add(
-          `${getSourceType(
-            item
-          )}:${item.id}`
-        );
-      }
-
-      return keys;
-
-    }, [
-      queue,
-      getSourceType
-    ]);
-
   return (
     <section className="panel">
-
       <div className="search-row">
-
         <input
           value={query}
           onChange={(e) =>
-            setQuery(
-              e.target.value
-            )
+            setQuery(e.target.value)
           }
           onKeyDown={(e) =>
             e.key === "Enter" &&
@@ -61,9 +31,7 @@ function SearchTab({
 
         <button
           className="button primary"
-          onClick={() =>
-            runSearch()
-          }
+          onClick={() => runSearch()}
           disabled={searching}
         >
           {searching
@@ -73,175 +41,148 @@ function SearchTab({
 
         <button
           className="button voice-button"
-          onClick={
-            startVoiceSearch
-          }
+          onClick={startVoiceSearch}
         >
           🎤
         </button>
-
       </div>
 
       <div className="video-grid">
+        {results.map((video) => {
+          const sourceType =
+            video.sourceType ||
+            getSourceType(video);
 
-        {results.map(
-          (video) => {
+          const isUsb =
+            sourceType === "usb";
 
-            const sourceType =
-              video.sourceType ||
-              getSourceType(video);
+          const isNowPlaying =
+            currentSong?.id === video.id &&
+            getSourceType(currentSong) ===
+              sourceType;
 
-            const isUsb =
-              sourceType ===
-              "usb";
+          const isInQueue = queue.some(
+            (item) =>
+              item.id === video.id &&
+              getSourceType(item) ===
+                sourceType
+          );
 
-            const isNowPlaying =
-              currentSong?.id ===
-                video.id &&
-              getSourceType(
-                currentSong
-              ) === sourceType;
+          const videoIsFavorite =
+            !isUsb &&
+            isFavorite(video.id);
 
-            const isInQueue =
-              queueKeys.has(
-                `${sourceType}:${video.id}`
-              );
+          return (
+            <article
+              className="video-card"
+              key={video.id}
+            >
+              <img
+                src={
+                  isUsb
+                    ? "/usb-default.png"
+                    : video.thumbnail
+                }
+                alt={video.title || ""}
+                loading="lazy"
+                decoding="async"
+              />
 
-            const videoIsFavorite =
-              !isUsb &&
-              isFavorite(
-                video.id
-              );
+              <div className="video-card-body">
+                <div className="result-source-row">
+                  <span
+                    className={
+                      isUsb
+                        ? "result-source-badge usb"
+                        : "result-source-badge tube"
+                    }
+                  >
+                    {isUsb
+                      ? "USB"
+                      : "TUBE"}
+                  </span>
+                </div>
 
-            return (
-              <article
-                className="video-card"
-                key={video.id}
-              >
+                <h3>{video.title}</h3>
 
-                <img
-                  src={
-                    isUsb
-                      ? "/usb-default.png"
-                      : video.thumbnail
-                  }
-                  alt={
-                    video.title ||
-                    ""
-                  }
-                  loading="lazy"
-                  decoding="async"
-                />
+                <p>
+                  {video.channel ||
+                    (isUsb
+                      ? "USB Storage"
+                      : "YouTube")}
+                </p>
 
-                <div className="video-card-body">
-
-                  <div className="result-source-row">
-                    <span
-                      className={
-                        isUsb
-                          ? "result-source-badge usb"
-                          : "result-source-badge tube"
-                      }
-                    >
-                      {isUsb
-                        ? "USB"
-                        : "TUBE"}
-                    </span>
-                  </div>
-
-                  <h3>
-                    {video.title}
-                  </h3>
-
-                  <p>
-                    {video.channel ||
-                      (isUsb
-                        ? "USB Storage"
-                        : "YouTube")}
-                  </p>
-
-                  <div className="card-actions">
-
-                    {!currentSong && (
-                      <button
-                        className="button primary"
-                        onClick={() =>
-                          addToQueue(
-                            video,
-                            true
-                          )
-                        }
-                        disabled={
-                          isInQueue
-                        }
-                      >
-                        {isInQueue
-                          ? "✓ IN QUEUE"
-                          : "▶ Play"}
-                      </button>
-                    )}
-
+                <div className="card-actions">
+                  {!currentSong && (
                     <button
-                      className="button ghost"
+                      className="button primary"
                       onClick={() =>
                         addToQueue(
+                          video,
+                          true
+                        )
+                      }
+                      disabled={isInQueue}
+                    >
+                      {isInQueue
+                        ? "✓ IN QUEUE"
+                        : "▶ Play"}
+                    </button>
+                  )}
+
+                  <button
+                    className="button ghost"
+                    onClick={() =>
+                      addToQueue(video)
+                    }
+                    disabled={
+                      isNowPlaying ||
+                      isInQueue
+                    }
+                  >
+                    {isNowPlaying
+                      ? "🎵 NOW PLAYING"
+                      : isInQueue
+                        ? "✓ IN QUEUE"
+                        : "+ Queue"}
+                  </button>
+
+                  {!isUsb && (
+                    <button
+                      type="button"
+                      className={
+                        videoIsFavorite
+                          ? "favorite-button is-favorite"
+                          : "favorite-button"
+                      }
+                      onClick={() =>
+                        toggleFavorite(
                           video
                         )
                       }
-                      disabled={
-                        isNowPlaying ||
-                        isInQueue
-                      }
                     >
-                      {isNowPlaying
-                        ? "🎵 NOW PLAYING"
-                        : isInQueue
-                          ? "✓ IN QUEUE"
-                          : "+ Queue"}
+                      <span className="favorite-star">
+                        {videoIsFavorite
+                          ? "★"
+                          : "☆"}
+                      </span>
+
+                      <span>
+                        {videoIsFavorite
+                          ? "Saved"
+                          : "Favorite"}
+                      </span>
                     </button>
-
-                    {!isUsb && (
-                      <button
-                        type="button"
-                        className={
-                          videoIsFavorite
-                            ? "favorite-button is-favorite"
-                            : "favorite-button"
-                        }
-                        onClick={() =>
-                          toggleFavorite(
-                            video
-                          )
-                        }
-                      >
-
-                        <span className="favorite-star">
-                          {videoIsFavorite
-                            ? "★"
-                            : "☆"}
-                        </span>
-
-                        <span>
-                          {videoIsFavorite
-                            ? "Saved"
-                            : "Favorite"}
-                        </span>
-
-                      </button>
-                    )}
-
-                  </div>
+                  )}
                 </div>
-              </article>
-            );
-          }
-        )}
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       {!results.length && (
-
         <div className="empty-state">
-
           <span>🎤</span>
 
           <h3>
@@ -251,10 +192,8 @@ function SearchTab({
           <p>
             ခင်သူဇာလှိုင်၏ HOME KARAOKE မှ လှိုက်လဲစွာ ကြိုဆိုပါသည်။
           </p>
-
         </div>
       )}
-
     </section>
   );
 }
