@@ -17,9 +17,7 @@ function ArtistsTab({
 }) {
   return (
     <section className="panel">
-
       <div className="section-heading">
-
         <div>
           <p className="eyebrow">
             {baseArtists.length +
@@ -46,7 +44,6 @@ function ArtistsTab({
       </div>
 
       <div className="usb-search-row">
-
         <input
           type="search"
           value={artistQuery}
@@ -85,110 +82,89 @@ function ArtistsTab({
             ✕
           </button>
         )}
-
       </div>
 
       <div className="letter-strip">
-
-        {letters.map(
-          (letter) => (
-
-            <button
-              key={letter}
-              className={
-                selectedLetter ===
+        {letters.map((letter) => (
+          <button
+            key={letter}
+            className={
+              selectedLetter === letter
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setSelectedLetter(
                 letter
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                setSelectedLetter(
-                  letter
-                )
-              }
-            >
-              {letter}
-            </button>
-          )
-        )}
-
+              )
+            }
+          >
+            {letter}
+          </button>
+        ))}
       </div>
 
       <div className="artist-grid">
-
-        {artists.map(
-          (artist) => (
-
-            <article
-              className="artist-card"
-              key={artist.id}
+        {artists.map((artist) => (
+          <article
+            className="artist-card"
+            key={artist.id}
+          >
+            <button
+              className="artist-main"
+              onClick={() =>
+                runSearch(
+                  artist.youtube_keyword ||
+                    artist.display_name
+                )
+              }
             >
-
-              <button
-                className="artist-main"
-                onClick={() =>
-                  runSearch(
-                    artist.youtube_keyword ||
-                      artist.display_name
-                  )
-                }
-              >
-
-                <span className="artist-avatar">
-                  {artist.display_name.charAt(
-                    0
-                  )}
-                </span>
-
-                <span>
-
-                  <strong>
-                    {artist.display_name}
-                  </strong>
-
-                  <small>
-                    {artist.english_name ||
-                      artist.artist_type}
-                  </small>
-
-                </span>
-
-              </button>
-
-              <div className="artist-tools">
-
-                {!artist.is_base && (
-
-                  <button
-                    onClick={() =>
-                      setArtistModal({
-                        open: true,
-                        artist
-                      })
-                    }
-                  >
-                    ✎
-                  </button>
+              <span className="artist-avatar">
+                {artist.display_name.charAt(
+                  0
                 )}
+              </span>
 
-                {!artist.is_base && (
+              <span>
+                <strong>
+                  {artist.display_name}
+                </strong>
 
-                  <button
-                    onClick={() =>
-                      deleteArtist(
-                        artist
-                      )
-                    }
-                  >
-                    🗑
-                  </button>
-                )}
+                <small>
+                  {artist.english_name ||
+                    artist.artist_type}
+                </small>
+              </span>
+            </button>
 
-              </div>
-            </article>
-          )
-        )}
+            <div className="artist-tools">
+              {!artist.is_base && (
+                <button
+                  onClick={() =>
+                    setArtistModal({
+                      open: true,
+                      artist
+                    })
+                  }
+                >
+                  ✎
+                </button>
+              )}
 
+              {!artist.is_base && (
+                <button
+                  onClick={() =>
+                    deleteArtist(
+                      artist
+                    )
+                  }
+                >
+                  🗑
+                </button>
+              )}
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );
