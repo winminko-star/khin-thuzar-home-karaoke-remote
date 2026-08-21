@@ -1511,76 +1511,163 @@ function requestUsbSongs() {
           normalizedVideo.sourceType
     );
 
-    if (alreadyCurrent || alreadyQueued) {
-      setMessage("ဒီသီချင်းက Now Playing သို့မဟုတ် Queue ထဲမှာ ရှိပြီးသားပါ။");
-      return;
-    }
-
-    if (playNow) {
-      const saved = await savePlaybackState(
-  normalizedVideo
-);
-      if (!saved) return;
-
-      sendCommand("LOAD_AND_PLAY", {
-  video: normalizedVideo,
-  queue: queueRef.current,
-  index: -1
-});
-
-      setMessage("TV ပေါ်မှာ ဖွင့်နေပါပြီ။");
-      return;
-    }
-
-    if (!isSupabaseConfigured) {
-      const next = [
-  ...queueRef.current,
-  {
-    ...normalizedVideo,
-    queueId:
-      `${normalizedVideo.sourceType}-` +
-      `${normalizedVideo.id}-` +
-      `${Date.now()}`
+  if (alreadyCurrent || alreadyQueued) {
+    setMessage(
+      "ဒီသီချင်းက Now Playing သို့မဟုတ် Queue ထဲမှာ ရှိပြီးသားပါ။"
+    );
+    return;
   }
-];
 
-      queueRef.current = next;
-      setQueue(next);
-      sendCommand("SYNC_QUEUE", { queue: next, currentIndex: -1 });
-      setMessage("Queue ထဲထည့်ပြီးပါပြီ။");
-      return;
-    }
+  // ========================================
+  // PLAY NOW
+  // ========================================
 
-    const { data: lastRows, error: lastError } = await supabase
+  if (playNow) {
+    const saved =
+      await savePlaybackState(
+        normalizedVideo
+      );
+
+    if (!saved) return;
+
+    sendCommand("LOAD_AND_PLAY", {
+      video: normalizedVideo,
+      queue: queueRef.current,
+      index: -1
+    });
+
+    setMessage(
+      "TV ပေါ်မှာ ဖွင့်နေပါပြီ။"
+    );
+
+    return;
+  }
+
+  // ========================================
+  // OPTIMISTIC QUEUE
+  // Button ကို ချက်ချင်းပြောင်းစေမယ်
+  // ========================================
+
+  const optimisticQueueId =
+    `pending-${Date.now()}-${Math.random()}`;
+
+  const optimisticSong = {
+    ...normalizedVideo,
+    queueId: optimisticQueueId
+  };
+
+  const previousQueue = [
+    ...queueRef.current
+  ];
+
+  const optimisticQueue = [
+    ...previousQueue,
+    optimisticSong
+  ];
+
+  // UI ကို ချက်ချင်း update
+  queueRef.current =
+    optimisticQueue;
+
+  setQueue(
+    optimisticQueue
+  );
+
+  setMessage(
+    "Queue ထဲထည့်ပြီးပါပြီ။"
+  );
+
+  // ========================================
+  // LOCAL MODE
+  // ========================================
+
+  if (!isSupabaseConfigured) {
+    sendCommand(
+      "SYNC_QUEUE",
+      {
+        queue: optimisticQueue,
+        currentIndex: -1
+      }
+    );
+
+    return;
+  }
+
+  // ========================================
+  // SUPABASE SYNC
+  // UI ပြောင်းပြီးမှ နောက်က sync
+  // ========================================
+
+  try {
+    const {
+      data: lastRows,
+      error: lastError
+    } = await supabase
       .from("karaoke_queue")
       .select("position")
-          .eq("room_id", ROOM_ID)
-      .order("position", { ascending: false })
+      .eq("room_id", ROOM_ID)
+      .order(
+        "position",
+        {
+          ascending: false
+        }
+      )
       .limit(1);
 
     if (lastError) {
-      setMessage(`Queue position ဖတ်မရပါ: ${lastError.message}`);
-      return;
+      throw lastError;
     }
 
-    const position = lastRows?.length ? Number(lastRows[0].position) + 1 : 0;
-    const { error } = await supabase
-      .from("karaoke_queue")
-      .insert(
-  queueSongToRow(
-    normalizedVideo,
-    position
-  )
-);
+    const position =
+      lastRows?.length
+        ? Number(
+            lastRows[0].position
+          ) + 1
+        : 0;
+
+    const { error } =
+      await supabase
+        .from("karaoke_queue")
+        .insert(
+          queueSongToRow(
+            normalizedVideo,
+            position
+          )
+        );
 
     if (error) {
-      setMessage(`Queue ထဲထည့်မရပါ: ${error.message}`);
-      return;
+      throw error;
     }
 
+    // DB အစစ်နဲ့ ပြန်ညှိ
     await loadSharedQueue();
-    sendCommand("SYNC_QUEUE", { queue: queueRef.current, currentIndex: -1 });
-    setMessage("Queue ထဲထည့်ပြီးပါပြီ။");
+
+    sendCommand(
+      "SYNC_QUEUE",
+      {
+        queue: queueRef.current,
+        currentIndex: -1
+      }
+    );
+
+  } catch (error) {
+
+    // Sync မအောင်မြင်ရင်
+    // optimistic item ကို ပြန်ဖယ်
+    queueRef.current =
+      previousQueue;
+
+    setQueue(
+      previousQueue
+    );
+
+    setMessage(
+      `Queue sync မရပါ: ${
+        error?.message ||
+        "Unknown error"
+      }`
+    );
+  }
   }
 
   async function handleVideoEnded() {
