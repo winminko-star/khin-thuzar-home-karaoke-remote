@@ -3005,4 +3005,9 @@ img {
 .control-deck button:active {
   transform: scale(0.96) !important;
 }
+/* CONTROL BUTTON PRESS FEEDBACK */
+.control-deck button:active {
+  transform: scale(0.92) !important;
+  filter: brightness(1.35);
+}
 
