@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Papa from "papaparse";
 import ArtistModal from "./components/ArtistModal";
+import SettingsTab from "./components/SettingsTab";
+import PopupTab from "./components/PopupTab";
+import UsbTab from "./components/UsbTab";
+import SearchTab from "./components/SearchTab";
+import ArtistsTab from "./components/ArtistsTab";
+import FavoritesTab from "./components/FavoritesTab";
+import QueueTab from "./components/QueueTab";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 import { searchYouTube } from "./lib/youtube";
 
@@ -1853,839 +1860,624 @@ function requestUsbSongs() {
     setCustomArtists((previous) => previous.filter((item) => item.id !== artist.id));
   }
 
-  return (
+    return (
     <div className="app-shell">
       <header className="topbar">
         <div className="brand-line">
-  <span className="brand-name">Khin Thuzar Hlaing's</span>
-  <span className="brand-title">HOME KARAOKE 🎤</span>
-</div>
-        <div className={`connection ${connected ? "online" : "offline"}`}>
-          <span />{connected ? "TVကို ချိတ်ဆက်နေသည်။" : "TV Offline"}
+          <span className="brand-name">
+            Khin Thuzar Hlaing's
+          </span>
+
+          <span className="brand-title">
+            HOME KARAOKE 🎤
+          </span>
+        </div>
+
+        <div
+          className={`connection ${
+            connected ? "online" : "offline"
+          }`}
+        >
+          <span />
+          {connected
+            ? "TVကို ချိတ်ဆက်နေသည်။"
+            : "TV Offline"}
         </div>
       </header>
 
       <main>
         <section className="hero-card">
-  <div>
-    <p className="eyebrow">NOW SINGING</p>
+          <div>
+            <p className="eyebrow">
+              NOW SINGING
+            </p>
 
-    <div className="now-singing-title">
-      {currentSong && (
-        <span
-          className="now-playing-bars"
-          aria-hidden="true"
-        >
-          <i></i>
-          <i></i>
-          <i></i>
-          <i></i>
-          <i></i>
-        </span>
-      )}
+            <div className="now-singing-title">
+              {currentSong && (
+                <span
+                  className="now-playing-bars"
+                  aria-hidden="true"
+                >
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              )}
 
-      <h2>
-        {currentSong?.title || "သီချင်းရွေးပါ"}
-      </h2>
-    </div>
+              <h2>
+                {currentSong?.title ||
+                  "သီချင်းရွေးပါ"}
+              </h2>
+            </div>
 
-    <p>
-      {currentSong?.channel ||
-        "Remote မှာရှာပြီး TV ပေါ်ဖွင့်ပါ"}
-    </p>
-    <div className={`status-message ${message ? "has-message" : "standby"}`}>
-  {message ? (
-    <span>{message}</span>
-  ) : (
-    <span className="rainbow-text">
-      ရွှင်လန်းချမ်းမြေ့ပါစေ။
-    </span>
-  )}
-</div>
-  </div>
+            <p>
+              {currentSong?.channel ||
+                "Remote မှာရှာပြီး TV ပေါ်ဖွင့်ပါ"}
+            </p>
 
-  <div className="hero-next">
-    <span>NEXT</span>
+            <div
+              className={`status-message ${
+                message
+                  ? "has-message"
+                  : "standby"
+              }`}
+            >
+              {message ? (
+                <span>{message}</span>
+              ) : (
+                <span className="rainbow-text">
+                  ရွှင်လန်းချမ်းမြေ့ပါစေ။
+                </span>
+              )}
+            </div>
+          </div>
 
-    <strong>
-      {nextSong?.title || "Queue empty"}
-    </strong>
-  </div>
-</section>
+          <div className="hero-next">
+            <span>NEXT</span>
+
+            <strong>
+              {nextSong?.title ||
+                "Queue empty"}
+            </strong>
+          </div>
+        </section>
 
         <section className="control-deck">
           <button
-  type="button"
-  onClick={() => {
-    sendCommand("REQUEST_TV_STATE");
-    setMessage("TV နဲ့ Remote ကို Adjust လုပ်နေပါသည်…");
-  }}
->
-  🔄<span>Adjust</span>
-</button>
+            type="button"
+            onClick={() => {
+              sendCommand(
+                "REQUEST_TV_STATE"
+              );
+
+              setMessage(
+                "TV နဲ့ Remote ကို Adjust လုပ်နေပါသည်…"
+              );
+            }}
+          >
+            🔄
+            <span>Adjust</span>
+          </button>
+
           <button onClick={showPopup}>
-  🙋
-</button>
-          
+            🙋
+          </button>
+
           <button
-  type="button"
-  onClick={openTextPopupPage}
-  aria-label="Open announcement page"
->
-  💬
-</button>
-          
+            type="button"
+            onClick={openTextPopupPage}
+            aria-label="Open announcement page"
+          >
+            💬
+          </button>
+
           <button
-  type="button"
-  onClick={() => {
-    if (!currentSong) {
-      setMessage("ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။");
-      return;
-    }
+            type="button"
+            onClick={() => {
+              if (!currentSong) {
+                setMessage(
+                  "ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။"
+                );
+                return;
+              }
 
-    sendCommand("RE_SING");
-    setMessage("သီချင်းကို အစကနေ ပြန်ဆိုလိုက်ပါပြီ။");
-  }}
->
-  🔄<span>Re-Sing</span>
-</button>
+              sendCommand("RE_SING");
+
+              setMessage(
+                "သီချင်းကို အစကနေ ပြန်ဆိုလိုက်ပါပြီ။"
+              );
+            }}
+          >
+            🔄
+            <span>Re-Sing</span>
+          </button>
+
           <button
-  type="button"
-  className="fast-resing-button"
-  onClick={() => {
-  if (!currentSong) {
-    setMessage("ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။");
-    return;
-  }
+            type="button"
+            className="fast-resing-button"
+            onClick={() => {
+              if (!currentSong) {
+                setMessage(
+                  "ပြန်ဆိုရန် သီချင်းမရှိသေးပါ။"
+                );
+                return;
+              }
 
-  if (!fastReSingConfirmRef.current) {
-    fastReSingConfirmRef.current = true;
+              if (
+                !fastReSingConfirmRef.current
+              ) {
+                fastReSingConfirmRef.current =
+                  true;
 
-    setMessage("F Re-Sing Standby");
+                setMessage(
+                  "F Re-Sing Standby"
+                );
 
-    window.clearTimeout(
-      fastReSingConfirmTimerRef.current
-    );
+                window.clearTimeout(
+                  fastReSingConfirmTimerRef.current
+                );
 
-    fastReSingConfirmTimerRef.current =
-      window.setTimeout(() => {
-        fastReSingConfirmRef.current = false;
-      }, 3000);
+                fastReSingConfirmTimerRef.current =
+                  window.setTimeout(
+                    () => {
+                      fastReSingConfirmRef.current =
+                        false;
+                    },
+                    3000
+                  );
 
-    return;
-  }
+                return;
+              }
 
-  fastReSingConfirmRef.current = false;
+              fastReSingConfirmRef.current =
+                false;
 
-  window.clearTimeout(
-    fastReSingConfirmTimerRef.current
-  );
+              window.clearTimeout(
+                fastReSingConfirmTimerRef.current
+              );
 
-  sendCommand("FAST_RE_SING");
+              sendCommand(
+                "FAST_RE_SING"
+              );
 
-  setMessage("Fast Re-Sing လုပ်လိုက်ပါပြီ။");
-}}
->
-  ⚡<span>F Re-Sing</span>
-</button>
+              setMessage(
+                "Fast Re-Sing လုပ်လိုက်ပါပြီ။"
+              );
+            }}
+          >
+            ⚡
+            <span>F Re-Sing</span>
+          </button>
+
           <button
-  onClick={() => {
-    sendCommand("PAUSE");
-    setMessage("သီချင်းကို ခဏရပ်လိုက်ပါပြီ။");
-  }}
->
-  ⏸<span>Pause</span>
-</button>
-          <button className="play-main" onClick={() => currentSong ? sendCommand("PLAY") : queue.length && playQueueIndex(0)}>▶<span>Play</span></button>
-          <button onClick={handleNext}>⏭<span>Next</span></button>
-          <button onClick={handleStop}>
-  ⏹<span>Stop</span>
-</button>
-          <button onClick={() => sendCommand("VOLUME_DOWN")}>
-  🔉
-  <span>Vol −</span>
-</button>
+            onClick={() => {
+              sendCommand("PAUSE");
 
-<button onClick={() => sendCommand("TOGGLE_MUTE")}>
-  🔇
-  <span>Mute</span>
-</button>
+              setMessage(
+                "သီချင်းကို ခဏရပ်လိုက်ပါပြီ။"
+              );
+            }}
+          >
+            ⏸
+            <span>Pause</span>
+          </button>
 
-<button onClick={() => sendCommand("VOLUME_UP")}>
-  🔊
-  <span>Vol +</span>
-</button>
+          <button
+            className="play-main"
+            onClick={() =>
+              currentSong
+                ? sendCommand("PLAY")
+                : queue.length &&
+                  playQueueIndex(0)
+            }
+          >
+            ▶
+            <span>Play</span>
+          </button>
+
+          <button
+            onClick={handleNext}
+          >
+            ⏭
+            <span>Next</span>
+          </button>
+
+          <button
+            onClick={handleStop}
+          >
+            ⏹
+            <span>Stop</span>
+          </button>
+
+          <button
+            onClick={() =>
+              sendCommand(
+                "VOLUME_DOWN"
+              )
+            }
+          >
+            🔉
+            <span>Vol −</span>
+          </button>
+
+          <button
+            onClick={() =>
+              sendCommand(
+                "TOGGLE_MUTE"
+              )
+            }
+          >
+            🔇
+            <span>Mute</span>
+          </button>
+
+          <button
+            onClick={() =>
+              sendCommand(
+                "VOLUME_UP"
+              )
+            }
+          >
+            🔊
+            <span>Vol +</span>
+          </button>
         </section>
-        <div className="scenery-controls">
-  <button
-    type="button"
-    className={
-      sceneryActive
-        ? "scenery-start-button active"
-        : "scenery-start-button"
-    }
-    onClick={startSceneryShow}
-  >
-    🖼️ SCENERY START
-  </button>
 
-  <button
-    type="button"
-    className={
-      !sceneryActive
-        ? "scenery-stop-button active"
-        : "scenery-stop-button"
-    }
-    onClick={stopSceneryShow}
-  >
-    ⏹ STOP
-  </button>
-</div>
+        <div className="scenery-controls">
+          <button
+            type="button"
+            className={
+              sceneryActive
+                ? "scenery-start-button active"
+                : "scenery-start-button"
+            }
+            onClick={
+              startSceneryShow
+            }
+          >
+            🖼️ SCENERY START
+          </button>
+
+          <button
+            type="button"
+            className={
+              !sceneryActive
+                ? "scenery-stop-button active"
+                : "scenery-stop-button"
+            }
+            onClick={
+              stopSceneryShow
+            }
+          >
+            ⏹ STOP
+          </button>
+        </div>
 
         <nav className="tabs">
           <button
-  className={`search-tab ${tab === "search" ? "active" : ""}`}
-  onClick={() => setTab("search")}
->
-  🔎 Search
-</button>
+            className={`search-tab ${
+              tab === "search"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              setTab("search")
+            }
+          >
+            🔎 Search
+          </button>
+
           <button
-  className={
-    tab === "usb" ? "active" : ""
-  }
-  onClick={() => setTab("usb")}
->
-  💾 USB
-</button>
-          <button className={tab === "artists" ? "active" : ""} onClick={() => setTab("artists")}>🎙 Artists</button>
+            className={
+              tab === "usb"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setTab("usb")
+            }
+          >
+            💾 USB
+          </button>
+
           <button
-  className={tab === "favorites" ? "active" : ""}
-  onClick={() => setTab("favorites")}
->
-  ⭐ Favorites <b>{favorites.length}</b>
-</button>
-          <button className={tab === "queue" ? "active" : ""} onClick={() => setTab("queue")}>🎶 Queue <b>{queue.length}</b></button>
+            className={
+              tab === "artists"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setTab("artists")
+            }
+          >
+            🎙 Artists
+          </button>
+
           <button
-  className={
-    tab === "settings"
-      ? "active"
-      : ""
-  }
-  onClick={() =>
-    setTab("settings")
-  }
->
-  ⚙️ Settings
-</button>
+            className={
+              tab === "favorites"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setTab("favorites")
+            }
+          >
+            ⭐ Favorites
+            <b>{favorites.length}</b>
+          </button>
+
+          <button
+            className={
+              tab === "queue"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setTab("queue")
+            }
+          >
+            🎶 Queue
+            <b>{queue.length}</b>
+          </button>
+
+          <button
+            className={
+              tab === "settings"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setTab("settings")
+            }
+          >
+            ⚙️ Settings
+          </button>
         </nav>
 
-         {tab === "settings" && (
-  <section className="panel settings-panel">
-    <div className="section-heading">
-      <div>
-        <p className="eyebrow">
-          REMOTE SETTINGS
-        </p>
+        {tab === "settings" && (
+          <SettingsTab
+            youtubeApiChoice={
+              youtubeApiChoice
+            }
+            youtubeApiKeys={
+              YOUTUBE_API_KEYS
+            }
+            selectYouTubeApi={
+              selectYouTubeApi
+            }
+          />
+        )}
 
-        <h2>
-           API SETTING 
-        </h2>
-      </div>
-    </div>
+        {tab === "popup" && (
+          <PopupTab
+            popupText={
+              popupText
+            }
+            setPopupText={
+              setPopupText
+            }
+            popupDuration={
+              popupDuration
+            }
+            setPopupDuration={
+              setPopupDuration
+            }
+            setTab={setTab}
+            returnTab={
+              returnTab
+            }
+            goFlash={
+              goFlash
+            }
+            flashGo={
+              flashGo
+            }
+            sendTextPopup={
+              sendTextPopup
+            }
+          />
+        )}
 
-    <p className="settings-description">
-      Search မှာ သုံးမယ့် API ကို ရွေးပါ။
-      ရွေးပြီးတာနဲ့ Search နှိပ်ပြီး သီချင်းရှာမယ်။
-    </p>
-
-    <div className="api-choice-grid">
-      {["1", "2", "3"].map(
-        (choice) => {
-          const available =
-            Boolean(
-              YOUTUBE_API_KEYS[
-                choice
-              ]
-            );
-
-          const selected =
-            youtubeApiChoice ===
-            choice;
-
-          return (
-            <button
-              type="button"
-              key={choice}
-              className={`api-choice-button ${
-                selected
-                  ? "selected"
-                  : ""
-              }`}
-              onClick={() =>
-                selectYouTubeApi(
-                  choice
-                )
-              }
-              disabled={!available}
-            >
-              <strong>
-                API {choice}
-              </strong>
-
-              <span>
-                {selected
-                  ? "အသုံးပြုနေသည်"
-                  : available
-                    ? "ရွေးရန်"
-                    : "Key မရှိသေး"}
-              </span>
-            </button>
-          );
-        }
-      )}
-    </div>
-
-    <div className="current-api-status">
-      လက်ရှိအသုံးပြုနေသည်:
-      <strong>
-        API {youtubeApiChoice}
-      </strong>
-    </div>
-  </section>
-)}
-{tab === "popup" && (
-  <section className="panel popup-send-page">
-    <div className="popup-page-header">
-      <button
-        type="button"
-        className="button ghost"
-        onClick={() => {
-          setPopupText("");
-          setTab(returnTab);
-        }}
-      >
-        ← Back
-      </button>
-
-      <div>
-        <p className="eyebrow">
-          TV ANNOUNCEMENT
-        </p>
-
-        <div className="popup-title-row">
-  <h2>စာပို့ရန်</h2>
-
-  <button
-    type="button"
-    className={`fake-go-button ${goFlash === "popup" ? "active" : ""}`}
-    onClick={() => flashGo("popup")}
-  >
-    {goFlash === "popup" ? "Go" : "➜"}
-  </button>
-</div>
-      </div>
-    </div>
-
-    <textarea
-      className="popup-text-input"
-      value={popupText}
-      onChange={(event) =>
-        setPopupText(event.target.value)
-      }
-      placeholder="TV မှာပြချင်တဲ့စာကို ရိုက်ပါ"
-      rows={7}
-      maxLength={250}
-      autoFocus
-    />
-
-    <div className="popup-character-count">
-      {popupText.length} / 250
-    </div>
-
-    <label className="popup-duration-field">
-      <span>ပြမယ့်ကြာချိန်</span>
-
-      <select
-        value={popupDuration}
-        onChange={(event) =>
-          setPopupDuration(
-            Number(event.target.value)
-          )
-        }
-      >
-        <option value={4}>
-          4 Seconds
-        </option>
-
-        <option value={300}>
-          5 Minutes
-        </option>
-
-        <option value={1800}>
-          30 Minutes
-        </option>
-
-        <option value={3600}>
-          1 Hour
-        </option>
-
-        <option value={18000}>
-          5 Hours
-        </option>
-      </select>
-    </label>
-
-    <button
-      type="button"
-      className="button primary popup-send-button"
-      onClick={sendTextPopup}
-      disabled={!popupText.trim()}
-    >
-      Send to TV
-    </button>
-  </section>
-)}
         {tab === "usb" && (
-  <section className="panel">
-    <div className="section-heading">
-      <div>
-        <p className="eyebrow">
-          USB STORAGE
-        </p>
+          <UsbTab
+            usbLoading={
+              usbLoading
+            }
+            requestUsbSongs={
+              requestUsbSongs
+            }
+            usbQuery={
+              usbQuery
+            }
+            setUsbQuery={
+              setUsbQuery
+            }
+            setUsbSearchQuery={
+              setUsbSearchQuery
+            }
+            usbSearchQuery={
+              usbSearchQuery
+            }
+            filteredUsbSongs={
+              filteredUsbSongs
+            }
+            currentSong={
+              currentSong
+            }
+            queue={queue}
+            getSourceType={
+              getSourceType
+            }
+            addToQueue={
+              addToQueue
+            }
+          />
+        )}
 
-        <h2>USB Songs</h2>
-      </div>
-
-      <button
-        type="button"
-        className="button ghost"
-        onClick={requestUsbSongs}
-        disabled={usbLoading}
-      >
-        {usbLoading
-          ? "Loading…"
-          : "🔄 Refresh"}
-      </button>
-    </div>
-    <div className="usb-search-row">
-  <input
-    type="search"
-    value={usbQuery}
-    onChange={(event) =>
-      setUsbQuery(event.target.value)
-    }
-    placeholder="USB သီချင်းရှာရန်"
-  />
-     <button
-  type="button"
-  className="fake-go-button"
-  onClick={() => {
-    setUsbSearchQuery(usbQuery);
-  }}
->
-  🔍 
-</button>
-
-  {usbQuery && (
-    <button
-      type="button"
-      className="button ghost"
-      onClick={() => {
-  setUsbQuery("");
-  setUsbSearchQuery("");
-}}
-    >
-      ✕
-    </button>
-  )}
-</div>
-    
-    <div className="video-grid">
-      {filteredUsbSongs.map((song) => {
-        const isNowPlaying =
-          currentSong?.id === song.id &&
-          getSourceType(currentSong) ===
-            "usb";
-
-        const isInQueue = queue.some(
-          (item) =>
-            item.id === song.id &&
-            getSourceType(item) === "usb"
-        );
-
-        return (
-          <article
-  className="video-card usb-video-card"
-  key={song.id}
->
-            <img
-  src={song.thumbnail || "/usb-default.png"}
-  alt={song.title || "USB Karaoke"}
-/>
-            <div className="video-card-body">
-              <h3>{song.title}</h3>
-
-              <p>
-                {song.channel ||
-                  "USB Storage"}
-              </p>
-
-              <div className="card-actions">
-                {!currentSong && (
-                  <button
-                    className="button primary"
-                    onClick={() =>
-                      addToQueue(song, true)
-                    }
-                    disabled={isInQueue}
-                  >
-                    {isInQueue
-                      ? "✓ IN QUEUE"
-                      : "▶ Play"}
-                  </button>
-                )}
-
-                <button
-                  className="button ghost"
-                  onClick={() =>
-                    addToQueue(song)
-                  }
-                  disabled={
-                    isNowPlaying ||
-                    isInQueue
-                  }
-                >
-                  {isNowPlaying
-                    ? "🎵 NOW PLAYING"
-                    : isInQueue
-                      ? "✓ IN QUEUE"
-                      : "+ Queue"}
-                </button>
-              </div>
-            </div>
-          </article>
-        );
-      })}
-    </div>
-
-    {!usbLoading &&
-  filteredUsbSongs.length === 0 && (
-        <div className="empty-state">
-          <span>💾</span>
-
-          <h3>
-  {usbSearchQuery
-    ? "ရှာတဲ့စာနဲ့ ကိုက်ညီတဲ့ သီချင်းမတွေ့ပါ"
-    : "USB သီချင်း မရှိသေးပါ"}
-</h3>
-
-<p>
-  {usbSearchQuery
-    ? "အခြားစာလုံးနဲ့ ပြန်ရှာပါ။"
-    : "USB ကို TV မှာတပ်ပြီး Refresh နှိပ်ပါ။"}
-</p>
-        </div>
-      )}
-  </section>
-)}
-       
         {tab === "search" && (
-          <section className="panel">
-            <div className="search-row">
-              <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && runSearch()} placeholder="သီချင်း သို့မဟုတ် အဆိုတော်နာမည် ရိုက်ပါ" />
-              
-              <button className="button primary" onClick={() => runSearch()} disabled={searching}>{searching ? "Searching…" : "Search"}</button>
-              <button
-  className="button voice-button"
-  onClick={startVoiceSearch}
->
-  🎤
-</button>
-            </div>
-            <div className="video-grid">
-              {results.map((video) => {
-  const sourceType =
-    video.sourceType || getSourceType(video);
-
-  const isUsb = sourceType === "usb";
-
-  const isNowPlaying =
-    currentSong?.id === video.id &&
-    getSourceType(currentSong) === sourceType;
-
-  const isInQueue = queue.some(
-    (item) =>
-      item.id === video.id &&
-      getSourceType(item) === sourceType
-  );
-
-  const videoIsFavorite =
-    !isUsb && isFavorite(video.id);
-
-                return (
-                  <article className="video-card" key={video.id}>
-                    <img
-  src={isUsb ? "/usb-default.png" : video.thumbnail}
-  alt={video.title || ""}
-/>
-
-                    <div className="video-card-body">
-  <div className="result-source-row">
-    <span
-      className={
-        isUsb
-          ? "result-source-badge usb"
-          : "result-source-badge tube"
-      }
-    >
-      {isUsb ? "USB" : "TUBE"}
-    </span>
-  </div>
-
-  <h3>{video.title}</h3>
-  <p>
-    {video.channel ||
-      (isUsb ? "USB Storage" : "YouTube")}
-  </p>
-
-                  <div className="card-actions">
-                        {!currentSong && (
-                          <button
-                            className="button primary"
-                            onClick={() => addToQueue(video, true)}
-                            disabled={isInQueue}
-                          >
-                            {isInQueue ? "✓ IN QUEUE" : "▶ Play"}
-                          </button>
-                        )}
-
-                        <button
-  className="button ghost"
-  onClick={() => addToQueue(video)}
-  disabled={isNowPlaying || isInQueue}
->
-  {isNowPlaying
-    ? "🎵 NOW PLAYING"
-    : isInQueue
-      ? "✓ IN QUEUE"
-      : "+ Queue"}
-</button>
-
-{!isUsb && (
-  <button
-    type="button"
-    className={
-      videoIsFavorite
-        ? "favorite-button is-favorite"
-        : "favorite-button"
-    }
-    onClick={() => toggleFavorite(video)}
-  >
-    <span className="favorite-star">
-      {videoIsFavorite ? "★" : "☆"}
-    </span>
-
-    <span>
-      {videoIsFavorite ? "Saved" : "Favorite"}
-    </span>
-  </button>
-)}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-            {!results.length && <div className="empty-state"><span>🎤</span><h3>သီချင်းရှာရန်အသင့်</h3><p>ခင်သူဇာလှိုင်၏ HOME KARAOKE မှ လှိုက်လဲစွာ ကြိုဆိုပါသည်။</p></div>}
-          </section>
+          <SearchTab
+            query={query}
+            setQuery={setQuery}
+            runSearch={
+              runSearch
+            }
+            searching={
+              searching
+            }
+            startVoiceSearch={
+              startVoiceSearch
+            }
+            results={
+              results
+            }
+            currentSong={
+              currentSong
+            }
+            queue={queue}
+            getSourceType={
+              getSourceType
+            }
+            isFavorite={
+              isFavorite
+            }
+            toggleFavorite={
+              toggleFavorite
+            }
+            addToQueue={
+              addToQueue
+            }
+          />
         )}
 
         {tab === "artists" && (
-          <section className="panel">
-            <div className="section-heading">
-              <div><p className="eyebrow">{baseArtists.length + customArtists.length} ARTISTS</p><h2>အဆိုတော်စာရင်း</h2></div>
-              <button className="button primary" onClick={() => setArtistModal({ open: true, artist: null })}>＋ Add Artist</button>
-            </div>
-            
-
-  <div className="usb-search-row">
-  <input
-    type="search"
-    value={artistQuery}
-    onChange={(e) => setArtistQuery(e.target.value)}
-    placeholder="အဆိုတော်နာမည်ရှာရန်"
-  />
-
-  <button
-    type="button"
-    className={`fake-go-button ${goFlash === "artist" ? "active" : ""}`}
-    onClick={() => flashGo("artist")}
-  >
-    {goFlash === "artist" ? "Go" : "➜"}
-  </button>
-
-  {artistQuery && (
-    <button
-      type="button"
-      className="button ghost"
-      onClick={() => setArtistQuery("")}
-    >
-      ✕
-    </button>
-  )}
-</div>
-            <div className="letter-strip">{letters.map((letter) => <button key={letter} className={selectedLetter === letter ? "active" : ""} onClick={() => setSelectedLetter(letter)}>{letter}</button>)}</div>
-            <div className="artist-grid">
-              {artists.map((artist) => (
-                <article className="artist-card" key={artist.id}>
-                  <button className="artist-main" onClick={() => runSearch(artist.youtube_keyword || artist.display_name)}>
-                    <span className="artist-avatar">{artist.display_name.charAt(0)}</span>
-                    <span><strong>{artist.display_name}</strong><small>{artist.english_name || artist.artist_type}</small></span>
-                  </button>
-                  <div className="artist-tools">
-                    {!artist.is_base && <button onClick={() => setArtistModal({ open: true, artist })}>✎</button>}
-                    {!artist.is_base && <button onClick={() => deleteArtist(artist)}>🗑</button>}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-        {tab === "favorites" && (
-  <section className="panel favorites-panel">
-    <div className="section-heading">
-      <div>
-        <p className="eyebrow">
-          {favorites.length} / {MAX_FAVORITES} SONGS
-        </p>
-
-        <h2>⭐ အကြိုက်ဆုံးသီချင်းများ</h2>
-      </div>
-    </div>
-
-    <p className="favorites-description">
-      သီချင်းကိုနှိပ်လျှင် Queue ထဲမထည့်ဘဲ
-      Now Playing အဖြစ် ချက်ချင်းဖွင့်ပါမည်။
-    </p>
-
-    <div className="favorites-list">
-      {favorites.map((favorite, index) => (
-        <article
-          className="favorite-item"
-          key={favorite.id}
-        >
-          <span className="favorite-number">
-            {index + 1}
-          </span>
-
-          <img
-            src={favorite.thumbnail}
-            alt=""
+          <ArtistsTab
+            baseArtists={
+              baseArtists
+            }
+            customArtists={
+              customArtists
+            }
+            setArtistModal={
+              setArtistModal
+            }
+            artistQuery={
+              artistQuery
+            }
+            setArtistQuery={
+              setArtistQuery
+            }
+            goFlash={
+              goFlash
+            }
+            flashGo={
+              flashGo
+            }
+            letters={
+              letters
+            }
+            selectedLetter={
+              selectedLetter
+            }
+            setSelectedLetter={
+              setSelectedLetter
+            }
+            artists={
+              artists
+            }
+            runSearch={
+              runSearch
+            }
+            deleteArtist={
+              deleteArtist
+            }
           />
+        )}
 
-          <button
-            type="button"
-            className="favorite-song"
-            onClick={() =>
-              playFavoriteNow(favorite)
+        {tab === "favorites" && (
+          <FavoritesTab
+            favorites={
+              favorites
             }
-          >
-            <strong>{favorite.title}</strong>
-            <small>{favorite.channel}</small>
-          </button>
-
-          <button
-            type="button"
-            className="favorite-play-button"
-            onClick={() =>
-              playFavoriteNow(favorite)
+            maxFavorites={
+              MAX_FAVORITES
             }
-            aria-label="Play favorite now"
-          >
-            ▶
-          </button>
-
-          <button
-            type="button"
-            className="icon-button favorite-remove-button"
-            onClick={() =>
-              removeFavorite(favorite.id)
+            playFavoriteNow={
+              playFavoriteNow
             }
-            aria-label="Remove favorite"
-          >
-            ✕
-          </button>
-        </article>
-      ))}
-
-      {!favorites.length && (
-        <div className="empty-state">
-          <span>⭐</span>
-          <h3>Favorite သီချင်းမရှိသေးပါ</h3>
-          <p>
-            Search မှာ သီချင်းဘေးက Favorite
-            ခလုတ်ကိုနှိပ်ပြီး သိမ်းပါ။
-          </p>
-        </div>
-      )}
-    </div>
-  </section>
-)}
+            removeFavorite={
+              removeFavorite
+            }
+          />
+        )}
 
         {tab === "queue" && (
-          <section className="panel">
-            <div className="section-heading">
-              <div><p className="eyebrow">PLAYLIST CONTROL</p><h2>Queue</h2></div>
-              <div className="queue-tools">
-                <button className="button ghost" onClick={shuffleQueue}>🔀 Shuffle</button>
-                <button
-                  className="button ghost"
-                  onClick={() =>
-                    setRepeatMode((mode) => {
-                      const nextMode =
-                        mode === "off"
-                          ? "one"
-                          : mode === "one"
-                            ? "all"
-                            : "off";
+          <QueueTab
+            queue={queue}
+            shuffleQueue={
+              shuffleQueue
+            }
+            repeatMode={
+              repeatMode
+            }
+            onCycleRepeat={() => {
+              setRepeatMode(
+                (mode) => {
+                  const nextMode =
+                    mode === "off"
+                      ? "one"
+                      : mode === "one"
+                        ? "all"
+                        : "off";
 
-                      repeatModeRef.current = nextMode;
-                      return nextMode;
-                    })
-                  }
-                >
-                  🔁 {repeatMode}
-                </button>
-                <button className="button danger" onClick={clearQueue}>Clear</button>
-              </div>
-            </div>
-            <div className="queue-list">
-              {queue.map((song, index) => (
-                <article
-                  key={song.queueId}
-                  draggable
-                  onDragStart={() => setDragIndex(index)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => { reorderQueue(dragIndex, index); setDragIndex(null); }}
-                  className="queue-item"
-                >
-                  <span className="drag">⋮⋮</span><span className="queue-number">{index + 1}</span>
-                  {song.thumbnail ? (
-  <img src={song.thumbnail} alt="" />
-) : (
-  <div className="queue-placeholder">💾</div>
-)}
-                  <button className="queue-song" onClick={() => playQueueIndex(index)}><strong>{song.title}</strong><small>{song.channel}</small></button>
-                  <button className="icon-button" onClick={() => removeQueueItem(index)}>✕</button>
-                </article>
-              ))}
-              {!queue.length && <div className="empty-state"><span>🎶</span><h3>Queue မရှိသေးပါ</h3><p>Search သို့မဟုတ် Artist စာရင်းကနေ သီချင်းထည့်ပါ။</p></div>}
-            </div>
-          </section>
+                  repeatModeRef.current =
+                    nextMode;
+
+                  return nextMode;
+                }
+              );
+            }}
+            clearQueue={
+              clearQueue
+            }
+            dragIndex={
+              dragIndex
+            }
+            setDragIndex={
+              setDragIndex
+            }
+            reorderQueue={
+              reorderQueue
+            }
+            playQueueIndex={
+              playQueueIndex
+            }
+            removeQueueItem={
+              removeQueueItem
+            }
+          />
         )}
       </main>
 
-      <ArtistModal open={artistModal.open} artist={artistModal.artist} onClose={() => setArtistModal({ open: false, artist: null })} onSave={saveArtist} />
+      <ArtistModal
+        open={
+          artistModal.open
+        }
+        artist={
+          artistModal.artist
+        }
+        onClose={() =>
+          setArtistModal({
+            open: false,
+            artist: null
+          })
+        }
+        onSave={
+          saveArtist
+        }
+      />
 
       <button
         type="button"
