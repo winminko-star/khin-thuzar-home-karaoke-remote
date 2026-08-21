@@ -14,7 +14,6 @@ function PopupTab({
   return (
     <section className="panel popup-send-page">
       <div className="popup-page-header">
-
         <button
           type="button"
           className="button ghost"
@@ -27,9 +26,7 @@ function PopupTab({
         </button>
 
         <div>
-          <p className="eyebrow">
-            TV ANNOUNCEMENT
-          </p>
+          <p className="eyebrow">TV ANNOUNCEMENT</p>
 
           <div className="popup-title-row">
             <h2>စာပို့ရန်</h2>
@@ -37,17 +34,11 @@ function PopupTab({
             <button
               type="button"
               className={`fake-go-button ${
-                goFlash === "popup"
-                  ? "active"
-                  : ""
+                goFlash === "popup" ? "active" : ""
               }`}
-              onClick={() =>
-                flashGo("popup")
-              }
+              onClick={() => flashGo("popup")}
             >
-              {goFlash === "popup"
-                ? "Go"
-                : "➜"}
+              {goFlash === "popup" ? "Go" : "➜"}
             </button>
           </div>
         </div>
@@ -80,25 +71,11 @@ function PopupTab({
             )
           }
         >
-          <option value={4}>
-            4 Seconds
-          </option>
-
-          <option value={300}>
-            5 Minutes
-          </option>
-
-          <option value={1800}>
-            30 Minutes
-          </option>
-
-          <option value={3600}>
-            1 Hour
-          </option>
-
-          <option value={18000}>
-            5 Hours
-          </option>
+          <option value={4}>4 Seconds</option>
+          <option value={300}>5 Minutes</option>
+          <option value={1800}>30 Minutes</option>
+          <option value={3600}>1 Hour</option>
+          <option value={18000}>5 Hours</option>
         </select>
       </label>
 
