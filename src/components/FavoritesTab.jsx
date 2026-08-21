@@ -8,10 +8,8 @@ function FavoritesTab({
 }) {
   return (
     <section className="panel favorites-panel">
-
       <div className="section-heading">
         <div>
-
           <p className="eyebrow">
             {favorites.length} /{" "}
             {maxFavorites} SONGS
@@ -20,7 +18,6 @@ function FavoritesTab({
           <h2>
             ⭐ အကြိုက်ဆုံးသီချင်းများ
           </h2>
-
         </div>
       </div>
 
@@ -30,26 +27,18 @@ function FavoritesTab({
       </p>
 
       <div className="favorites-list">
-
         {favorites.map(
-          (
-            favorite,
-            index
-          ) => (
-
+          (favorite, index) => (
             <article
               className="favorite-item"
               key={favorite.id}
             >
-
               <span className="favorite-number">
                 {index + 1}
               </span>
 
               <img
-                src={
-                  favorite.thumbnail
-                }
+                src={favorite.thumbnail}
                 alt=""
                 loading="lazy"
                 decoding="async"
@@ -64,7 +53,6 @@ function FavoritesTab({
                   )
                 }
               >
-
                 <strong>
                   {favorite.title}
                 </strong>
@@ -72,7 +60,6 @@ function FavoritesTab({
                 <small>
                   {favorite.channel}
                 </small>
-
               </button>
 
               <button
@@ -100,15 +87,12 @@ function FavoritesTab({
               >
                 ✕
               </button>
-
             </article>
           )
         )}
 
         {!favorites.length && (
-
           <div className="empty-state">
-
             <span>⭐</span>
 
             <h3>
@@ -119,10 +103,8 @@ function FavoritesTab({
               Search မှာ သီချင်းဘေးက Favorite
               ခလုတ်ကိုနှိပ်ပြီး သိမ်းပါ။
             </p>
-
           </div>
         )}
-
       </div>
     </section>
   );
