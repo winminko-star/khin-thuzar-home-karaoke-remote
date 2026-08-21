@@ -1,4 +1,11 @@
-import { memo } from "react";
+import {
+  memo,
+  useEffect,
+  useRef,
+  useState
+} from "react";
+
+const PAGE_SIZE = 50;
 
 function UsbTab({
   usbLoading,
@@ -13,12 +20,75 @@ function UsbTab({
   getSourceType,
   addToQueue
 }) {
+  const [visibleCount, setVisibleCount] =
+    useState(PAGE_SIZE);
+
+  const loadMoreRef = useRef(null);
+
+  // Search/result ပြောင်းတိုင်း
+  // ပထမ 50 ပုဒ်ကနေ ပြန်စ
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [
+    usbSearchQuery,
+    filteredUsbSongs
+  ]);
+
+  // အောက်နားရောက်ရင်
+  // နောက်ထပ် 50 ပုဒ်တိုး
+  useEffect(() => {
+    const target =
+      loadMoreRef.current;
+
+    if (!target) return;
+
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          if (
+            entries[0]?.isIntersecting
+          ) {
+            setVisibleCount(
+              (current) =>
+                Math.min(
+                  current +
+                    PAGE_SIZE,
+                  filteredUsbSongs.length
+                )
+            );
+          }
+        },
+        {
+          root: null,
+          rootMargin: "300px",
+          threshold: 0
+        }
+      );
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [filteredUsbSongs.length]);
+
+  const visibleSongs =
+    filteredUsbSongs.slice(
+      0,
+      visibleCount
+    );
+
   return (
     <section className="panel">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">USB STORAGE</p>
-          <h2>USB Songs</h2>
+          <p className="eyebrow">
+            USB STORAGE
+          </p>
+
+          <h2>
+            USB Songs
+          </h2>
         </div>
 
         <button
@@ -38,7 +108,9 @@ function UsbTab({
           type="search"
           value={usbQuery}
           onChange={(event) =>
-            setUsbQuery(event.target.value)
+            setUsbQuery(
+              event.target.value
+            )
           }
           placeholder="USB သီချင်းရှာရန်"
         />
@@ -47,7 +119,9 @@ function UsbTab({
           type="button"
           className="fake-go-button"
           onClick={() =>
-            setUsbSearchQuery(usbQuery)
+            setUsbSearchQuery(
+              usbQuery
+            )
           }
         >
           🔍
@@ -68,83 +142,113 @@ function UsbTab({
       </div>
 
       <div className="video-grid">
-        {filteredUsbSongs.map((song) => {
-          const isNowPlaying =
-            currentSong?.id === song.id &&
-            getSourceType(currentSong) === "usb";
+        {visibleSongs.map(
+          (song) => {
+            const isNowPlaying =
+              currentSong?.id ===
+                song.id &&
+              getSourceType(
+                currentSong
+              ) === "usb";
 
-          const isInQueue = queue.some(
-            (item) =>
-              item.id === song.id &&
-              getSourceType(item) === "usb"
-          );
+            const isInQueue =
+              queue.some(
+                (item) =>
+                  item.id ===
+                    song.id &&
+                  getSourceType(
+                    item
+                  ) === "usb"
+              );
 
-          return (
-            <article
-              className="video-card usb-video-card"
-              key={song.id}
-            >
-              <img
-                src={
-                  song.thumbnail ||
-                  "/usb-default.png"
-                }
-                alt={
-                  song.title ||
-                  "USB Karaoke"
-                }
-                loading="lazy"
-                decoding="async"
-              />
+            return (
+              <article
+                className="video-card usb-video-card"
+                key={song.id}
+              >
+                <img
+                  src={
+                    song.thumbnail ||
+                    "/usb-default.png"
+                  }
+                  alt={
+                    song.title ||
+                    "USB Karaoke"
+                  }
+                  loading="lazy"
+                  decoding="async"
+                />
 
-              <div className="video-card-body">
-                <h3>{song.title}</h3>
+                <div className="video-card-body">
+                  <h3>
+                    {song.title}
+                  </h3>
 
-                <p>
-                  {song.channel ||
-                    "USB Storage"}
-                </p>
+                  <p>
+                    {song.channel ||
+                      "USB Storage"}
+                  </p>
 
-                <div className="card-actions">
-                  {!currentSong && (
+                  <div className="card-actions">
+                    {!currentSong && (
+                      <button
+                        className="button primary"
+                        onClick={() =>
+                          addToQueue(
+                            song,
+                            true
+                          )
+                        }
+                        disabled={
+                          isInQueue
+                        }
+                      >
+                        {isInQueue
+                          ? "✓ IN QUEUE"
+                          : "▶ Play"}
+                      </button>
+                    )}
+
                     <button
-                      className="button primary"
+                      className="button ghost"
                       onClick={() =>
-                        addToQueue(song, true)
+                        addToQueue(
+                          song
+                        )
                       }
-                      disabled={isInQueue}
+                      disabled={
+                        isNowPlaying ||
+                        isInQueue
+                      }
                     >
-                      {isInQueue
-                        ? "✓ IN QUEUE"
-                        : "▶ Play"}
+                      {isNowPlaying
+                        ? "🎵 NOW PLAYING"
+                        : isInQueue
+                          ? "✓ IN QUEUE"
+                          : "+ Queue"}
                     </button>
-                  )}
-
-                  <button
-                    className="button ghost"
-                    onClick={() =>
-                      addToQueue(song)
-                    }
-                    disabled={
-                      isNowPlaying ||
-                      isInQueue
-                    }
-                  >
-                    {isNowPlaying
-                      ? "🎵 NOW PLAYING"
-                      : isInQueue
-                        ? "✓ IN QUEUE"
-                        : "+ Queue"}
-                  </button>
+                  </div>
                 </div>
-              </div>
-            </article>
-          );
-        })}
+              </article>
+            );
+          }
+        )}
       </div>
 
+      {visibleCount <
+        filteredUsbSongs.length && (
+        <div
+          ref={loadMoreRef}
+          style={{
+            height: "1px"
+          }}
+          aria-hidden="true"
+        />
+      )}
+
       {!usbLoading &&
-        filteredUsbSongs.length === 0 && (
+        filteredUsbSongs.length ===
+          0 && (
           <div className="empty-state">
             <span>💾</span>
 
