@@ -1483,10 +1483,10 @@ function requestUsbSongs() {
 
   sendCommand("REQUEST_USB_SONGS");
 }
-  async function addToQueue(
+  const addToQueue = useCallback(async (
   video,
   playNow = false
-) {
+) => {
   const normalizedVideo =
     normalizeSongSource(video);
 
@@ -1518,10 +1518,6 @@ function requestUsbSongs() {
     return;
   }
 
-  // ========================================
-  // PLAY NOW
-  // ========================================
-
   if (playNow) {
     const saved =
       await savePlaybackState(
@@ -1543,11 +1539,6 @@ function requestUsbSongs() {
     return;
   }
 
-  // ========================================
-  // OPTIMISTIC QUEUE
-  // Button ကို ချက်ချင်းပြောင်းစေမယ်
-  // ========================================
-
   const optimisticQueueId =
     `pending-${Date.now()}-${Math.random()}`;
 
@@ -1565,7 +1556,7 @@ function requestUsbSongs() {
     optimisticSong
   ];
 
-  // UI ကို ချက်ချင်း update
+  // UI ချက်ချင်းပြောင်း
   queueRef.current =
     optimisticQueue;
 
@@ -1577,26 +1568,14 @@ function requestUsbSongs() {
     "Queue ထဲထည့်ပြီးပါပြီ။"
   );
 
-  // ========================================
-  // LOCAL MODE
-  // ========================================
-
   if (!isSupabaseConfigured) {
-    sendCommand(
-      "SYNC_QUEUE",
-      {
-        queue: optimisticQueue,
-        currentIndex: -1
-      }
-    );
+    sendCommand("SYNC_QUEUE", {
+      queue: optimisticQueue,
+      currentIndex: -1
+    });
 
     return;
   }
-
-  // ========================================
-  // SUPABASE SYNC
-  // UI ပြောင်းပြီးမှ နောက်က sync
-  // ========================================
 
   try {
     const {
@@ -1606,12 +1585,9 @@ function requestUsbSongs() {
       .from("karaoke_queue")
       .select("position")
       .eq("room_id", ROOM_ID)
-      .order(
-        "position",
-        {
-          ascending: false
-        }
-      )
+      .order("position", {
+        ascending: false
+      })
       .limit(1);
 
     if (lastError) {
@@ -1625,40 +1601,65 @@ function requestUsbSongs() {
           ) + 1
         : 0;
 
-    const { error } =
-      await supabase
-        .from("karaoke_queue")
-        .insert(
-          queueSongToRow(
-            normalizedVideo,
-            position
-          )
-        );
+    const {
+      data: insertedRow,
+      error
+    } = await supabase
+      .from("karaoke_queue")
+      .insert(
+        queueSongToRow(
+          normalizedVideo,
+          position
+        )
+      )
+      .select()
+      .single();
 
     if (error) {
       throw error;
     }
 
-    // DB အစစ်နဲ့ ပြန်ညှိ
-    await loadSharedQueue();
+    // DB row ကို song အဖြစ်ပြောင်း
+    const savedSong =
+      queueRowToSong(insertedRow);
 
-    sendCommand(
-      "SYNC_QUEUE",
-      {
-        queue: queueRef.current,
-        currentIndex: -1
-      }
-    );
+    // pending item တစ်ခုပဲ
+    // DB item နဲ့ အစားထိုး
+    const syncedQueue =
+      queueRef.current.map(
+        (item) =>
+          item.queueId ===
+          optimisticQueueId
+            ? savedSong
+            : item
+      );
 
-  } catch (error) {
-
-    // Sync မအောင်မြင်ရင်
-    // optimistic item ကို ပြန်ဖယ်
     queueRef.current =
-      previousQueue;
+      syncedQueue;
 
     setQueue(
-      previousQueue
+      syncedQueue
+    );
+
+    sendCommand("SYNC_QUEUE", {
+      queue: syncedQueue,
+      currentIndex: -1
+    });
+  } catch (error) {
+    // ဒီ request ရဲ့ pending item ပဲ
+    // ပြန်ဖယ်မယ်
+    const rollbackQueue =
+      queueRef.current.filter(
+        (item) =>
+          item.queueId !==
+          optimisticQueueId
+      );
+
+    queueRef.current =
+      rollbackQueue;
+
+    setQueue(
+      rollbackQueue
     );
 
     setMessage(
@@ -1668,7 +1669,10 @@ function requestUsbSongs() {
       }`
     );
   }
-  }
+}, [
+  savePlaybackState,
+  sendCommand
+]);
 
   async function handleVideoEnded() {
     if (repeatModeRef.current === "one" && currentSongRef.current) {
