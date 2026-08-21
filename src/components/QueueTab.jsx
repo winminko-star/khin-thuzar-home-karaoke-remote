@@ -4,7 +4,7 @@ function QueueTab({
   queue,
   shuffleQueue,
   repeatMode,
-  cycleRepeatMode,
+  onCycleRepeat,
   clearQueue,
   dragIndex,
   setDragIndex,
@@ -14,9 +14,7 @@ function QueueTab({
 }) {
   return (
     <section className="panel">
-
       <div className="section-heading">
-
         <div>
           <p className="eyebrow">
             PLAYLIST CONTROL
@@ -26,136 +24,99 @@ function QueueTab({
         </div>
 
         <div className="queue-tools">
-
           <button
             className="button ghost"
-            onClick={
-              shuffleQueue
-            }
+            onClick={shuffleQueue}
           >
             🔀 Shuffle
           </button>
 
           <button
             className="button ghost"
-            onClick={
-              cycleRepeatMode
-            }
+            onClick={onCycleRepeat}
           >
             🔁 {repeatMode}
           </button>
 
           <button
             className="button danger"
-            onClick={
-              clearQueue
-            }
+            onClick={clearQueue}
           >
             Clear
           </button>
-
         </div>
       </div>
 
       <div className="queue-list">
+        {queue.map((song, index) => (
+          <article
+            key={song.queueId}
+            draggable
+            onDragStart={() =>
+              setDragIndex(index)
+            }
+            onDragOver={(e) =>
+              e.preventDefault()
+            }
+            onDrop={() => {
+              reorderQueue(
+                dragIndex,
+                index
+              );
 
-        {queue.map(
-          (
-            song,
-            index
-          ) => (
+              setDragIndex(null);
+            }}
+            className="queue-item"
+          >
+            <span className="drag">
+              ⋮⋮
+            </span>
 
-            <article
-              key={
-                song.queueId
+            <span className="queue-number">
+              {index + 1}
+            </span>
+
+            {song.thumbnail ? (
+              <img
+                src={song.thumbnail}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <div className="queue-placeholder">
+                💾
+              </div>
+            )}
+
+            <button
+              className="queue-song"
+              onClick={() =>
+                playQueueIndex(index)
               }
-              draggable
-              onDragStart={() =>
-                setDragIndex(
-                  index
-                )
-              }
-              onDragOver={(e) =>
-                e.preventDefault()
-              }
-              onDrop={() => {
-
-                reorderQueue(
-                  dragIndex,
-                  index
-                );
-
-                setDragIndex(
-                  null
-                );
-              }}
-              className="queue-item"
             >
+              <strong>
+                {song.title}
+              </strong>
 
-              <span className="drag">
-                ⋮⋮
-              </span>
+              <small>
+                {song.channel}
+              </small>
+            </button>
 
-              <span className="queue-number">
-                {index + 1}
-              </span>
-
-              {song.thumbnail ? (
-
-                <img
-                  src={
-                    song.thumbnail
-                  }
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-
-              ) : (
-
-                <div className="queue-placeholder">
-                  💾
-                </div>
-              )}
-
-              <button
-                className="queue-song"
-                onClick={() =>
-                  playQueueIndex(
-                    index
-                  )
-                }
-              >
-
-                <strong>
-                  {song.title}
-                </strong>
-
-                <small>
-                  {song.channel}
-                </small>
-
-              </button>
-
-              <button
-                className="icon-button"
-                onClick={() =>
-                  removeQueueItem(
-                    index
-                  )
-                }
-              >
-                ✕
-              </button>
-
-            </article>
-          )
-        )}
+            <button
+              className="icon-button"
+              onClick={() =>
+                removeQueueItem(index)
+              }
+            >
+              ✕
+            </button>
+          </article>
+        ))}
 
         {!queue.length && (
-
           <div className="empty-state">
-
             <span>🎶</span>
 
             <h3>
@@ -163,13 +124,10 @@ function QueueTab({
             </h3>
 
             <p>
-              Search သို့မဟုတ် Artist
-              စာရင်းကနေ သီချင်းထည့်ပါ။
+              Search သို့မဟုတ် Artist စာရင်းကနေ သီချင်းထည့်ပါ။
             </p>
-
           </div>
         )}
-
       </div>
     </section>
   );
