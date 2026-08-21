@@ -1,7 +1,4 @@
-import {
-  memo,
-  useMemo
-} from "react";
+import { memo } from "react";
 
 function UsbTab({
   usbLoading,
@@ -16,29 +13,11 @@ function UsbTab({
   getSourceType,
   addToQueue
 }) {
-  const usbQueueIds = useMemo(() => {
-    const ids = new Set();
-
-    for (const item of queue) {
-      if (
-        getSourceType(item) === "usb"
-      ) {
-        ids.add(item.id);
-      }
-    }
-
-    return ids;
-  }, [queue, getSourceType]);
-
   return (
     <section className="panel">
-
       <div className="section-heading">
         <div>
-          <p className="eyebrow">
-            USB STORAGE
-          </p>
-
+          <p className="eyebrow">USB STORAGE</p>
           <h2>USB Songs</h2>
         </div>
 
@@ -55,14 +34,11 @@ function UsbTab({
       </div>
 
       <div className="usb-search-row">
-
         <input
           type="search"
           value={usbQuery}
           onChange={(event) =>
-            setUsbQuery(
-              event.target.value
-            )
+            setUsbQuery(event.target.value)
           }
           placeholder="USB သီချင်းရှာရန်"
         />
@@ -71,9 +47,7 @@ function UsbTab({
           type="button"
           className="fake-go-button"
           onClick={() =>
-            setUsbSearchQuery(
-              usbQuery
-            )
+            setUsbSearchQuery(usbQuery)
           }
         >
           🔍
@@ -94,101 +68,83 @@ function UsbTab({
       </div>
 
       <div className="video-grid">
+        {filteredUsbSongs.map((song) => {
+          const isNowPlaying =
+            currentSong?.id === song.id &&
+            getSourceType(currentSong) === "usb";
 
-        {filteredUsbSongs.map(
-          (song) => {
+          const isInQueue = queue.some(
+            (item) =>
+              item.id === song.id &&
+              getSourceType(item) === "usb"
+          );
 
-            const isNowPlaying =
-              currentSong?.id ===
-                song.id &&
-              getSourceType(
-                currentSong
-              ) === "usb";
+          return (
+            <article
+              className="video-card usb-video-card"
+              key={song.id}
+            >
+              <img
+                src={
+                  song.thumbnail ||
+                  "/usb-default.png"
+                }
+                alt={
+                  song.title ||
+                  "USB Karaoke"
+                }
+                loading="lazy"
+                decoding="async"
+              />
 
-            const isInQueue =
-              usbQueueIds.has(
-                song.id
-              );
+              <div className="video-card-body">
+                <h3>{song.title}</h3>
 
-            return (
-              <article
-                className="video-card usb-video-card"
-                key={song.id}
-              >
-                <img
-                  src={
-                    song.thumbnail ||
-                    "/usb-default.png"
-                  }
-                  alt={
-                    song.title ||
-                    "USB Karaoke"
-                  }
-                  loading="lazy"
-                  decoding="async"
-                />
+                <p>
+                  {song.channel ||
+                    "USB Storage"}
+                </p>
 
-                <div className="video-card-body">
-
-                  <h3>
-                    {song.title}
-                  </h3>
-
-                  <p>
-                    {song.channel ||
-                      "USB Storage"}
-                  </p>
-
-                  <div className="card-actions">
-
-                    {!currentSong && (
-                      <button
-                        className="button primary"
-                        onClick={() =>
-                          addToQueue(
-                            song,
-                            true
-                          )
-                        }
-                        disabled={
-                          isInQueue
-                        }
-                      >
-                        {isInQueue
-                          ? "✓ IN QUEUE"
-                          : "▶ Play"}
-                      </button>
-                    )}
-
+                <div className="card-actions">
+                  {!currentSong && (
                     <button
-                      className="button ghost"
+                      className="button primary"
                       onClick={() =>
-                        addToQueue(song)
+                        addToQueue(song, true)
                       }
-                      disabled={
-                        isNowPlaying ||
-                        isInQueue
-                      }
+                      disabled={isInQueue}
                     >
-                      {isNowPlaying
-                        ? "🎵 NOW PLAYING"
-                        : isInQueue
-                          ? "✓ IN QUEUE"
-                          : "+ Queue"}
+                      {isInQueue
+                        ? "✓ IN QUEUE"
+                        : "▶ Play"}
                     </button>
+                  )}
 
-                  </div>
+                  <button
+                    className="button ghost"
+                    onClick={() =>
+                      addToQueue(song)
+                    }
+                    disabled={
+                      isNowPlaying ||
+                      isInQueue
+                    }
+                  >
+                    {isNowPlaying
+                      ? "🎵 NOW PLAYING"
+                      : isInQueue
+                        ? "✓ IN QUEUE"
+                        : "+ Queue"}
+                  </button>
                 </div>
-              </article>
-            );
-          }
-        )}
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       {!usbLoading &&
-        filteredUsbSongs.length ===
-          0 && (
-
+        filteredUsbSongs.length === 0 && (
           <div className="empty-state">
             <span>💾</span>
 
