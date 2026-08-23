@@ -549,6 +549,7 @@ const [favorites, setFavorites] = useState(() =>
 );
 
 const [currentSong, setCurrentSong] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [repeatMode, setRepeatMode] = useState("off");
   const [connected, setConnected] = useState(false);
@@ -1543,6 +1544,7 @@ const requestUsbSongs =
   }
 
   if (playNow) {
+    setIsPaused(false);
     const saved =
       await savePlaybackState(
         normalizedVideo
@@ -1721,6 +1723,7 @@ const requestUsbSongs =
   async function playQueueIndex(index) {
     const selected = queueRef.current[index];
     if (!selected) return;
+    setIsPaused(false);
 
     if (isSupabaseConfigured) {
       const { error } = await supabase
@@ -2167,30 +2170,52 @@ const requestUsbSongs =
           </button>
 
           <button
-            onClick={() => {
-              sendCommand("PAUSE");
+  onClick={() => {
+    if (!currentSong) {
+      setMessage(
+        "ဖွင့်ထားတဲ့သီချင်းမရှိသေးပါ။"
+      );
+      return;
+    }
 
-              setMessage(
-                "သီချင်းကို ခဏရပ်လိုက်ပါပြီ။"
-              );
-            }}
-          >
-            ⏸
-            <span>Pause</span>
-          </button>
+    if (isPaused) {
+      sendCommand("PLAY");
+      setIsPaused(false);
+
+      setMessage(
+        "သီချင်းကို ဆက်ဖွင့်လိုက်ပါပြီ။"
+      );
+    } else {
+      sendCommand("PAUSE");
+      setIsPaused(true);
+
+      setMessage(
+        "သီချင်းကို ခဏရပ်လိုက်ပါပြီ။"
+      );
+    }
+  }}
+>
+  {isPaused ? "▶️" : "⏸"}
+  <span>
+    {isPaused ? "Play" : "Pause"}
+  </span>
+</button>
 
           <button
-            className="play-main"
-            onClick={() =>
-              currentSong
-                ? sendCommand("PLAY")
-                : queue.length &&
-                  playQueueIndex(0)
-            }
-          >
-            ▶
-            <span>Play</span>
-          </button>
+  className="play-main"
+  onClick={() => {
+    setIsPaused(false);
+
+    if (currentSong) {
+      sendCommand("PLAY");
+    } else if (queue.length) {
+      playQueueIndex(0);
+    }
+  }}
+>
+  ▶
+  <span>Play</span>
+</button>
 
           <button
             onClick={handleNext}
