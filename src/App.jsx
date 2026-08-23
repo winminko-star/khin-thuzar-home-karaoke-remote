@@ -2058,6 +2058,32 @@ const requestUsbSongs =
               {currentSong?.channel ||
                 "Remote မှာရှာပြီး TV ပေါ်ဖွင့်ပါ"}
             </p>
+            {currentSong && (
+  <button
+    type="button"
+    className={
+      isFavorite(currentSong.id)
+        ? "now-playing-favorite is-favorite"
+        : "now-playing-favorite"
+    }
+    onClick={() =>
+      toggleFavorite(currentSong)
+    }
+  >
+    <span>
+      {isFavorite(currentSong.id)
+        ? "★ Saved"
+        : "☆ Favorite"}
+    </span>
+
+    {!isFavorite(currentSong.id) &&
+      favoritesFull && (
+        <span className="favorite-full-dot">
+          ●
+        </span>
+      )}
+  </button>
+)}
 
             <div
               className={`status-message ${
