@@ -20,6 +20,7 @@ function UsbTab({
   getSourceType,
     isFavorite,
   toggleFavorite,
+  favoritesFull,
   addToQueue
 }) {
   const [visibleCount, setVisibleCount] =
@@ -204,6 +205,13 @@ function UsbTab({
   {isFavorite(song.id)
     ? "❤️ Favorite"
     : "🤍 Favorite"}
+
+  {!isFavorite(song.id) &&
+    favoritesFull && (
+      <span className="favorite-full-dot">
+        ●
+      </span>
+    )}
 </button>
                     {!currentSong && (
                       <button
