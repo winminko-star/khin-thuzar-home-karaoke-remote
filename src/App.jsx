@@ -541,6 +541,7 @@ const [usbLoading, setUsbLoading] = useState(false);
   const [artistQuery, setArtistQuery] = useState("");
   const [selectedLetter, setSelectedLetter] = useState("ALL");
   const [sceneryActive, setSceneryActive] = useState(false);
+  const [showTopControls, setShowTopControls] = useState(false);
   const [artistModal, setArtistModal] = useState({ open: false, artist: null });
   const [queue, setQueue] = useState(() => loadLocal(LOCAL_QUEUE_KEY, []));
 
@@ -2061,7 +2062,8 @@ const requestUsbSongs =
             </strong>
           </div>
         </section>
-
+        
+        {showTopControls && (
         <section className="control-deck">
           <button
             type="button"
@@ -2266,8 +2268,22 @@ const requestUsbSongs =
             <span>Vol +</span>
           </button>
         </section>
+      )}
 
         <div className="scenery-controls">
+          <button
+  type="button"
+  className={
+    showTopControls
+      ? "top-controls-toggle active"
+      : "top-controls-toggle"
+  }
+  onClick={() =>
+    setShowTopControls((prev) => !prev)
+  }
+>
+  A
+</button>
           <button
             type="button"
             className={
