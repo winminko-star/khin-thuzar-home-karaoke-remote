@@ -18,6 +18,8 @@ function UsbTab({
   currentSong,
   queue,
   getSourceType,
+    isFavorite,
+  toggleFavorite,
   addToQueue
 }) {
   const [visibleCount, setVisibleCount] =
@@ -190,6 +192,19 @@ function UsbTab({
                   </p>
 
                   <div className="card-actions">
+                    <button
+  type="button"
+  className={
+    isFavorite(song.id)
+      ? "button favorite active"
+      : "button favorite"
+  }
+  onClick={() => toggleFavorite(song)}
+>
+  {isFavorite(song.id)
+    ? "❤️ Favorite"
+    : "🤍 Favorite"}
+</button>
                     {!currentSong && (
                       <button
                         className="button primary"
