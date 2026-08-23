@@ -2282,7 +2282,7 @@ const requestUsbSongs =
     setShowTopControls((prev) => !prev)
   }
 >
-  A
+  Controller 
 </button>
           <button
             type="button"
