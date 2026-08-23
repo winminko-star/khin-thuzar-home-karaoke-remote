@@ -2198,7 +2198,7 @@ const requestUsbSongs =
     }
   }}
 >
-  {isPaused ? "▶️" : "⏸"}
+  {isPaused ? "⏯️" : "⏸"}
   <span>
     {isPaused ? "Play" : "Pause"}
   </span>
@@ -2219,7 +2219,7 @@ const requestUsbSongs =
   }}
 >
   ▶
-  <span>Play</span>
+  <span>Play-M</span>
 </button>
 
           <button
