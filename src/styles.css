@@ -3046,4 +3046,154 @@ img {
 .top-controls-toggle:active {
   transform: scale(0.94);
 }
+/* =========================================
+   ALL CLEAR - TAP EFFECT
+========================================= */
+
+.scenery-all-clear-button {
+  position: relative;
+  overflow: hidden;
+
+  min-height: 42px;
+  padding: 0 18px;
+
+  border: 2px solid #d32f2f;
+  border-radius: 12px;
+
+  background: #8b0000;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+
+  cursor: pointer;
+
+  box-shadow: none;
+  transform: scale(1);
+}
+
+
+/* ပုံမှန်အချိန်မှာ မမြင်ရတဲ့ အလင်းတန်း */
+.scenery-all-clear-button::before {
+  content: "";
+
+  position: absolute;
+  top: -20%;
+  left: -50%;
+
+  width: 35%;
+  height: 140%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    #ffffff,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+
+  transform: skewX(-20deg);
+  opacity: 0;
+}
+
+
+/* ပုံမှန်အချိန်မှာ မမြင်ရတဲ့ loading တုံး */
+.scenery-all-clear-button::after {
+  content: "";
+
+  position: absolute;
+  left: -35%;
+  bottom: 0;
+
+  width: 35%;
+  height: 4px;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  opacity: 0;
+}
+
+
+/* တစ်ချက်နှိပ်လိုက်ရင် 1 second effect */
+.scenery-all-clear-button.effect {
+  animation: allClearGlow 0.25s ease-in-out 4 alternate;
+
+  background: linear-gradient(
+    135deg,
+    #ff1744,
+    #ff5252,
+    #ff1744
+  );
+
+  box-shadow:
+    0 0 10px #ffffff,
+    0 0 22px #ff1744,
+    0 0 36px #ff1744;
+}
+
+
+/* အဖြူရောင်အလင်းတန်း ဖြတ်ပြေး */
+.scenery-all-clear-button.effect::before {
+  opacity: 1;
+  animation: allClearSweep 0.35s linear 3;
+}
+
+
+/* အောက်က loading တုံး ဖြတ်ပြေး */
+.scenery-all-clear-button.effect::after {
+  opacity: 1;
+
+  box-shadow:
+    0 0 5px #ffffff,
+    0 0 10px #ffeb3b,
+    0 0 15px #ff1744;
+
+  animation: allClearLoader 0.3s linear 3;
+}
+
+
+@keyframes allClearGlow {
+  from {
+    transform: scale(1);
+
+    box-shadow:
+      0 0 5px #ff1744,
+      0 0 12px #ff1744;
+  }
+
+  to {
+    transform: scale(1.06);
+
+    box-shadow:
+      0 0 12px #ffffff,
+      0 0 25px #ff1744,
+      0 0 40px #ff1744;
+  }
+}
+
+
+@keyframes allClearSweep {
+  from {
+    left: -50%;
+  }
+
+  to {
+    left: 125%;
+  }
+}
+
+
+@keyframes allClearLoader {
+  from {
+    left: -35%;
+  }
+
+  to {
+    left: 105%;
+  }
+  }
 
