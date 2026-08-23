@@ -16,7 +16,7 @@ function FavoritesTab({
           </p>
 
           <h2>
-            ⭐ အကြိုက်ဆုံးသီချင်းများ
+            ❤️ အကြိုက်ဆုံးသီချင်းများ
           </h2>
         </div>
       </div>
@@ -96,7 +96,7 @@ function FavoritesTab({
 
         {!favorites.length && (
           <div className="empty-state">
-            <span>⭐</span>
+            <span>❤️</span>
 
             <h3>
               Favorite သီချင်းမရှိသေးပါ
