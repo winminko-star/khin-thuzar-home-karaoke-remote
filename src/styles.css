@@ -3010,4 +3010,40 @@ img {
   transform: scale(0.92) !important;
   filter: brightness(1.35);
 }
+/* =========================
+   TOP CONTROLS A TOGGLE
+========================= */
+
+.top-controls-toggle {
+  flex: 0 0 auto;
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+
+  padding: 0;
+
+  border: 1px solid #8b5cf6;
+  border-radius: 10px;
+
+  background: #27272a;
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 900;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.top-controls-toggle.active {
+  background: #7c3aed;
+  border-color: #a78bfa;
+}
+
+.top-controls-toggle:active {
+  transform: scale(0.94);
+}
 
