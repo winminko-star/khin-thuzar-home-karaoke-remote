@@ -1402,6 +1402,9 @@ const queueChannel = supabase
     delete window.handleAndroidVoiceError;
   };
 });
+  const favoritesFull =
+  favorites.length >= MAX_FAVORITES;
+  
   function isFavorite(videoId) {
   return favorites.some((song) => song.id === videoId);
 }
@@ -2514,6 +2517,9 @@ const requestUsbSongs =
 toggleFavorite={
   toggleFavorite
 }
+            favoritesFull={
+  favoritesFull
+            }
             addToQueue={
               addToQueue
             }
@@ -2548,6 +2554,9 @@ toggleFavorite={
             }
             toggleFavorite={
               toggleFavorite
+            }
+            favoritesFull={
+  favoritesFull
             }
             addToQueue={
               addToQueue
