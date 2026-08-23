@@ -2310,7 +2310,7 @@ const requestUsbSongs =
               stopSceneryShow
             }
           >
-            ⏹ STOP
+            ⏹ SCENERY STOP
           </button>
           <button
   type="button"
