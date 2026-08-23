@@ -3251,4 +3251,19 @@ img {
 .now-playing-favorite:active {
   transform: scale(0.96);
 }
+.favorite-play-button {
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.favorite-play-button:active {
+  transform: scale(0.88);
+  filter: brightness(1.25);
+
+  box-shadow:
+    0 0 0 4px rgba(255, 193, 7, 0.18),
+    0 0 18px rgba(255, 193, 7, 0.65);
+}
 
