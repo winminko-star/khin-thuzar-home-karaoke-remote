@@ -38,7 +38,10 @@ function FavoritesTab({
               </span>
 
               <img
-                src={favorite.thumbnail}
+                src={
+  favorite.thumbnail ||
+  "/usb-default.png"
+                }
                 alt=""
                 loading="lazy"
                 decoding="async"
