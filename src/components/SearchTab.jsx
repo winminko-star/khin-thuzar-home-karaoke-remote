@@ -12,6 +12,7 @@ function SearchTab({
   getSourceType,
   isFavorite,
   toggleFavorite,
+  favoritesFull,
   addToQueue
 }) {
   return (
@@ -69,8 +70,7 @@ function SearchTab({
           );
 
           const videoIsFavorite =
-            !isUsb &&
-            isFavorite(video.id);
+  isFavorite(video.id);
 
           return (
             <article
@@ -147,33 +147,34 @@ function SearchTab({
                         : "+ Queue"}
                   </button>
 
-                  {!isUsb && (
-                    <button
-                      type="button"
-                      className={
-                        videoIsFavorite
-                          ? "favorite-button is-favorite"
-                          : "favorite-button"
-                      }
-                      onClick={() =>
-                        toggleFavorite(
-                          video
-                        )
-                      }
-                    >
-                      <span className="favorite-star">
-                        {videoIsFavorite
-                          ? "★"
-                          : "☆"}
-                      </span>
+                  <button
+  type="button"
+  className={
+    videoIsFavorite
+      ? "favorite-button is-favorite"
+      : "favorite-button"
+  }
+  onClick={() =>
+    toggleFavorite(video)
+  }
+>
+  <span className="favorite-star">
+    {videoIsFavorite ? "★" : "☆"}
+  </span>
 
-                      <span>
-                        {videoIsFavorite
-                          ? "Saved"
-                          : "Favorite"}
-                      </span>
-                    </button>
-                  )}
+  <span>
+    {videoIsFavorite
+      ? "Saved"
+      : "Favorite"}
+  </span>
+
+  {!videoIsFavorite &&
+    favoritesFull && (
+      <span className="favorite-full-dot">
+        ●
+      </span>
+    )}
+</button>
                 </div>
               </div>
             </article>
