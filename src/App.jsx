@@ -542,6 +542,7 @@ const [usbLoading, setUsbLoading] = useState(false);
   const [selectedLetter, setSelectedLetter] = useState("ALL");
   const [sceneryActive, setSceneryActive] = useState(false);
   const [showTopControls, setShowTopControls] = useState(false);
+  const [allClearEffect, setAllClearEffect] = useState(false);
   const [artistModal, setArtistModal] = useState({ open: false, artist: null });
   const [queue, setQueue] = useState(() => loadLocal(LOCAL_QUEUE_KEY, []));
 
@@ -2311,6 +2312,25 @@ const requestUsbSongs =
           >
             ⏹ STOP
           </button>
+          <button
+  type="button"
+  className={
+    allClearEffect
+      ? "scenery-all-clear-button effect"
+      : "scenery-all-clear-button"
+  }
+  onClick={() => {
+    clearQueue();
+
+    setAllClearEffect(true);
+
+    window.setTimeout(() => {
+      setAllClearEffect(false);
+    }, 1000);
+  }}
+>
+  🗑️ ALL CLEAR
+</button>
         </div>
 
         <nav className="tabs">
