@@ -197,14 +197,20 @@ function UsbTab({
   type="button"
   className={
     isFavorite(song.id)
-      ? "button favorite active"
-      : "button favorite"
+      ? "favorite-button is-favorite"
+      : "favorite-button"
   }
   onClick={() => toggleFavorite(song)}
 >
-  {isFavorite(song.id)
-    ? "❤️ Favorite"
-    : "🤍 Favorite"}
+  <span className="favorite-star">
+    {isFavorite(song.id) ? "★" : "☆"}
+  </span>
+
+  <span>
+    {isFavorite(song.id)
+      ? "Saved"
+      : "Favorite"}
+  </span>
 
   {!isFavorite(song.id) &&
     favoritesFull && (
