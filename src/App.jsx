@@ -1430,11 +1430,13 @@ function toggleFavorite(video) {
   }
 
   const favoriteSong = {
-    id: video.id,
-    title: video.title || "",
-    channel: video.channel || "",
-    thumbnail: video.thumbnail || ""
-  };
+  id: video.id,
+  sourceType:
+    video.sourceType || getSourceType(video),
+  title: video.title || "",
+  channel: video.channel || "",
+  thumbnail: video.thumbnail || ""
+};
 
   setFavorites((currentFavorites) => [
     ...currentFavorites,
@@ -1455,20 +1457,37 @@ function removeFavorite(videoId) {
 }
 
 async function playFavoriteNow(video) {
-  const saved = await savePlaybackState(video);
+  const normalizedVideo =
+    normalizeSongSource(video);
+
+  if (!normalizedVideo?.id) {
+    setMessage(
+      "Favorite သီချင်းအချက်အလက် မပြည့်စုံပါ။"
+    );
+    return;
+  }
+
+  setIsPaused(false);
+
+  const saved =
+    await savePlaybackState(
+      normalizedVideo
+    );
 
   if (!saved) {
     return;
   }
 
   sendCommand("LOAD_AND_PLAY", {
-    video,
+    video: normalizedVideo,
     queue: queueRef.current,
     index: -1
   });
 
   setMessage(
-    "Favorite သီချင်းကို Now Playing အဖြစ် ဖွင့်လိုက်ပါပြီ။ Queue ကို မပြောင်းပါ။"
+    normalizedVideo.sourceType === "usb"
+      ? "USB Favorite သီချင်းကို ဖွင့်လိုက်ပါပြီ။"
+      : "Favorite သီချင်းကို ဖွင့်လိုက်ပါပြီ။"
   );
 }
 const requestUsbSongs =
@@ -2489,6 +2508,12 @@ const requestUsbSongs =
             getSourceType={
               getSourceType
             }
+            isFavorite={
+  isFavorite
+}
+toggleFavorite={
+  toggleFavorite
+}
             addToQueue={
               addToQueue
             }
