@@ -3209,4 +3209,46 @@ img {
     left: 105%;
   }
   }
+/* FAVORITES FULL RED DOT */
+
+.favorite-full-dot {
+  display: inline-block;
+  margin-left: 4px;
+  color: #ff2d2d;
+  font-size: 12px;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(255, 45, 45, 0.9);
+}
+
+/* NOW PLAYING FAVORITE BUTTON */
+
+.now-playing-favorite {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  margin-top: 7px;
+  padding: 7px 11px;
+
+  border: 1px solid rgba(250, 204, 21, 0.7);
+  border-radius: 9px;
+
+  background: rgba(250, 204, 21, 0.1);
+  color: #facc15;
+
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.now-playing-favorite.is-favorite {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  border-color: #facc15;
+  color: #18181b;
+}
+
+.now-playing-favorite:active {
+  transform: scale(0.96);
+}
 
