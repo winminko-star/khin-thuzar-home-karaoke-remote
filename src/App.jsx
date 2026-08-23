@@ -2368,14 +2368,14 @@ const requestUsbSongs =
       : "scenery-all-clear-button"
   }
   onClick={() => {
-    clearQueue();
+  clearQueue();
 
-    setAllClearEffect(true);
+  setAllClearEffect(true);
 
-    window.setTimeout(() => {
-      setAllClearEffect(false);
-    }, 1000);
-  }}
+  window.setTimeout(() => {
+    window.location.reload();
+  }, 1000);
+}}
 >
   🗑️ ALL CLEAR
 </button>
