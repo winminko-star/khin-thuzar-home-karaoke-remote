@@ -1563,12 +1563,25 @@ select {
 
 .scenery-controls {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
   gap: 12px;
 
   width: 100%;
   margin: 14px 0 18px;
+  padding-bottom: 6px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.scenery-controls::-webkit-scrollbar {
+  display: none;
 }
 
 .scenery-controls button {
