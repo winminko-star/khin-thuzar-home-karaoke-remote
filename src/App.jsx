@@ -2208,8 +2208,10 @@ const requestUsbSongs =
 
     if (currentSong) {
       sendCommand("PLAY");
+      setMessage("သီချင်းဖွင့်သည်။");
     } else if (queue.length) {
       playQueueIndex(0);
+      setMessage("သီချင်းဖွင့်သည်။");
     }
   }}
 >
