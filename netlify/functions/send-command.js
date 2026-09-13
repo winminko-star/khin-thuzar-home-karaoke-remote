@@ -1,66 +1,82 @@
-let latestCommand = null;
+import { getStore } from "@netlify/blobs";
+
+const STORE_NAME = "karaoke-command-relay";
+
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+    }
+  });
+}
 
 export default async (request) => {
   try {
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+        }
+      });
+    }
+
+    const store = getStore(STORE_NAME);
+
     if (request.method === "POST") {
       const body = await request.json();
+      const roomId = String(body?.roomId || "").trim();
 
-      latestCommand = {
-        ...body,
-        receivedAt: new Date().toISOString()
+      if (!roomId) {
+        return jsonResponse({ error: "roomId is required" }, 400);
+      }
+
+      const command = {
+        roomId,
+        type: body?.type || "",
+        payload: body?.payload || {},
+        sentAt: body?.sentAt || new Date().toISOString(),
+        receivedAt: new Date().toISOString(),
+        commandId: crypto.randomUUID()
       };
 
-      return new Response(
-        JSON.stringify({
-          ok: true,
-          command: latestCommand
-        }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "no-store"
-          }
-        }
-      );
+      await store.set(`room:${roomId}`, JSON.stringify(command));
+
+      return jsonResponse({ ok: true, command });
     }
 
     if (request.method === "GET") {
-      return new Response(
-        JSON.stringify({
-          command: latestCommand
-        }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "no-store"
-          }
-        }
-      );
+      const url = new URL(request.url);
+      const roomId = String(
+        url.searchParams.get("roomId") || ""
+      ).trim();
+
+      if (!roomId) {
+        return jsonResponse({ error: "roomId is required" }, 400);
+      }
+
+      const command = await store.get(`room:${roomId}`, {
+        type: "json",
+        consistency: "strong"
+      });
+
+      return jsonResponse({ command: command || null });
     }
 
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      {
-        status: 405,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    );
-
+    return jsonResponse({ error: "Method not allowed" }, 405);
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        error: error.message
-      }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
+    console.error("send-command error:", error);
+
+    return jsonResponse(
+      { error: error?.message || "Unknown error" },
+      500
     );
   }
 };
