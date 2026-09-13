@@ -468,6 +468,8 @@ const maxDistance = 1;
 }
 
 export default function App() {
+  const canUseSupabase = false; // Myanmar relay mode: browser does not connect directly to Supabase
+
   const [tab, setTab] = useState("search");
   const [youtubeApiChoice, setYoutubeApiChoice] =
   useState(() => {
@@ -573,6 +575,9 @@ const usbTransferTimeoutRef = useRef(null);
   const stateReloadTimerRef = useRef(null);
   const fastReSingConfirmRef = useRef(false);
 const fastReSingConfirmTimerRef = useRef(null);
+  const relayStatusSeenRef = useRef(new Set());
+  const relayStatusInitializedRef = useRef(false);
+  const lastTvHeartbeatRef = useRef(0);
 
   const nextSong = queue[0] || null;
   const indexedUsbSongs =
@@ -641,12 +646,31 @@ const fastReSingConfirmTimerRef = useRef(null);
   usbSearchQuery
 ]);
   const sendCommand = useCallback(async (type, payload = {}) => {
-    const packet = { type, payload, sentAt: new Date().toISOString() };
-    if (!channelRef.current) {
-      setMessage("TV connection မရသေးပါ။ Supabase settings စစ်ပါ။");
-      return;
+    try {
+      const response = await fetch(
+        "/.netlify/functions/send-command",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roomId: ROOM_ID,
+            type,
+            payload,
+            sentAt: new Date().toISOString()
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Command send error:", error);
+      setMessage(`Command send error: ${error?.message || "Unknown error"}`);
+      return false;
     }
-    await channelRef.current.send({ type: "broadcast", event: "karaoke-command", payload: packet });
   }, []);
   useEffect(() => {
   return () => {
@@ -764,7 +788,7 @@ const sendTextPopup = useCallback(() => {
 
 
   const loadSharedQueue = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+    if (!canUseSupabase) return;
 
     const { data, error } = await supabase
       .from("karaoke_queue")
@@ -787,7 +811,7 @@ const sendTextPopup = useCallback(() => {
   }, []);
 
   const normalizeQueuePositions = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+    if (!canUseSupabase) return;
 
     const { data, error } = await supabase
       .from("karaoke_queue")
@@ -809,7 +833,7 @@ const sendTextPopup = useCallback(() => {
   }, []);
 
   const loadPlaybackState = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+    if (!canUseSupabase) return;
 
     const { data, error } = await supabase
       .from("karaoke_state")
@@ -828,7 +852,7 @@ const sendTextPopup = useCallback(() => {
   }, []);
 
   const savePlaybackState = useCallback(async (song) => {
-    if (!isSupabaseConfigured) {
+    if (!canUseSupabase) {
       currentSongRef.current = song;
       setCurrentSong(song);
       return true;
@@ -859,7 +883,7 @@ const sendTextPopup = useCallback(() => {
   }, []);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return undefined;
+    if (!canUseSupabase) return undefined;
 
     loadSharedQueue();
 
@@ -921,7 +945,7 @@ const queueChannel = supabase
   }, [loadSharedQueue]);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return undefined;
+    if (!canUseSupabase) return undefined;
 
     loadPlaybackState();
 
@@ -953,9 +977,282 @@ const queueChannel = supabase
     };
   }, [loadPlaybackState]);
 
+  const handleRelayTvStatus = useCallback(async (payload) => {
+    if (!payload) return;
+    lastTvHeartbeatRef.current = Date.now();
+
+    if (payload?.type === "READY" || payload?.type === "HEARTBEAT") {
+      lastTvHeartbeatRef.current = Date.now();
+      setConnected(true);
+
+      if (payload?.type === "READY") {
+        sendCommand("SYNC_QUEUE", {
+          queue: queueRef.current,
+          currentIndex: -1
+        });
+
+        if (currentSongRef.current) {
+          sendCommand("LOAD_AND_PLAY", {
+            video: currentSongRef.current,
+            queue: queueRef.current,
+            index: -1
+          });
+        }
+      }
+    }
+
+    if (payload?.type === "VIDEO_ENDED") {
+      handleVideoEnded();
+    }
+    if (payload?.type === "TV_STATE") {
+  const tvCurrentSong =
+    payload?.currentSong || null;
+
+  const tvQueue = Array.isArray(payload?.queue)
+    ? payload.queue
+    : null;
+
+  currentSongRef.current = tvCurrentSong;
+  setCurrentSong(tvCurrentSong);
+
+  if (tvQueue) {
+    queueRef.current = tvQueue;
+    setQueue(tvQueue);
+  }
+
+  setCurrentIndex(-1);
+  currentIndexRef.current = -1;
+
+  setMessage("TV နဲ့ Remote Adjust ပြီးပါပြီ။");
+    }
+
+    if (payload?.type === "USB_SONGS_CHUNK") {
+  window.clearTimeout(
+    usbTransferTimeoutRef.current
+  );
+
+  usbTransferTimeoutRef.current =
+    window.setTimeout(() => {
+      setUsbLoading(false);
+      usbChunksRef.current = [];
+      usbReceivedChunksRef.current = new Set();
+      usbTransferIdRef.current = null;
+      usbExpectedChunksRef.current = 0;
+      usbTransferTimeoutRef.current = null;
+
+      setMessage(
+        "USB စာရင်းပို့တာ မပြီးဆုံးပါ။ အရင် Cache ကို ဆက်သုံးနေပါသည်။"
+      );
+    }, 15000);
+
+  const transferId =
+    payload?.transferId || "default";
+
+  const chunkIndex =
+    Number(payload?.chunkIndex ?? 0);
+
+  const totalChunks =
+    Number(payload?.totalChunks ?? 1);
+
+  const incomingSongs =
+    Array.isArray(payload?.songs)
+      ? payload.songs
+      : [];
+
+  // Transfer အသစ်စရင် buffer reset
+  if (
+    usbTransferIdRef.current !==
+    transferId
+  ) {
+    usbTransferIdRef.current =
+      transferId;
+
+    usbChunksRef.current = [];
+
+    usbReceivedChunksRef.current =
+      new Set();
+
+    usbExpectedChunksRef.current =
+      totalChunks;
+  }
+
+  // Duplicate chunk မထည့်
+  if (
+    !usbReceivedChunksRef.current.has(
+      chunkIndex
+    )
+  ) {
+    const normalizedSongs =
+      incomingSongs.map((song) => {
+        const rawId =
+          song.id ||
+          song.fileId ||
+          song.uri ||
+          song.path ||
+          song.title;
+
+        const usbId =
+          String(rawId).startsWith("usb:")
+            ? String(rawId)
+            : `usb:${rawId}`;
+
+        return {
+          ...song,
+
+          id: usbId,
+
+          sourceType: "usb",
+
+          channel:
+            song.channel ||
+            song.folder ||
+            "USB Storage",
+
+          thumbnail:
+            song.thumbnail ||
+            "/usb-default.png"
+        };
+      });
+
+    usbChunksRef.current[chunkIndex] =
+      normalizedSongs;
+
+    usbReceivedChunksRef.current.add(
+      chunkIndex
+    );
+  }
+
+  const receivedCount =
+    usbReceivedChunksRef.current.size;
+      setMessage(
+  `USB Chunk ${receivedCount}/${totalChunks} ရောက်ပါပြီ`
+);
+
+  // Chunk အကုန်ရပြီ
+  if (receivedCount === totalChunks) {
+    window.clearTimeout(
+      usbTransferTimeoutRef.current
+    );
+    usbTransferTimeoutRef.current = null;
+
+    const fullList =
+      usbChunksRef.current.flat();
+
+    setUsbSongs(fullList);
+    setUsbLoading(false);
+
+    saveUsbCache(fullList)
+      .then(() => {
+        console.log(
+          `USB cache saved: ${fullList.length}`
+        );
+      })
+      .catch((error) => {
+        console.error(
+          "USB cache save error:",
+          error
+        );
+      });
+
+    setMessage(
+      fullList.length > 0
+        ? `USB သီချင်း ${fullList.length} ပုဒ် ရပါပြီ။`
+        : "USB ထဲမှာ MP4 သီချင်းမတွေ့ပါ။"
+    );
+
+    // Buffer cleanup
+    usbChunksRef.current = [];
+
+    usbReceivedChunksRef.current =
+      new Set();
+
+    usbTransferIdRef.current = null;
+
+    usbExpectedChunksRef.current = 0;
+  }
+    }
+
+    if (payload?.type === "USB_ERROR") {
+  window.clearTimeout(
+    usbTransferTimeoutRef.current
+  );
+  usbTransferTimeoutRef.current = null;
+
+  setUsbLoading(false);
+
+  usbChunksRef.current = [];
+
+  usbReceivedChunksRef.current =
+    new Set();
+
+  usbTransferIdRef.current = null;
+
+  usbExpectedChunksRef.current = 0;
+
+  setMessage(
+    payload?.message ||
+      "USB သီချင်းစာရင်းအသစ် ဖတ်မရပါ။ အရင် Cache ကို ဆက်သုံးနေပါသည်။"
+  );
+    }
+  
+  }, [sendCommand]);
+
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setMessage("Supabase env variables မထည့်ရသေးပါ။ Local features သုံးလို့ရပါတယ်။");
+    let cancelled = false;
+
+    const pollTvStatus = async () => {
+      try {
+        const response = await fetch(
+          `/.netlify/functions/tv-status?roomId=${encodeURIComponent(ROOM_ID)}&all=1`,
+          { cache: "no-store" }
+        );
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        const events = Array.isArray(result?.events) ? result.events : [];
+
+        if (!relayStatusInitializedRef.current) {
+          relayStatusInitializedRef.current = true;
+          for (const event of events) {
+            if (event?.eventId) relayStatusSeenRef.current.add(event.eventId);
+          }
+          const latest = events[events.length - 1];
+          if (latest?.payload?.type === "HEARTBEAT" || latest?.payload?.type === "READY") {
+            await handleRelayTvStatus(latest.payload);
+          }
+        } else {
+          for (const event of events) {
+            if (!event?.eventId || relayStatusSeenRef.current.has(event.eventId)) continue;
+            relayStatusSeenRef.current.add(event.eventId);
+            await handleRelayTvStatus(event.payload);
+          }
+        }
+
+        if (relayStatusSeenRef.current.size > 300) {
+          relayStatusSeenRef.current = new Set(
+            events.slice(-100).map((event) => event.eventId).filter(Boolean)
+          );
+        }
+      } catch (error) {
+        console.error("TV status relay error:", error);
+      }
+
+      if (!cancelled && Date.now() - lastTvHeartbeatRef.current > 7000) {
+        setConnected(false);
+      }
+    };
+
+    pollTvStatus();
+    const timer = window.setInterval(pollTvStatus, 900);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [handleRelayTvStatus]);
+
+  useEffect(() => {
+    if (!canUseSupabase) {
       return undefined;
     }
 
@@ -1181,7 +1478,7 @@ const queueChannel = supabase
   }, []);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (!canUseSupabase) return;
     supabase
       .from("karaoke_artists")
       .select("*")
@@ -1618,7 +1915,7 @@ const requestUsbSongs =
     "Queue ထဲထည့်ပြီးပါပြီ။"
   );
 
-  if (!isSupabaseConfigured) {
+  if (!canUseSupabase) {
     sendCommand("SYNC_QUEUE", {
       queue: optimisticQueue,
       currentIndex: -1
@@ -1749,7 +2046,7 @@ const requestUsbSongs =
     if (!selected) return;
     setIsPaused(false);
 
-    if (isSupabaseConfigured) {
+    if (canUseSupabase) {
       const { error } = await supabase
         .from("karaoke_queue")
         .delete()
@@ -1766,7 +2063,7 @@ const requestUsbSongs =
     const saved = await savePlaybackState(selected);
     if (!saved) return;
 
-    if (isSupabaseConfigured) {
+    if (canUseSupabase) {
       await loadSharedQueue();
     } else {
       const next = queueRef.current.filter((_, itemIndex) => itemIndex !== index);
@@ -1811,7 +2108,7 @@ const requestUsbSongs =
     const target = queueRef.current[index];
     if (!target) return;
 
-    if (isSupabaseConfigured) {
+    if (canUseSupabase) {
       const { error } = await supabase
         .from("karaoke_queue")
         .delete()
@@ -1834,7 +2131,7 @@ const requestUsbSongs =
   }
 
   async function clearQueue() {
-    if (isSupabaseConfigured) {
+    if (canUseSupabase) {
       const { error } = await supabase
         .from("karaoke_queue")
         .delete()
@@ -1868,7 +2165,7 @@ const requestUsbSongs =
       [songs[i], songs[j]] = [songs[j], songs[i]];
     }
 
-    if (isSupabaseConfigured) {
+    if (canUseSupabase) {
       const updates = await Promise.all(
         songs.map((song, index) =>
           supabase
@@ -1918,7 +2215,7 @@ const requestUsbSongs =
     const [moved] = songs.splice(from, 1);
     songs.splice(to, 0, moved);
 
-    if (isSupabaseConfigured) {
+    if (canUseSupabase) {
       const updates = await Promise.all(
         songs.map((song, index) =>
           supabase
@@ -1961,7 +2258,7 @@ const requestUsbSongs =
       is_base: false
     };
 
-    if (isSupabaseConfigured) {
+    if (canUseSupabase) {
       const dbPayload = {
         letter: form.letter,
         display_name: form.display_name,
@@ -1996,7 +2293,7 @@ const requestUsbSongs =
       return;
     }
     if (!window.confirm(`${artist.display_name} ကို ဖျက်မလား?`)) return;
-    if (isSupabaseConfigured && !String(artist.id).startsWith("local-")) {
+    if (canUseSupabase && !String(artist.id).startsWith("local-")) {
       await supabase.from("karaoke_artists").delete().eq("id", artist.id);
     }
     setCustomArtists((previous) => previous.filter((item) => item.id !== artist.id));
