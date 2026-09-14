@@ -18,7 +18,7 @@ function reply(data, status = 200) {
 export default async (request) => {
   try {
     if (request.method === "OPTIONS") {
-      return reply({}, 204);
+      return reply({}, 200);
     }
 
     const store = getStore(STORE_NAME);
