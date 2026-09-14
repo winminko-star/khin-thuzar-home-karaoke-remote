@@ -1237,9 +1237,25 @@ const queueChannel = supabase
         console.error("TV status relay error:", error);
       }
 
-      if (!cancelled && Date.now() - lastTvHeartbeatRef.current > 7000) {
-        setConnected(false);
-      }
+    const latestEvent = events[events.length - 1];
+
+const latestEventTime =
+  Date.parse(
+    latestEvent?.receivedAt ||
+    latestEvent?.sentAt ||
+    ""
+  ) || 0;
+
+if (!cancelled) {
+  if (
+    latestEventTime &&
+    Date.now() - latestEventTime < 10000
+  ) {
+    setConnected(true);
+  } else {
+    setConnected(false);
+  }
+}  
     };
 
     pollTvStatus();
