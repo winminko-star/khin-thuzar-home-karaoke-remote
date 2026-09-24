@@ -569,6 +569,7 @@ const usbTransferTimeoutRef = useRef(null);
   const queueRef = useRef(queue);
   const autoAdjustDoneRef = useRef(false);
   const currentSongRef = useRef(currentSong);
+  const previousSongRef = useRef(null);
   const currentIndexRef = useRef(currentIndex);
   const repeatModeRef = useRef(repeatMode);
   const queueReloadTimerRef = useRef(null);
@@ -2058,41 +2059,53 @@ const requestUsbSongs =
   }
 
   async function playQueueIndex(index) {
-    const selected = queueRef.current[index];
-    if (!selected) return;
-    setIsPaused(false);
+  const selected = queueRef.current[index];
+  if (!selected) return;
 
-    if (canUseSupabase) {
-      const { error } = await supabase
-        .from("karaoke_queue")
-        .delete()
-        .eq("id", selected.dbId);
-
-      if (error) {
-        setMessage(`Queue item ဖယ်မရပါ: ${error.message}`);
-        return;
-      }
-
-      await normalizeQueuePositions();
-    }
-
-    const saved = await savePlaybackState(selected);
-    if (!saved) return;
-
-    if (canUseSupabase) {
-      await loadSharedQueue();
-    } else {
-      const next = queueRef.current.filter((_, itemIndex) => itemIndex !== index);
-      queueRef.current = next;
-      setQueue(next);
-    }
-
-    sendCommand("LOAD_AND_PLAY", {
-      video: selected,
-      queue: queueRef.current,
-      index: -1
-    });
+  // အခုဖွင့်နေတဲ့သီချင်းကို Previous အတွက် တစ်ပုဒ်ပဲမှတ်ထား
+  if (
+    currentSongRef.current &&
+    currentSongRef.current.id !== selected.id
+  ) {
+    previousSongRef.current = currentSongRef.current;
   }
+
+  setIsPaused(false);
+
+  if (canUseSupabase) {
+    const { error } = await supabase
+      .from("karaoke_queue")
+      .delete()
+      .eq("id", selected.dbId);
+
+    if (error) {
+      setMessage(`Queue item ဖယ်မရပါ: ${error.message}`);
+      return;
+    }
+
+    await normalizeQueuePositions();
+  }
+
+  const saved = await savePlaybackState(selected);
+  if (!saved) return;
+
+  if (canUseSupabase) {
+    await loadSharedQueue();
+  } else {
+    const next = queueRef.current.filter(
+      (_, itemIndex) => itemIndex !== index
+    );
+
+    queueRef.current = next;
+    setQueue(next);
+  }
+
+  sendCommand("LOAD_AND_PLAY", {
+    video: selected,
+    queue: queueRef.current,
+    index: -1
+  });
+}
 
   async function handleNext(fromTv = false) {
     if (queueRef.current.length) {
@@ -2107,6 +2120,30 @@ const requestUsbSongs =
       setMessage("Queue ထဲက သီချင်းအားလုံး ပြီးပါပြီ။");
     }
   }
+  async function handlePrevious() {
+  const previous = previousSongRef.current;
+
+  if (!previous) {
+    setMessage("ပြန်ယူဖို့ အရင်သီချင်းမရှိသေးပါ။");
+    return;
+  }
+
+  // တစ်ပုဒ်ပဲ ပြန်ယူခွင့်ရှိမယ်
+  previousSongRef.current = null;
+
+  setIsPaused(false);
+
+  const saved = await savePlaybackState(previous);
+  if (!saved) return;
+
+  sendCommand("LOAD_AND_PLAY", {
+    video: previous,
+    queue: queueRef.current,
+    index: -1
+  });
+
+  setMessage("အရင်သီချင်းတစ်ပုဒ်ကို ပြန်ဖွင့်လိုက်ပါပြီ။");
+}
   async function handleStop() {
   await savePlaybackState(null);
 
@@ -2582,7 +2619,12 @@ const requestUsbSongs =
   ▶
   <span>Play-M</span>
 </button>
-
+<button
+  onClick={handlePrevious}
+>
+  ⏮
+  <span>Previous(1)</span>
+</button>
           <button
             onClick={handleNext}
           >
