@@ -2122,13 +2122,30 @@ const requestUsbSongs =
   }
   async function handlePrevious() {
   const previous = previousSongRef.current;
+  const current = currentSongRef.current;
 
   if (!previous) {
     setMessage("ပြန်ယူဖို့ အရင်သီချင်းမရှိသေးပါ။");
     return;
   }
 
-  // တစ်ပုဒ်ပဲ ပြန်ယူခွင့်ရှိမယ်
+  // လက်ရှိသီချင်းကို Queue ရဲ့ အရှေ့ဆုံးမှာ ပြန်ထည့်
+  if (current) {
+    const restoredQueue = [
+      current,
+      ...queueRef.current
+    ];
+
+    queueRef.current = restoredQueue;
+    setQueue(restoredQueue);
+
+    sendCommand("SYNC_QUEUE", {
+      queue: restoredQueue,
+      currentIndex: -1
+    });
+  }
+
+  // Previous ကို တစ်ကြိမ်ပဲ အသုံးပြု
   previousSongRef.current = null;
 
   setIsPaused(false);
@@ -2142,7 +2159,7 @@ const requestUsbSongs =
     index: -1
   });
 
-  setMessage("အရင်သီချင်းတစ်ပုဒ်ကို ပြန်ဖွင့်လိုက်ပါပြီ။");
+  setMessage("အရင်သီချင်းကို ပြန်ဖွင့်ပြီး လက်ရှိသီချင်းကို Queue ထဲ ပြန်ထည့်လိုက်ပါပြီ။");
 }
   async function handleStop() {
   await savePlaybackState(null);
