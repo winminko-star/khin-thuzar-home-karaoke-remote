@@ -1015,6 +1015,10 @@ const queueChannel = supabase
 
   currentSongRef.current = tvCurrentSong;
   setCurrentSong(tvCurrentSong);
+    if (tvQueue) {
+  queueRef.current = tvQueue;
+  setQueue(tvQueue);
+}  
       
  setCurrentIndex(-1);
   currentIndexRef.current = -1;
@@ -1295,6 +1299,9 @@ if (!cancelled) {
 
   currentSongRef.current = tvCurrentSong;
   setCurrentSong(tvCurrentSong);
+      
+      queueRef.current = tvQueue;
+setQueue(tvQueue);
 
 
   setCurrentIndex(-1);
