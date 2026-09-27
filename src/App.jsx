@@ -1015,13 +1015,8 @@ const queueChannel = supabase
 
   currentSongRef.current = tvCurrentSong;
   setCurrentSong(tvCurrentSong);
-
-  if (tvQueue) {
-    queueRef.current = tvQueue;
-    setQueue(tvQueue);
-  }
-
-  setCurrentIndex(-1);
+      
+ setCurrentIndex(-1);
   currentIndexRef.current = -1;
 
   setMessage("TV နဲ့ Remote Adjust ပြီးပါပြီ။");
@@ -1301,8 +1296,6 @@ if (!cancelled) {
   currentSongRef.current = tvCurrentSong;
   setCurrentSong(tvCurrentSong);
 
-  queueRef.current = tvQueue;
-  setQueue(tvQueue);
 
   setCurrentIndex(-1);
   currentIndexRef.current = -1;
