@@ -20,13 +20,12 @@ function SearchTab({
       <div className="search-row">
         <input
           value={query}
-          onChange={(e) =>
-            setQuery(e.target.value)
-          }
-          onKeyDown={(e) =>
-            e.key === "Enter" &&
-            runSearch()
-          }
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              runSearch();
+            }
+          }}
           placeholder="သီချင်း သို့မဟုတ် အဆိုတော်နာမည် ရိုက်ပါ"
         />
 
@@ -35,9 +34,7 @@ function SearchTab({
           onClick={() => runSearch()}
           disabled={searching}
         >
-          {searching
-            ? "Searching…"
-            : "Search"}
+          {searching ? "Searching…" : "Search"}
         </button>
 
         <button
@@ -51,31 +48,26 @@ function SearchTab({
       <div className="video-grid">
         {results.map((video) => {
           const sourceType =
-            video.sourceType ||
-            getSourceType(video);
+            video.sourceType || getSourceType(video);
 
-          const isUsb =
-            sourceType === "usb";
+          const isUsb = sourceType === "usb";
 
           const isNowPlaying =
             currentSong?.id === video.id &&
-            getSourceType(currentSong) ===
-              sourceType;
+            getSourceType(currentSong) === sourceType;
 
           const isInQueue = queue.some(
             (item) =>
               item.id === video.id &&
-              getSourceType(item) ===
-                sourceType
+              getSourceType(item) === sourceType
           );
 
-          const videoIsFavorite =
-  isFavorite(video.id);
+          const videoIsFavorite = isFavorite(video.id);
 
           return (
             <article
               className="video-card"
-              key={video.id}
+              key={`${sourceType}-${video.id}`}
             >
               <img
                 src={
@@ -97,9 +89,7 @@ function SearchTab({
                         : "result-source-badge tube"
                     }
                   >
-                    {isUsb
-                      ? "USB"
-                      : "TUBE"}
+                    {isUsb ? "USB" : "TUBE"}
                   </span>
                 </div>
 
@@ -107,74 +97,70 @@ function SearchTab({
 
                 <p>
                   {video.channel ||
-                    (isUsb
-                      ? "USB Storage"
-                      : "YouTube")}
+                    (isUsb ? "USB Storage" : "YouTube")}
                 </p>
 
                 <div className="card-actions">
-                  {!currentSong && (
-                    <button
-                      className="button primary"
-                      onClick={() =>
-                        addToQueue(
-                          video,
-                          true
-                        )
-                      }
-                      disabled={isInQueue}
-                    >
-                      {isInQueue
-                        ? "✓ IN QUEUE"
-                        : "▶ Play"}
-                    </button>
-                  )}
-
+                  {/* PLAY = PLAY NOW
+                      Never add to queue */}
                   <button
-                    className="button ghost"
-                    onClick={() =>
-                      addToQueue(video)
-                    }
-                    disabled={
-                      isNowPlaying ||
-                      isInQueue
-                    }
+                    type="button"
+                    className="button primary"
+                    onClick={() => {
+                      addToQueue(video, true);
+                    }}
+                    disabled={isNowPlaying}
                   >
                     {isNowPlaying
                       ? "🎵 NOW PLAYING"
-                      : isInQueue
-                        ? "✓ IN QUEUE"
-                        : "+ Queue"}
+                      : "▶ Play"}
                   </button>
 
+                  {/* QUEUE = ADD TO QUEUE ONLY */}
                   <button
-  type="button"
-  className={
-    videoIsFavorite
-      ? "favorite-button is-favorite"
-      : "favorite-button"
-  }
-  onClick={() =>
-    toggleFavorite(video)
-  }
->
-  <span className="favorite-star">
-    {videoIsFavorite ? "★" : "☆"}
-  </span>
+                    type="button"
+                    className="button ghost"
+                    onClick={() => {
+                      addToQueue(video, false);
+                    }}
+                    disabled={
+                      isNowPlaying || isInQueue
+                    }
+                  >
+                    {isInQueue
+                      ? "✓ IN QUEUE"
+                      : "+ Queue"}
+                  </button>
 
-  <span>
-    {videoIsFavorite
-      ? "Saved"
-      : "Favorite"}
-  </span>
+                  {/* FAVORITE */}
+                  <button
+                    type="button"
+                    className={
+                      videoIsFavorite
+                        ? "favorite-button is-favorite"
+                        : "favorite-button"
+                    }
+                    onClick={() =>
+                      toggleFavorite(video)
+                    }
+                  >
+                    <span className="favorite-star">
+                      {videoIsFavorite ? "★" : "☆"}
+                    </span>
 
-  {!videoIsFavorite &&
-    favoritesFull && (
-      <span className="favorite-full-dot">
-        ●
-      </span>
-    )}
-</button>
+                    <span>
+                      {videoIsFavorite
+                        ? "Saved"
+                        : "Favorite"}
+                    </span>
+
+                    {!videoIsFavorite &&
+                      favoritesFull && (
+                        <span className="favorite-full-dot">
+                          ●
+                        </span>
+                      )}
+                  </button>
                 </div>
               </div>
             </article>
@@ -186,12 +172,11 @@ function SearchTab({
         <div className="empty-state">
           <span>🎤</span>
 
-          <h3>
-            သီချင်းရှာရန်အသင့်
-          </h3>
+          <h3>သီချင်းရှာရန်အသင့်</h3>
 
           <p>
-            ခင်သူဇာလှိုင်၏ HOME KARAOKE မှ လှိုက်လဲစွာ ကြိုဆိုပါသည်။
+            ခင်သူဇာလှိုင်၏ HOME KARAOKE မှ
+            လှိုက်လဲစွာ ကြိုဆိုပါသည်။
           </p>
         </div>
       )}
