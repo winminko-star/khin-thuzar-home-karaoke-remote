@@ -573,6 +573,7 @@ const usbTransferTimeoutRef = useRef(null);
   const currentIndexRef = useRef(currentIndex);
   const repeatModeRef = useRef(repeatMode);
   const queueReloadTimerRef = useRef(null);
+  const videoEndedProcessingRef = useRef(false);
   const stateReloadTimerRef = useRef(null);
   const fastReSingConfirmRef = useRef(false);
 const fastReSingConfirmTimerRef = useRef(null);
@@ -2038,13 +2039,24 @@ const requestUsbSongs =
   sendCommand
 ]);
 
-  async function handleVideoEnded() {
-    if (repeatModeRef.current === "one" && currentSongRef.current) {
+ async function handleVideoEnded() {
+  if (videoEndedProcessingRef.current) {
+    return;
+  }
+
+  videoEndedProcessingRef.current = true;
+
+  try {
+    if (
+      repeatModeRef.current === "one" &&
+      currentSongRef.current
+    ) {
       sendCommand("LOAD_AND_PLAY", {
         video: currentSongRef.current,
         queue: queueRef.current,
         index: -1
       });
+
       return;
     }
 
@@ -2055,8 +2067,16 @@ const requestUsbSongs =
 
     await savePlaybackState(null);
     sendCommand("STOP");
-    setMessage("Queue ထဲက သီချင်းအားလုံး ပြီးပါပြီ။");
+
+    setMessage(
+      "Queue ထဲက သီချင်းအားလုံး ပြီးပါပြီ။"
+    );
+  } finally {
+    window.setTimeout(() => {
+      videoEndedProcessingRef.current = false;
+    }, 1500);
   }
+} 
 
   async function playQueueIndex(index) {
   const selected = queueRef.current[index];
