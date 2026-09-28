@@ -3269,11 +3269,12 @@ img {
 .card-actions .button.ghost {
   font-size: 20px;
   font-weight: 700;
-  animation: queueBlink 0.8s steps(1, end) infinite;
+  animation: queueBlink 3.5s ease-in-out infinite;
 }
 
 @keyframes queueBlink {
-  0% {
+  0%,
+  100% {
     background: #ffffff;
     color: #ff0000;
   }
