@@ -1004,8 +1004,46 @@ const queueChannel = supabase
     }
 
     if (payload?.type === "VIDEO_ENDED") {
-      handleVideoEnded();
-    }
+  // TV က queue ကို ကိုယ်တိုင် advance လုပ်ပြီးသား
+  if (payload?.handledByTv) {
+    const tvCurrentSong =
+      payload?.currentSong || null;
+
+    const tvQueue =
+      Array.isArray(payload?.queue)
+        ? payload.queue
+        : [];
+
+    currentSongRef.current =
+      tvCurrentSong;
+
+    setCurrentSong(
+      tvCurrentSong
+    );
+
+    queueRef.current =
+      tvQueue;
+
+    setQueue(
+      tvQueue
+    );
+
+    currentIndexRef.current = -1;
+
+    setCurrentIndex(-1);
+
+    setMessage(
+      tvCurrentSong
+        ? "TV က Queue နောက်သီချင်းကို အလိုအလျောက်ဖွင့်လိုက်ပါပြီ။"
+        : "Queue ထဲက သီချင်းအားလုံး ပြီးပါပြီ။"
+    );
+
+    return;
+  }
+
+  // Old TV / backward compatibility
+  handleVideoEnded();
+}
     if (payload?.type === "TV_STATE") {
   const tvCurrentSong =
     payload?.currentSong || null;
